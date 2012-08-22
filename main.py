@@ -7,9 +7,6 @@ from database import Users, Docs, Comments
 template_dir = os.path.join(os.path.dirname(__file__), 'templates')
 jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir), autoescape=True)
 
-#### should emails be public? if not we need a private message system... ####
-# no they should probably be private
-
 class PageHandler(webapp2.RequestHandler):
 	'''Parent class for all handlers, shortens functions'''
 	def write(self, content):
