@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>{% block title %}{% endblock %}</title>
+	<link type="text/css" rel="stylesheet" href="/static/css/bootstrap.css">
+	<link type ="text/css" rel="stylesheet" href="/static/css/bootstrap-responsive.css">
+	<link type ="text/css" rel="stylesheet" href="/static/css/font-awesome.css">
+	<link href='http://fonts.googleapis.com/css?family=Nothing+You+Could+Do' rel='stylesheet' type='text/css'>
+	<script src="/static/js/jquery.js"></script>
+</head>
+
+<body background="/static/img/bg4.png">
+	<script src="/static/js/bootstrap.js"></script>
+
+	<!-- Nav Bar -->
+	<div class="navbar navbar-fixed-top">
+		<div class="navbar-inner">
+			<div class="container">
+				<a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+				</a>
+				<a class="brand logo" href="/">Midday Dove <i class="icon-leaf leaf"></i>
+				</a>
+				<div class="nav-collapse collapse">
+					<ul class="nav">
+						{% block nav_links %}{% endblock %}
+					</ul>
+					<span class="navbar-form pull-right">
+						{% if signed_in %}
+							<a href="preferences" class="btn btn-info">Preferences</a>
+							<a href="logout" class="btn btn-inverse">Log Out</a>
+						{% else %}
+							<a href="#signup" role="button" class="btn" data-toggle="modal">Sign Up</a>
+							<a href="#login" role="button" class="btn btn-inverse" data-toggle="modal">Log In</a>
+						{% endif %}
+					</span>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- End Nav Bar -->
+
+	<!-- Sign Up Modal -->
+	<div id="signup" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+		<form method="post">
+	        <div class="modal-header">
+	              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+	              <h3 id="myModalLabel">Create an Account</h3>
+	        </div>
+	        <div class="modal-body">
+			
+					<div class="row">
+						<div class="span2">Email</div>
+						<div class="span3"><input name="email" type="text" value="{{email}}"></div>
+						<div class="span3 alert alert-error" {% if not email_error %}style="display: none;"{% endif %}>{{email_error}}</div>
+					</div>
+					<div class="row">
+						<div class="span2">Password</div>
+						<div class="span3"><input name="password" type="password"></div>
+						<div class="span3 alert alert-error" {% if not password_error %}style="display: none;"{% endif %}>{{password_error}}</div>
+					</div>
+					<div class="row">
+						<div class="span2">Verify Password</div>
+						<div class="span3"><input name="verify" type="password"></div>
+						<div class="span3 alert alert-error" {% if not verify_error %}style="display: none;"{% endif %}>{{verify_error}}</div>
+					</div>
+					<div class="row">
+						<div class="span2">School</div>
+						<div class="span3"><div class="input-large uneditable-input">Bergen County Academies</div></div>
+					</div>
+					<div class="row">
+						<div class="span2">Grade</div>
+						<div class="span3">
+							<select name="grade">
+								<option>9th</option>
+								<option>10th</option>
+								<option>11th</option>
+								<option>12th</option>
+							</select>
+						</div>
+					</div>
+					<div class="row">
+						<div class="span2">Academy</div>
+						<div class="span3">
+							<select name="academy">
+								<option>AAST</option>
+								<option>ABF</option>
+								<option>ACHA</option>
+								<option>AEDT</option>
+								<option>AMST</option>
+								<option>ATCS</option>
+								<option>AVPA</option>
+							</select>
+						</div>
+					</div>
+
+					<br/>
+
+					<label class="checkbox" >
+						<input type="checkbox" name="agree"> I agree to the Midday Dove <a href="tos">Terms of Service</a>
+					</label>
+        	</div>
+        	<div class="modal-footer">
+        		<div style="float:left;">
+        			<a href="#login" role="button" data-toggle="modal">Already signed up?</a>
+        		</div>
+        		<input class="btn btn-primary" type="submit">
+				<button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+			</div>
+        </form>
+    </div>
+	<!-- End Sign Up Modal -->
+
+	<!-- Log In Modal -->
+	<div id="login" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+		<form method="post">
+	        <div class="modal-header">
+	              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+	              <h3 id="myModalLabel">Log In</h3>
+	        </div>
+	        <div class="modal-body">
+				<div class="row">
+					<div class="span2">Email</div>
+					<div class="span3"><input name="username" type="text" value="{{email}}"></div>
+					<div class="span3 alert alert-error" {% if not email_error %}style="display: none;"{% endif %}>{{email_error}}</div>
+				</div>
+				<div class="row">
+					<div class="span2">Password</div>
+					<div class="span3"><input name="password" type="password"></div>
+					<div class="span3 alert alert-error" {% if not password_error %}style="display: none;"{% endif %}>{{password_error}}</div>
+				</div>
+				<div class="row">
+					<div class="span2">&nbsp;</div>
+					<div class="span3">
+						<label class="checkbox">
+				        	<input type="checkbox"> Remember me
+				      	</label>
+				    </div>
+				</div>	
+			</div>
+			<div class="modal-footer">
+				<div style="float:left;">
+        			<a href="#signup" role="button" data-toggle="modal">Need an account?</a>
+        		</div>
+				<input class="btn btn-primary" type="submit"> 
+				<button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+			</div>
+		</form>
+	</div>
+	<!-- End Log In Modal -->
+
+	<!-- Page Content -->
+	{% block page_content %}{% endblock %}
+	<!-- End Page Content -->
+
+	<!-- Footer -->
+	<div class="footer">
+		Copyright 2012 All Rights Reserved
+	</div>
+	<!-- End Footer -->
+</body>
+</html>

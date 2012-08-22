@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Midday Dove{% endblock %}
+{% block nav_links %}
+	<li class="active"><a href="#">Home</a></li>
+	<li><a href="/guides">Guides</a></li>
+	<li><a href="/about">About</a></li>
+	<li><a href="/contact">Contact</a></li>
+{% endblock %}
+
+{% block page_content %}
+	<div class="container">
+		<!-- Dashboard -->
+		<br/>
+		<div class="well">
+			<h1 class="textcenter logo">Midday Dove <i class="icon-leaf leaf" style="text-color:green;"></i></h1>
+			<center>
+				<form class="form-search">
+					<input type="text" class="input-xlarge search-query" placeholder="Title, Subject, Teacher, etc...">
+					<button type="submit" class="btn">Search</button>
+				</form>
+			</center>
+			<br/>
+			<h1>{{ username }}</h1>
+			<hr>
+			<div class="row">
+				<h3 class="span2">Score:</h3>
+				<h3 class="span2">{{ score }}</h3>
+			</div>
+			<br/>
+			<ul class="nav nav-tabs">
+				<li class="active">
+					<a href="#">Notifications</a>
+				</li>
+				<li><a href="#">Inbox</a></li>
+				<li><a href="#">Submitted</a></li>
+				<li><a href="#">Favorites</a></li>
+			</ul>
+		</div>
+		<!-- End Dashboard -->
+
+		<!-- Progress Bar -->
+		<div class="progress progress-striped active">
+			<div class="bar" style="width: 20%;"></div>
+		</div>
+		<p style="text-align: right;">We're currently 20% done.</p>
+		<!--End Progress Bar -->
+	</div>
+{% endblock %}

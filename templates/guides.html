@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+{% block title %}Study Guides{% endblock %}
+{% block nav_links %}
+	<li><a href="/">Home</a></li>
+	<li class="active"><a href="#">Guides</a></li>
+	<li><a href="/about">About</a></li>
+	<li><a href="/contact">Contact</a></li>
+{% endblock %}
+
+{% block page_content %}
+	<div class="container">
+		<div class="hero-unit normalhero">
+			<h1>Study Guides</h1>
+			<hr>
+			<center>
+				<form class="form-search">
+					<input type="text" class="input-xlarge search-query" placeholder="Search All Materials">
+					<button type="submit" class="btn">Search</button>
+				</form>
+			</center>
+			<ul class="nav nav-tabs">
+				<li class="active">
+					<a href="#">Top</a>
+				</li>
+				<li><a href="#">Subject</a></li>
+				<li><a href="#">Teacher</a></li>
+			</ul>
+			<h2 class="textcenter">Top Guides</h2>
+			<br />
+			<table class="table-hover">
+				<thead>
+					<tr>
+						<th>&nbsp;</th>
+						<th>#</th>
+						<th>Title</th>
+						<th>Subject</th>
+						<th>Uploader</th>
+						<th>Teacher</th>					
+						<th>Upvotes</th>
+						<th>Downloads</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>
+							<div class="btn-group btn-group btn-group-vertical">
+								<button class="btn btn-mini"><i class="icon-caret-up"></i></button>
+								<button class="btn btn-mini"><i class="icon-caret-down"></i></button>
+							</div>
+							&nbsp;&nbsp;
+						</td>
+						<td>1</td>
+						<td><a href="#">Derivatives and Shit</a></td>
+						<td>AP Calculus BC</td>
+						<td>spez</td>
+						<td>Robinson</td>
+						<td>1401</td>
+						<td>2516</td>
+					</tr>
+					<tr>
+						<td>
+							<div class="btn-group btn-group btn-group-vertical">
+								<button class="btn btn-mini"><i class="icon-caret-up"></i></button>
+								<button class="btn btn-mini"><i class="icon-caret-down"></i></button>
+							</div>
+							&nbsp;&nbsp;
+						</td>
+						<td>2</td>
+						<td><a href="#">I Hate Integrals</a></td>
+						<td>AP Calculus BC</td>						
+						<td>spez</td>
+						<td>Robinson</td>
+						<td>1401</td>
+						<td>2516</td>
+					</tr>
+					<tr>
+						<td>
+							<div class="btn-group btn-group btn-group-vertical">
+								<button class="btn btn-mini"><i class="icon-caret-up"></i></button>
+								<button class="btn btn-mini"><i class="icon-caret-down"></i></button>
+							</div>
+							&nbsp;&nbsp;
+						</td>
+						<td>3</td>
+						<td><a href="#">Taylor Series</a></td>
+						<td>AP Calculus BC</td>						
+						<td>spez</td>
+						<td>Robinson</td>
+						<td>1401</td>
+						<td>2516</td>
+					</tr>	
+					<tr>
+						<td>
+							<div class="btn-group btn-group btn-group-vertical">
+								<button class="btn btn-mini"><i class="icon-caret-up"></i></button>
+								<button class="btn btn-mini"><i class="icon-caret-down"></i></button>
+							</div>
+							&nbsp;&nbsp;
+						</td>
+						<td>4</td>
+						<td><a href="#">Final</a></td>
+						<td>AP Calculus BC</td>
+						<td>spez</td>
+						<td>Robinson</td>
+						<td>1401</td>
+						<td>2516</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+{% endblock %}

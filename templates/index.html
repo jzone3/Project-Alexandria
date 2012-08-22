@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Midday Dove{% endblock %}
+{% block nav_links %}
+	<li class="active"><a href="#">Home</a></li>
+	<li><a href="/guides">Guides</a></li>
+	<li><a href="/about">About</a></li>
+	<li><a href="/contact">Contact</a></li>
+{% endblock %}
+
+{% block page_content %}
+	<div class="container">
+		<!-- Hero Unit -->
+		<div class="hero-unit">
+			<h1 class="textcenter logo">Midday Dove <i class="icon-leaf leaf" style="text-color:green;"></i></h1>
+			<br />
+			<p class="textcenter">Praesent faucibus, sapien non adipiscing eleifend, ipsum magna rhoncus turpis, sed suscipit orci neque non turpis. Praesent bibendum ultrices sodales. Sed vehicula varius quam vitae ullamcorper. It's fucking awesome.</p>
+			<center>
+			<a class="btn introbtn btn-large btn-primary" href="#signup" role="button" data-toggle="modal">Join the Revolution</a>
+			</center>
+		</div>
+		<!-- End Hero Unit -->
+
+		<!-- Progress Bar -->
+		<div class="progress progress-striped active">
+			<div class="bar" style="width: 21%;"></div>
+		</div>
+		<p style="text-align: right;">We're currently 21% done.</p>
+		<!--End Progress Bar -->
+	</div>
+{% endblock %}
