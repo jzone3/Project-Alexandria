@@ -19,7 +19,7 @@ class Docs(db.Model):
 	school       = db.StringProperty(required = True)
 	points       = db.IntegerProperty(required = True)
 	edit_link    = db.StringProperty(required = True)
-	locked       = db.VooleanProperty(required = True)
+	locked       = db.BooleanProperty(required = True)
 	user_created = db.StringProperty(required = True)    
 	date_created = db.DateTimeProperty(auto_now_add = True)
 
