@@ -24,7 +24,7 @@
 						<span class="icon-bar"></span>
 						<span class="icon-bar"></span>
 					</a>
-					<a class="brand logo" href="/">Midday Dove <i class="icon-leaf leaf"></i>
+					<a class="brand logo" href="/">Project Alexandria
 					</a>
 					<div class="nav-collapse collapse">
 						<ul class="nav">
@@ -62,37 +62,50 @@
 		        <div class="modal-body">
 				
 						<div class="row">
-							<div class="span2">Email</div>
-							<div class="span3"><input name="email" type="text" value="{{email}}"></div>
-							<div class="span3 alert alert-error" {% if not email_error %}style="display: none;"{% endif %}>{{email_error}}</div>
+							<div class="span2">Username</div>
+							<div class="span3"><input type="text" name="username" type="text" value="{{username}}"></div>
 						</div>
+						<div class="alert alert-error" {% if not username_error %}style="display: none;"{% endif %}>{{username_error}}</div>
+						<div class="row">
+							<div class="span2">Email</div>
+							<div class="span3"><input type="text" name="email" type="text" value="{{email}}"></div>
+						</div>
+						<div class="alert alert-error" {% if not email_error %}style="display: none;"{% endif %}>{{email_error}}</div>
 						<div class="row">
 							<div class="span2">Password</div>
 							<div class="span3"><input name="password" type="password"></div>
-							<div class="span3 alert alert-error" {% if not password_error %}style="display: none;"{% endif %}>{{password_error}}</div>
 						</div>
+						<div class="alert alert-error" {% if not password_error %}style="display: none;"{% endif %}>{{password_error}}</div>
 						<div class="row">
 							<div class="span2">Verify Password</div>
 							<div class="span3"><input name="verify" type="password"></div>
-							<div class="span3 alert alert-error" {% if not verify_error %}style="display: none;"{% endif %}>{{verify_error}}</div>
 						</div>
+						<div class="alert alert-error" {% if not verify_error %}style="display: none;"{% endif %}>{{verify_error}}</div>
 						<div class="row">
 							<input name="school" type="hidden" value="Bergen County Academies">
 							<div class="span2">School</div>
-							<div class="span3"><div class="input-large uneditable-input">Bergen County Academies</div></div>				
+							<!-- <div class="span3"><div class="input-large uneditable-input">Bergen County Academies</div></div> -->
+							<div class="span3"><input type="text" name="school" value="{{school}}"></div>
+							<!-- Make this into a dropdown (so as typing it suggests schools already in database) -->
 						</div>
+						<div class="alert alert-error" {% if not school_error %}style="display: none;"{% endif %}>{{school_error}}</div>
 						<div class="row">
 							<div class="span2">Grade</div>
 							<div class="span3">
 								<select name="grade">
-									<option>9th</option>
-									<option>10th</option>
-									<option>11th</option>
-									<option>12th</option>
+									<option value="6">6th</option>
+									<option value="7">7th</option>
+									<option value="8">8th</option>
+									<option value="9" selected="selected">9th</option>
+									<option value="10">10th</option>
+									<option value="11">11th</option>
+									<option value="12">12th</option>
+									<option value="Later">Later</option>
 								</select>
 							</div>
 						</div>
-						<div class="row">
+						<div class="alert alert-error" {% if not year_error %}style="display: none;"{% endif %}>{{year_error}}</div>
+<!-- 						<div class="row">
 							<div class="span2">Academy</div>
 							<div class="span3">
 								<select name="academy">
@@ -105,13 +118,15 @@
 									<option>AVPA</option>
 								</select>
 							</div>
-						</div>
+						</div> -->
 
 						<br/>
 
 						<label class="checkbox" >
-							<input type="checkbox" name="agree"> I agree to the Midday Dove <a href="tos">Terms of Service</a>
+							<input type="checkbox" name="agree"> I agree to the Project Alexandria <a href="tos">Terms of Service</a>
 						</label>
+						<div class="alert alert-error" {% if not agree_error %}style="display: none;"{% endif %}>{{agree_error}}</div>
+
 	        	</div>
 	        	<div class="modal-footer">
 	        		<div style="float:left;">
@@ -120,13 +135,14 @@
 	        		<input class="btn btn-primary" type="submit">
 					<button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
 				</div>
+				<input type="hidden" name="which" value="signup">
 	        </form>
 	    </div>
 		<!-- End Sign Up Modal -->
 
 		<!-- Log In Modal -->
 		<div id="login" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-			<form method="post">
+			<form method="post" action="/">
 				<input name="formname" type="hidden" value="login">
 		        <div class="modal-header">
 		              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
@@ -134,9 +150,9 @@
 		        </div>
 		        <div class="modal-body">
 					<div class="row">
-						<div class="span2">Email</div>
-						<div class="span3"><input name="username" type="text" value="{{email}}"></div>
-						<div class="span3 alert alert-error" {% if not email_error %}style="display: none;"{% endif %}>{{email_error}}</div>
+						<div class="span2">Username</div>
+						<div class="span3"><input name="username" type="text" value="{{username}}"></div>
+						<div class="span3 alert alert-error" {% if not username_error %}style="display: none;"{% endif %}>{{username_error}}</div>
 					</div>
 					<div class="row">
 						<div class="span2">Password</div>
@@ -159,6 +175,7 @@
 					<input class="btn btn-primary" type="submit"> 
 					<button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
 				</div>
+				<input type="hidden" name="which" value="login">
 			</form>
 		</div>
 		<!-- End Log In Modal -->

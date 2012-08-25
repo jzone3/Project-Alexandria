@@ -3,10 +3,7 @@ from google.appengine.ext import db
 class Users(db.Model):
 	username     = db.StringProperty(required = True)
 	email        = db.StringProperty(required = True)
-	pw_hash      = db.StringProperty(required = True)
-	salt         = db.StringProperty(required = True)
 	school       = db.StringProperty(required = True)
-	academy      = db.StringProperty(required = False)
 	grade        = db.IntegerProperty(required = True)
 	score        = db.IntegerProperty(required = True) 
 	confirmed    = db.BooleanProperty(required = True) 
