@@ -530,7 +530,7 @@ h3 {
 }
 h4 {
   font-size: 18px;
-  line-height: 20px;
+  line-height: 18px;
 }
 h5 {
   font-size: 14px;
@@ -901,7 +901,7 @@ table {
 }
 .table-hover tbody tr:hover td,
 .table-hover tbody tr:hover th {
-  background-color: #f5f5f5;
+  background-color: #DFDFDF;
 }
 table [class*=span],
 .row-fluid table [class*=span] {
@@ -5285,4 +5285,8 @@ body {
 .table-hover {
   width:100%;
   text-align:left;
+}
+
+h4 {
+  margin: 5px 0;
 }

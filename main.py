@@ -12,12 +12,12 @@ class PageHandler(webapp2.RequestHandler):
 	def write(self, content):
 		return self.response.out.write(content)
 
+	def rget(self, name):
+		return self.request.get(name)
+
 	def render(self, template, params={}):
 		template = jinja_env.get_template(template)
 		self.response.out.write(template.render(params))
-
-	def make_salt():
-	    return ''.join(random.choice(string.letters) for x in xrange(5))
 
 class MainHandler(PageHandler):
 	'''Handles homepage: index.html'''
@@ -29,6 +29,22 @@ class MainHandler(PageHandler):
 			self.render('dashboard.html')
 		else:
 			self.render('index.html')
+
+	def post(self):
+		if self.rget('formname') == 'signup':
+			email   = self.rget('email')
+			pw      = self.rget('password')
+			v_pw    = self.rget('verify')
+			school  = self.rget('school')
+			grade   = self.rget('grade')
+			academy = self.rget('academy')
+			agree   = self.rget('agree')
+
+			self.write([email, pw, v_pw, school, grade, academy, agree])
+		elif self.rget('formname') == 'login':
+			pass
+		else:
+			self.error(404)
 
 class GuidesHandler(PageHandler):
 	'''Handles guides: guides.html'''

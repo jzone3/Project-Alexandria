@@ -45,9 +45,16 @@
 		</div>
 		<!-- End Nav Bar -->
 
+		<!-- BG Switcher -->
+		<div>
+			<!-- to be implemented -->
+		</div>
+		<!-- End BG Switcher -->
+
 		<!-- Sign Up Modal -->
 		<div id="signup" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
 			<form method="post">
+				<input name="formname" type="hidden" value="signup">
 		        <div class="modal-header">
 		              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
 		              <h3 id="myModalLabel">Create an Account</h3>
@@ -70,8 +77,9 @@
 							<div class="span3 alert alert-error" {% if not verify_error %}style="display: none;"{% endif %}>{{verify_error}}</div>
 						</div>
 						<div class="row">
+							<input name="school" type="hidden" value="Bergen County Academies">
 							<div class="span2">School</div>
-							<div class="span3"><div class="input-large uneditable-input">Bergen County Academies</div></div>
+							<div class="span3"><div class="input-large uneditable-input">Bergen County Academies</div></div>				
 						</div>
 						<div class="row">
 							<div class="span2">Grade</div>
@@ -119,6 +127,7 @@
 		<!-- Log In Modal -->
 		<div id="login" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
 			<form method="post">
+				<input name="formname" type="hidden" value="login">
 		        <div class="modal-header">
 		              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
 		              <h3 id="myModalLabel">Log In</h3>
