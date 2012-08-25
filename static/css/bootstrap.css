@@ -5290,3 +5290,11 @@ body {
 h4 {
   margin: 5px 0;
 }
+
+.row-fluid .span4{
+  margin: 10px;
+}
+
+.span4:hover{
+  background-color: #DFDFDF;
+}

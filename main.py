@@ -173,9 +173,15 @@ class TeamHandler(PageHandler):
 	def get(self):
 		self.render('team.html')
 
+class DashboardHandler(PageHandler):
+	'''Handlers dashboard: dashboard.html'''
+	def get(self):
+		self.render('dashboard.html')
+
 app = webapp2.WSGIApplication([('/?', MainHandler),
 							   ('/about', AboutHandler),
 							   ('/guides', GuidesHandler),
 							   ('/contact', ContactHandler),
-							   ('/team', TeamHandler)
+							   ('/team', TeamHandler),
+							   ('/dashboard', DashboardHandler)
 							   ], debug=True)
