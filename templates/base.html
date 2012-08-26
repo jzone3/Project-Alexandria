@@ -13,9 +13,17 @@
 <body background="/static/img/bg5.png">
 	<script src="/static/js/bootstrap.js"></script>
 
-	<div class="wrapper">
+	<!-- Typeahead Script -->
+    <script type="text/javascript">	    
+        jQuery(document).ready(function() {
+            var alCities = ['Bergen County Academies'].sort();
+            $('#school').typeahead({source: alCities, items:5});
+        });
+	</script>
+	<!-- End Typeahead Script -->
 
-		<!-- Nav Bar -->
+	<div class="wrapper">
+	<!-- Nav Bar -->
 		<div class="navbar navbar-fixed-top">
 			<div class="navbar-inner">
 				<div class="container">
@@ -53,6 +61,7 @@
 
 		<!-- Sign Up Modal -->
 		<div id="signup" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+	    	
 			<form method="post">
 				<input name="formname" type="hidden" value="signup">
 		        <div class="modal-header">
@@ -60,72 +69,65 @@
 		              <h3 id="myModalLabel">Create an Account</h3>
 		        </div>
 		        <div class="modal-body">
-				
-						<div class="row">
-							<div class="span2">Username</div>
-							<div class="span3"><input type="text" name="username" type="text" value="{{username}}"></div>
-						</div>
-						<div class="alert alert-error" {% if not username_error %}style="display: none;"{% endif %}>{{username_error}}</div>
-						<div class="row">
-							<div class="span2">Email</div>
-							<div class="span3"><input type="text" name="email" type="text" value="{{email}}"></div>
-						</div>
-						<div class="alert alert-error" {% if not email_error %}style="display: none;"{% endif %}>{{email_error}}</div>
-						<div class="row">
-							<div class="span2">Password</div>
-							<div class="span3"><input name="password" type="password"></div>
-						</div>
-						<div class="alert alert-error" {% if not password_error %}style="display: none;"{% endif %}>{{password_error}}</div>
-						<div class="row">
-							<div class="span2">Verify Password</div>
-							<div class="span3"><input name="verify" type="password"></div>
-						</div>
-						<div class="alert alert-error" {% if not verify_error %}style="display: none;"{% endif %}>{{verify_error}}</div>
-						<div class="row">
-							<input name="school" type="hidden" value="Bergen County Academies">
-							<div class="span2">School</div>
-							<!-- <div class="span3"><div class="input-large uneditable-input">Bergen County Academies</div></div> -->
-							<div class="span3"><input type="text" name="school" value="{{school}}"></div>
-							<!-- Make this into a dropdown (so as typing it suggests schools already in database) -->
-						</div>
-						<div class="alert alert-error" {% if not school_error %}style="display: none;"{% endif %}>{{school_error}}</div>
-						<div class="row">
-							<div class="span2">Grade</div>
-							<div class="span3">
-								<select name="grade">
-									<option value="6">6th</option>
-									<option value="7">7th</option>
-									<option value="8">8th</option>
-									<option value="9" selected="selected">9th</option>
-									<option value="10">10th</option>
-									<option value="11">11th</option>
-									<option value="12">12th</option>
-									<option value="Later">Later</option>
-								</select>
+					<div class="row">
+						<div class="span2">Email</div>
+						<div class="span3"><input type="text" name="email" type="text" value="{{email}}"></div>
+					</div>
+					<div class="alert alert-error" {% if not email_error %}style="display: none;"{% endif %}>{{email_error}}</div>
+					<div class="row">
+						<div class="span2">Password</div>
+						<div class="span3"><input name="password" type="password"></div>
+					</div>
+					<div class="alert alert-error" {% if not password_error %}style="display: none;"{% endif %}>{{password_error}}</div>
+					<div class="row">
+						<div class="span2">Verify Password</div>
+						<div class="span3"><input name="verify" type="password"></div>
+					</div>
+					<div class="alert alert-error" {% if not verify_error %}style="display: none;"{% endif %}>{{verify_error}}</div>
+					<div class="row">
+						<input name="school" type="hidden" value="Bergen County Academies">
+						<div class="span2">School</div>
+						<!-- <div class="span3"><div class="input-large uneditable-input">Bergen County Academies</div></div> -->
+						<div class="span3"><input type="text" name="school" id="school" data-provide="typeahead" value="{{ school }}"></div>
+						
+
+						<!-- Make this into a dropdown (so as typing it suggests schools already in database) -->
+					</div>
+					<div class="alert alert-error" {% if not school_error %}style="display: none;"{% endif %}>{{school_error}}</div>
+					<div class="row">
+						<div class="span2">Grade</div>
+						<div class="span3">
+							<!-- MAKE THIS RADIOBUTTON GROUP A FORM! -->
+							<div class="btn-group" data-toggle="buttons-radio">
+							  <button type="button" class="btn">9th</button>
+							  <button type="button" class="btn">10th</button>
+							  <button type="button" class="btn">11th</button>
+							  <button type="button" class="btn">12th</button>
 							</div>
 						</div>
-						<div class="alert alert-error" {% if not year_error %}style="display: none;"{% endif %}>{{year_error}}</div>
+					</div>
+					<div class="alert alert-error" {% if not year_error %}style="display: none;"{% endif %}>{{year_error}}</div>
 <!-- 						<div class="row">
-							<div class="span2">Academy</div>
-							<div class="span3">
-								<select name="academy">
-									<option>AAST</option>
-									<option>ABF</option>
-									<option>ACHA</option>
-									<option>AEDT</option>
-									<option>AMST</option>
-									<option>ATCS</option>
-									<option>AVPA</option>
-								</select>
-							</div>
-						</div> -->
+						<div class="span2">Academy</div>
+						<div class="span3">
+							<select name="academy">
+								<option>AAST</option>
+								<option>ABF</option>
+								<option>ACHA</option>
+								<option>AEDT</option>
+								<option>AMST</option>
+								<option>ATCS</option>
+								<option>AVPA</option>
+							</select>
+						</div>
+					</div> -->
 
-						<br/>
+					<br/>
 
-						<label class="checkbox" >
-							<input type="checkbox" name="agree"> I agree to the Project Alexandria <a href="tos">Terms of Service</a>
-						</label>
-						<div class="alert alert-error" {% if not agree_error %}style="display: none;"{% endif %}>{{agree_error}}</div>
+					<label class="checkbox" >
+						<input type="checkbox" name="agree"> I agree to the Project Alexandria <a href="tos">Terms of Service</a>
+					</label>
+					<div class="alert alert-error" {% if not agree_error %}style="display: none;"{% endif %}>{{agree_error}}</div>
 
 	        	</div>
 	        	<div class="modal-footer">
@@ -150,9 +152,9 @@
 		        </div>
 		        <div class="modal-body">
 					<div class="row">
-						<div class="span2">Username</div>
-						<div class="span3"><input name="username" type="text" value="{{username}}"></div>
-						<div class="span3 alert alert-error" {% if not username_error %}style="display: none;"{% endif %}>{{username_error}}</div>
+						<div class="span2">Email</div>
+						<div class="span3"><input name="email" type="text" value="{{email}}"></div>
+						<div class="span3 alert alert-error" {% if not email_error %}style="display: none;"{% endif %}>{{email_error}}</div>
 					</div>
 					<div class="row">
 						<div class="span2">Password</div>
@@ -183,8 +185,6 @@
 		<!-- Page Content -->
 		{% block page_content %}{% endblock %}
 		<!-- End Page Content -->
-		<div class="push"></div>
-	</div>
 
 	<!-- Footer -->
 	<div class="sticky-footer" style="color: gray;">

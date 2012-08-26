@@ -5245,10 +5245,6 @@ body {
   padding: 40px;
 }
 
-#logo {
-  font-family: museo-slab, "Helvetica Neue", Helvetica, Arial, sans-serif;
-}
-
 .footer {
   font-size: 10px;
   position: absolute; 
@@ -5292,7 +5288,7 @@ h4 {
 }
 
 .row-fluid .span4{
-  margin: 10px;
+  padding: 10px;
 }
 
 .span4:hover{
