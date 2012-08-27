@@ -36,6 +36,7 @@ class PageHandler(webapp2.RequestHandler):
 		return hashlib.sha256(password + salt).hexdigest()
 
 	def logged_in(self):
+		return True
 		username = self.request.cookies.get('qwerty', '')
 		if username and not username == '':
 			name, hashed_name = username.split("|")
@@ -73,14 +74,14 @@ class MainHandler(PageHandler):
 			self.render('index.html', {'signed_in' : False})
 
 	def post(self):
-		which = self.request.get('which')
+		which = self.rget('which')
 
 		if which == 'login':
-			username, original_password = (self.request.get('username'), self.request.get('password'))
+			username, original_password = (self.rget('username'), self.rget('password'))
 			correct = False
 
 			if username != '' and original_password != '':
-				accounts = db.GqlQuery("SELECT * FROM Account WHERE username = '" + username.replace("'", "&lsquo;") + "'")
+				accounts = db.GqlQuery("SELECT * FROM Users WHERE username = '" + username.replace("'", "&lsquo;") + "'")
 
 				acc = accounts[0]
 				(db_password, salt) = (acc.password).split("|")
@@ -92,7 +93,7 @@ class MainHandler(PageHandler):
 			if not correct:
 				self.render('index.html', {'username' : username, 'wrong' : 'Invalid username and password!'})
 		elif which == 'signup':
-			username, password, verify, email, school, year, agree = (self.request.get('username'), self.request.get('password'), self.request.get('verify'), self.request.get('email'), self.request.get('school'), self.request.get('year'), self.request.get('agree'))
+			username, password, verify, email, school, year, agree = (self.rget('username'), self.rget('password'), self.rget('verify'), self.rget('email'), self.rget('school'), self.rget('year'), self.rget('agree'))
 			username_valid, password_valid, verify_valid, email_valid, school_valid, year_valid = (True, True, True, True, True, True)
 			username_error, password_error, verify_error, email_error, school_error, year_error, agree_error = ('', '', '', '', '', '', '')
 			
@@ -156,27 +157,27 @@ class MainHandler(PageHandler):
 class GuidesHandler(PageHandler):
 	'''Handles guides: guides.html'''
 	def get(self):
-		self.render('guides.html')
+		self.render('guides.html', {'signed_in':self.logged_in()})
 
 class AboutHandler(PageHandler):
 	'''Handles about: about.html'''
 	def get(self):
-		self.render('about.html')
+		self.render('about.html', {'signed_in':self.logged_in()})
 
 class ContactHandler(PageHandler):
 	'''Handles contact: contact.html'''
 	def get(self):
-		self.render('contact.html')
+		self.render('contact.html', {'signed_in':self.logged_in()})
 
 class TeamHandler(PageHandler):
 	'''Handles team: team.html'''
 	def get(self):
-		self.render('team.html')
+		self.render('team.html', {'signed_in':self.logged_in()})
 
 class DashboardHandler(PageHandler):
 	'''Handlers dashboard: dashboard.html'''
 	def get(self):
-		self.render('dashboard.html')
+		self.render('dashboard.html', {'signed_in':self.logged_in()})
 
 app = webapp2.WSGIApplication([('/?', MainHandler),
 							   ('/about', AboutHandler),

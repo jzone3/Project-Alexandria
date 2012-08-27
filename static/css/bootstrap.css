@@ -899,10 +899,6 @@ table {
 .table-striped tbody tr:nth-child(odd) th {
   background-color: #f9f9f9;
 }
-.table-hover tbody tr:hover td,
-.table-hover tbody tr:hover th {
-  background-color: #DFDFDF;
-}
 table [class*=span],
 .row-fluid table [class*=span] {
   display: table-cell;
@@ -5291,6 +5287,29 @@ h4 {
   padding: 10px;
 }
 
+.span4{
+  -moz-border-radius: 4px;
+  border-radius: 4px;
+}
+
 .span4:hover{
-  background-color: #DFDFDF;
+  background-color: #E8E8E8;
+}
+
+#navwelcome{
+  padding-right: 0px;
+}
+
+#navuser{
+  color: #08C;
+  padding:10px 5px;
+}
+
+h4{
+  margin:0px 0px 5px 0px;
+}
+
+.table-hover tbody tr:hover td,
+.table-hover tbody tr:hover th {
+  background-color: #E8E8E8;
 }
