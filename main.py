@@ -189,11 +189,17 @@ class GuidePageHandler(PageHandler):
 	def get(self, url):
 		self.render('guide_page.html', {'signed_in':self.logged_in()})
 
+class UserPageHandler(PageHandler):
+	'''Handlers custom user pages: user_page.html'''
+	def get(self, url):
+		self.render('user_page.html', {'signed_in':self.logged_in()})
+
 app = webapp2.WSGIApplication([('/?', MainHandler),
 							   ('/about', AboutHandler),
 							   ('/guides', GuidesHandler),
 							   ('/contact', ContactHandler),
 							   ('/team', TeamHandler),
 							   ('/dashboard', DashboardHandler),
-							   ('/guides' + PAGE_RE, GuidePageHandler)
+							   ('/guides' + PAGE_RE, GuidePageHandler),
+							   ('/user'+ PAGE_RE, UserPageHandler)
 							   ], debug=True)

@@ -5322,3 +5322,11 @@ textarea{
   width:450px;
   height:150px;
 }
+
+.userupvotes{
+  color:#25C29C;
+  font-size: 12px;
+}
+
+div.inline > h1,
+div.inline > span  { display: inline; }
