@@ -5,9 +5,16 @@ import secret
 import hmac
 import hashlib
 import re
+import urllib
 from google.appengine.ext import db
+import urllib2
+from cStringIO import StringIO
 
-from database import Users, Docs, Comments
+from google.appengine.api import urlfetch
+from google.appengine.ext import blobstore
+from google.appengine.ext import webapp
+from google.appengine.ext.webapp import blobstore_handlers
+from google.appengine.ext.webapp.util import run_wsgi_app
 
 template_dir = os.path.join(os.path.dirname(__file__), 'templates')
 jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir), autoescape=True)
@@ -194,6 +201,24 @@ class UserPageHandler(PageHandler):
 	def get(self, url):
 		self.render('user_page.html', {'signed_in':self.logged_in()})
 
+class UploadGuideHandler(PageHandler):
+	def get(self):
+		upload_url = blobstore.create_upload_url('/upload')
+		self.render("uploads.html", {'upload_url': upload_url, 'signed_in':self.logged_in()})
+
+
+class UploadHandler(blobstore_handlers.BlobstoreUploadHandler):
+	def post(self):
+		upload_files = self.get_uploads('file')  # 'file' is file upload field in the form
+		blob_info = upload_files[0]
+		self.redirect('/serve/%s' % blob_info.key())
+
+class ServeHandler(blobstore_handlers.BlobstoreDownloadHandler):
+	def get(self, resource):
+		resource = str(urllib.unquote(resource))
+		blob_info = blobstore.BlobInfo.get(resource)
+		self.send_blob(blob_info)
+
 app = webapp2.WSGIApplication([('/?', MainHandler),
 							   ('/about', AboutHandler),
 							   ('/guides', GuidesHandler),
@@ -201,5 +226,8 @@ app = webapp2.WSGIApplication([('/?', MainHandler),
 							   ('/team', TeamHandler),
 							   ('/dashboard', DashboardHandler),
 							   ('/guides' + PAGE_RE, GuidePageHandler),
-							   ('/user'+ PAGE_RE, UserPageHandler)
+							   ('/user'+ PAGE_RE, UserPageHandler),
+							   ('/uploads', UploadGuideHandler),
+							   ('/upload', UploadHandler),
+							   ('/serve/([^/]+)?', ServeHandler)
 							   ], debug=True)

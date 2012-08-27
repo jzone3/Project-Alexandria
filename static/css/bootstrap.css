@@ -5330,3 +5330,7 @@ textarea{
 
 div.inline > h1,
 div.inline > span  { display: inline; }
+
+div.row {
+  min-height: 39px;
+}
