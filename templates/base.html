@@ -43,14 +43,15 @@
 							{% if signed_in %}							
 								<li><a id="navwelcome">Welcome,</a></li>
 			                    <li id="fat-menu" class="dropdown">
-			                      <a href="#" id="navuser" role="button" class="dropdown-toggle" data-toggle="dropdown">User</a>
-			                      <ul class="dropdown-menu" role="menu" aria-labelledby="navuser">
-			                        <li><a tabindex="-1" href="#">Profile</a></li>
-			                        <li><a tabindex="-1" href="#">Inbox</a></li>
-			                        <li><a tabindex="-1" href="#">Preferences</a></li>
-			                        <li class="divider"></li>
-			                        <li><a tabindex="-1" href="#">Log Out</a></li>
-			                      
+			                      	<a href="#" id="navuser" role="button" class="dropdown-toggle" data-toggle="dropdown">User</a>
+				                    <ul class="dropdown-menu" role="menu" aria-labelledby="navuser">
+				                        <li><a tabindex="-1" href="#">Profile</a></li>
+				                        <li><a tabindex="-1" href="#">Inbox</a></li>
+				                        <li><a tabindex="-1" href="#">Preferences</a></li>
+				                        <li class="divider"></li>
+				                        <li><a tabindex="-1" href="#">Log Out</a></li>
+				                    </ul>
+				                </li>			                      
 							{% else %}
 								<a href="#signup" role="button" class="btn" data-toggle="modal">Sign Up</a>
 								<a href="#login" role="button" class="btn btn-inverse" data-toggle="modal">Log In</a>
