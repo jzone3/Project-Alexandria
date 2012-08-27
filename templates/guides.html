@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Study Guides - Project Alexandria{% endblock %}
+{% block title %}Study Guides{% endblock %}
 {% block nav_links %}
 	<li><a href="/">Home</a></li>
 	<li><a href="/dashboard">Dashboard</a></li>
@@ -11,34 +11,27 @@
 
 {% block page_content %}
 	<div class="container">
-		<br/><br/>
-		<div class="hero-unit normalhero">
-			<h1>Study Guides</h1>
-			<hr>
-			<div style="float: right;">
-				<form class="form-search">
-					<input type="text" class="input-xlarge search-query" placeholder="Search All Materials">
-					<button type="submit" class="btn">Search</button>
-				</form>
-			</div>
-			<form action="">
-				School: 
-				<select name="school">
-					<option value="all">All</option>
-					<option value="bergen county academies">Bergen County Academies</option>
-					<option value="bergen tech">Bergen Tech</option>
-					<option value="ramapo">Ramapo</option>
-					<option value="another high school">Another High School</option>
-				</select>
-			</form>
+		<div class="well">
+			<center>
+				<h1>Study Guides</h1>
+			</center>
+			<br/>
+
+			<!-- Tabs -->
 			<ul class="nav nav-tabs">
 				<li class="active">
 					<a href="#">Top</a>
 				</li>
 				<li><a href="#">Subject</a></li>
 				<li><a href="#">Teacher</a></li>
+				<form class="form-search" style="float:right;">
+					<input type="text" class="input-xlarge search-query" placeholder="Search All Materials">
+					<button class="btn">Search</button>
+				</form>
 			</ul>
-			<h2 class="textcenter">Top Guides</h2>
+			<!-- End Tabs -->
+
+			<h2>Top Guides</h2>
 			<br />
 			<table class="table-hover">
 				<thead>

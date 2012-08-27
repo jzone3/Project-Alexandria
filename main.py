@@ -7,11 +7,16 @@ import hashlib
 import re
 from google.appengine.ext import db
 
-
 from database import Users, Docs, Comments
 
 template_dir = os.path.join(os.path.dirname(__file__), 'templates')
 jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir), autoescape=True)
+
+USER_RE = re.compile(r"^[a-zA-Z0-9_-]{3,20}$")
+PASS_RE = re.compile(r"^.{3,20}$")
+EMAIL_RE = re.compile(r"^[\S]+@[\S]+\.[\S]+$")
+SCHOOL_RE= re.compile(r"^[a-zA-Z0-9 _]{1,30}$")
+PAGE_RE = r'(/(?:[a-zA-Z0-9_-]+/?)*)'
 
 class PageHandler(webapp2.RequestHandler):
 	'''Parent class for all handlers, shortens functions'''
@@ -97,19 +102,19 @@ class MainHandler(PageHandler):
 			username_valid, password_valid, verify_valid, email_valid, school_valid, year_valid = (True, True, True, True, True, True)
 			username_error, password_error, verify_error, email_error, school_error, year_error, agree_error = ('', '', '', '', '', '', '')
 			
-			if username != '' and not re.compile(r"^[a-zA-Z0-9_-]{3,20}$").match(username):
+			if username != '' and not USER_RE.match(username):
 				username_error = "That's not a valid username."
 				username_valid = False
-			if password != '' and not re.compile(r"^.{3,20}$").match(password):
+			if password != '' and not PASS_RE.match(password):
 				password_error = "That's not a valid password."
 				password_valid = False
 			if verify != password:
 				verify_error = "Your passwords didn't match."
 				verify_valid = False
-			if email != '' and not re.compile(r"^[\S]+@[\S]+\.[\S]+$").match(email):
+			if email != '' and not EMAIL_RE.match(email):
 				email_error = "That's not a valid email."
 				email_valid = False
-			if school != '' and not re.compile(r"^[a-zA-Z0-9 _]{1,30}$").match(school):
+			if school != '' and not SCHOOL_RE.match(school):
 				school_error = "That is not a valid school name"
 				school_valid = False
 			if year != '' and (not (year in (int(a) for a in range(6,12))) and year != 'Later'):
@@ -179,10 +184,16 @@ class DashboardHandler(PageHandler):
 	def get(self):
 		self.render('dashboard.html', {'signed_in':self.logged_in()})
 
+class GuidePageHandler(PageHandler):
+	'''Handlers custom guide pages: guide_page.html'''
+	def get(self, url):
+		self.render('guide_page.html', {'signed_in':self.logged_in()})
+
 app = webapp2.WSGIApplication([('/?', MainHandler),
 							   ('/about', AboutHandler),
 							   ('/guides', GuidesHandler),
 							   ('/contact', ContactHandler),
 							   ('/team', TeamHandler),
-							   ('/dashboard', DashboardHandler)
+							   ('/dashboard', DashboardHandler),
+							   ('/guides' + PAGE_RE, GuidePageHandler)
 							   ], debug=True)

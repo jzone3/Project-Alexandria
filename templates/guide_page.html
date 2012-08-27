@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}Integrals and Shit{% endblock %}
+
+{% block nav_links %}
+	<li><a href="/">Home</a></li>
+	<li><a href="/dashboard">Dashboard</a></li>
+	<li class="active"><a href="/guides">Guides</a></li>
+	<li><a href="/about">About</a></li>
+	<li><a href="/contact">Contact</a></li>
+	<li><a href="/team">Team</a></li>
+{% endblock %}
+
+{% block page_content %}
+	<div class="container">
+		<div class="well">
+
+			<div class="row-fluid">
+				<div class="span8">
+					<h1>Integrals and Shit</h1>
+					<h3><em>by <a href="#">spez</a></em></h3>
+					<h6> AP Calculus BC, Robinson </h6> 
+					<h5>
+						<a href="#">Edit</a> 
+						 |  
+						<a href="#">Download</a>
+					</h5>
+				</div>
+				<div class="span4">
+					<div class="btn-group btn-group-vertical" style="float:right;margin-top:10px;">
+					  <button class="btn btn-large"><i class="icon-caret-up"></i></button>
+					  <button class="btn btn-large"><i class="icon-caret-down"></i></button>
+					</div>
+					<div style="position:relative;top:90px;left:40px;text-align:right;"><h6>1242 Kudos</h6></div>
+				</div>
+			</div>
+			<hr>
+			<center><h4>Comments</h4></center>
+			<p>
+				<strong>spez: </strong>
+				this study guide is awesome!
+			</p>
+			<p>
+				<h6 style="font-weight:normal;"><em>10:51pm Sept 12, 2012</em></h6>
+			</p>
+			<p>
+				<strong>ksong: </strong>
+				@spez this study guide sucks!
+			</p>
+			<p>
+				<h6 style="font-weight:normal;"><em>10:51pm Sept 12, 2012</em></h6>
+			</p>
+			<form method="post">
+				<div><textarea name="comment" placeholder="Write a comment"></textarea></div>
+				<div><input type="button" class="btn" value="Submit"></div>
+			</form>
+		</div> 
+	</div>
+{% endblock %}

@@ -2538,8 +2538,8 @@ input[type="submit"].btn.btn-mini {
   border-radius: 6px;
 }
 .nav .dropdown-toggle .caret {
-  border-top-color: #0088cc;
-  border-bottom-color: #0088cc;
+  border-top-color: black;
+  border-bottom-color: black;
   margin-top: 6px;
 }
 .nav .dropdown-toggle:hover .caret {
@@ -5292,7 +5292,7 @@ h4 {
   border-radius: 4px;
 }
 
-.span4:hover{
+.tab-content .span4:hover{
   background-color: #E8E8E8;
 }
 
@@ -5312,4 +5312,13 @@ h4{
 .table-hover tbody tr:hover td,
 .table-hover tbody tr:hover th {
   background-color: #E8E8E8;
+}
+
+.well{
+  margin-top: 65px;
+}
+
+textarea{
+  width:450px;
+  height:150px;
 }
