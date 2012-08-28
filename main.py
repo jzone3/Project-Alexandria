@@ -36,9 +36,7 @@ class PageHandler(webapp2.RequestHandler):
 		return None
 
 	def render(self, template, params={}):
-		try:
-			x = params['signed_in']
-		except KeyError:
+		if params['signed_in'] is None:
 			params['signed_in'] = self.logged_in()
 			if params['signed_in']:
 				params['username'] = self.get_username()
