@@ -10,7 +10,6 @@ import urllib2
 import logging
 from cStringIO import StringIO
 import util
-
 from google.appengine.api import urlfetch
 from google.appengine.ext import blobstore
 from google.appengine.ext import webapp
@@ -19,8 +18,6 @@ from google.appengine.ext.webapp.util import run_wsgi_app
 
 template_dir = os.path.join(os.path.dirname(__file__), 'templates')
 jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir), autoescape=True)
-
-LOGIN_COOKIE_NAME = 'uohferrvnksj'
 
 class PageHandler(webapp2.RequestHandler):
 	'''Parent class for all handlers, shortens functions'''
@@ -31,7 +28,7 @@ class PageHandler(webapp2.RequestHandler):
 		return self.request.get(name)
 
 	def get_username(self):
-		username = self.request.cookies.get(LOGIN_COOKIE_NAME, '')
+		username = self.request.cookies.get(util.LOGIN_COOKIE_NAME, '')
 		if username and not username == '':
 			name, hashed_name = username.split("|")
 			return name
@@ -39,7 +36,7 @@ class PageHandler(webapp2.RequestHandler):
 
 	def render(self, template, params={}):
 		try:
-			params['signed_in']
+			x = params['signed_in']
 		except KeyError:
 			params['signed_in'] = self.logged_in()
 			if params['signed_in']:
@@ -48,13 +45,13 @@ class PageHandler(webapp2.RequestHandler):
 		self.response.out.write(template.render(params))
 
 	def logged_in(self):
-		username = self.request.cookies.get(LOGIN_COOKIE_NAME, '')
+		username = self.request.cookies.get(util.LOGIN_COOKIE_NAME, '')
 		if username and not username == '':
 			name, hashed_name = username.split("|")
 			if name and hashed_name and util.hash_str(name) == hashed_name:
 				return True
 			else:
-				self.delete_cookie(LOGIN_COOKIE_NAME)
+				self.delete_cookie(util.LOGIN_COOKIE_NAME)
 				return False
 		else:
 			return False
@@ -80,11 +77,16 @@ class MainHandler(PageHandler):
 		which = self.rget('which')
 
 		if which == 'login':
-			
+			username = self.rget('username')
 			key, value = util.check_login(username, self.rget('password'))
 
 			if key:
-				self.set_cookie(value)
+				if self.rget('remember') == 'on':
+					value = value + ' Expires=' + util.remember_me() + ' Path=/'
+					logging.error(value)
+					self.set_cookie(value)
+				else:
+					self.set_cookie(value + ' Path=/')
 				self.redirect('/')
 			else:
 				self.render('index.html', {'username' : username, 'wrong' : value})
@@ -122,7 +124,7 @@ class MainHandler(PageHandler):
 class LogoutHandler(PageHandler):
 	'''Handles logging out'''
 	def get(self):
-		self.delete_cookie(LOGIN_COOKIE_NAME)
+		self.delete_cookie(util.LOGIN_COOKIE_NAME)
 		self.redirect('/')
 
 class GuidesHandler(PageHandler):

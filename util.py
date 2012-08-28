@@ -5,6 +5,8 @@ import logging
 import string
 import secret
 import random
+import datetime
+import time
 from google.appengine.ext import db
 
 USER_RE = re.compile(r"^[a-zA-Z0-9_-]{3,20}$")
@@ -12,6 +14,7 @@ PASS_RE = re.compile(r"^.{3,20}$")
 EMAIL_RE = re.compile(r"^[\S]+@[\S]+\.[\S]+$")
 SCHOOL_RE= re.compile(r"^[a-zA-Z0-9 _]{1,30}$")
 PAGE_RE = r'(/(?:[a-zA-Z0-9_-]+/?)*)'
+LOGIN_COOKIE_NAME = 'uohferrvnksj'
 
 class Users(db.Model):
 	username     = db.StringProperty(required = True)
@@ -22,6 +25,10 @@ class Users(db.Model):
 	confirmed    = db.BooleanProperty(required = True) 
 	password     = db.StringProperty(required = True)
 	date_created = db.DateTimeProperty(auto_now_add = True)
+
+def remember_me():
+	expiration = datetime.datetime.now() + datetime.timedelta(days=50)
+	return expiration.strftime("%a, %d-%b-%Y %H:%M:%S PST")
 
 def hash_str(string):
 	return hmac.new(secret.SECRET, str(string), hashlib.sha512).hexdigest()
@@ -52,8 +59,8 @@ def check_login(username, password):
 			return [False, 'Username does not exist']
 		(db_password, salt) = (acc.password).split("|")
 
-		if salted_hash(original_password, salt) == db_password:
-			return [True, 'username=%s|%s; Path=/' % (str(username), str(self.hash_str(username)))]
+		if salted_hash(password, salt) == db_password:
+			return [True, '%s=%s|%s;' % (LOGIN_COOKIE_NAME, str(username), str(hash_str(username)))]
 	return [False, 'Invalid username and password!']
 
 def signup(username, password, verify, email, school, year, agree):
@@ -69,49 +76,36 @@ def signup(username, password, verify, email, school, year, agree):
 	
 	if username == '':
 		to_return['username'] = "Please enter a username"
-		logging.error("username")
 	elif not USER_RE.match(username):
 		to_return['username'] = "That's not a valid username."
-		logging.error("username")
 
 	
 	if password == '':
 		to_return['password'] = "Please enter a password"
-		logging.error("password")
 	elif not PASS_RE.match(password):
 		to_return['password'] = "That's not a valid password."
-		logging.error("password")
 	elif verify == '':
 		to_return['verify'] = "Please verify your password"
-		logging.error("password")
 	elif verify != password:
 		to_return['verify'] = "Your passwords didn't match."
-		logging.error("password")
 	
 	if email == '':
 		to_return['email'] = "Please enter a email"
-		logging.error("email")
 	elif not EMAIL_RE.match(email):
 		to_return['email'] = "That's not a valid email."
-		logging.error("email")
 	
 	if school == '':
 		to_return['school'] = "Please enter a school"
-		logging.error("school")
 	if not SCHOOL_RE.match(school):
 		to_return['school'] = "That is not a valid school name"
-		logging.error("school")
 	
 	if year == '':
 		to_return['year'] = "Please enter a year"
-		logging.error("year - none")
 	if not int(year) in [9,10,11,12]:
 		to_return['year'] = "That is not a valid grade level"
-		logging.error("year - invalid" + year)
 	
 	if agree != 'on':
 		agree_error = "You must agree to the Terms of Service to create an account"
-		logging.error("agree")
 	# self.write(username + ' ' + password + ' ' + verify + ' ' + email + ' ' + school + ' ' + year )
 
 	if len(to_return) == 1 and username != '' and password != '' and school != '' and year != '' and agree == 'on':

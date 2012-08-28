@@ -69,7 +69,7 @@
 		</div>
 		<!-- End BG Switcher -->
 
-		{% if logged_in %}
+		
 		<!-- Sign Up Modal -->
 		<div id="signup" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
 	    	
@@ -170,21 +170,26 @@
 					<div class="row">
 						<div class="span2">Username</div>
 						<div class="span3"><input name="username" type="text" value="{{username}}"></div>
-						<div class="span3 alert alert-error" {% if not username_error %}style="display: none;"{% endif %}>{{username_error}}</div>
 					</div>
 					<div class="row">
 						<div class="span2">Password</div>
 						<div class="span3"><input name="password" type="password"></div>
-						<div class="span3 alert alert-error" {% if not password_error %}style="display: none;"{% endif %}>{{password_error}}</div>
 					</div>
 					<div class="row">
 						<div class="span2">&nbsp;</div>
 						<div class="span3">
 							<label class="checkbox">
-					        	<input type="checkbox"> Remember me
+					        	<input type="checkbox" name="remember"> Remember me
 					      	</label>
 					    </div>
-					</div>	
+					</div>
+					{% if wrong %}
+					<div class="row">
+						<div class="span5">
+							<div class="span3 alert alert-error" style="margin-left: auto; width: 100%;">{{wrong}}</div>
+						</div>
+					</div>
+					{% endif %}
 				</div>
 				<div class="modal-footer">
 					<div style="float:left;">
@@ -196,7 +201,6 @@
 				<input type="hidden" name="which" value="login">
 			</form>
 		</div>
-		{% endif %}
 		<!-- End Log In Modal -->
 
 		<!-- Page Content -->
@@ -211,7 +215,7 @@
 		Copyright 2012 All Rights Reserved
 	</div>
 	<!-- End Footer -->
-{% if logged_in %}
+{% if signed_in %}
 jQuery(function($) {
   $('div.btn-group[data-toggle-name=*]').each(function(){
     var group   = $(this);
