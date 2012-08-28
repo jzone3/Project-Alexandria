@@ -43,7 +43,7 @@
 							{% if signed_in %}							
 								<li><a id="navwelcome">Welcome,</a></li>
 			                    <li id="fat-menu" class="dropdown">
-			                      	<a href="#" id="navuser" role="button" class="dropdown-toggle" data-toggle="dropdown">User</a>
+			                      	<a href="#" id="navuser" role="button" class="dropdown-toggle" data-toggle="dropdown">{{ username }}</a>
 				                    <ul class="dropdown-menu" role="menu" aria-labelledby="navuser">
 				                        <li><a tabindex="-1" href="#">Profile</a></li>
 				                        <li><a tabindex="-1" href="#">Inbox</a></li>
@@ -72,7 +72,7 @@
 		<!-- Sign Up Modal -->
 		<div id="signup" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
 	    	
-			<form method="post">
+			<form method="post" action="/">
 				<input name="formname" type="hidden" value="signup">
 		        <div class="modal-header">
 		              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
@@ -105,20 +105,20 @@
 						<!-- <div class="span3"><div class="input-large uneditable-input">Bergen County Academies</div></div> -->
 						<div class="span3"><input type="text" name="school" id="school" data-provide="typeahead" value="{{ school }}"></div>
 						
-
+						<!-- Turn browsers autocomplete feature off -->
 						<!-- Make this into a dropdown (so as typing it suggests schools already in database) -->
 					</div>
 					<div class="alert alert-error" {% if not school_error %}style="display: none;"{% endif %}>{{school_error}}</div>
 					<div class="row">
 						<div class="span2">Grade</div>
 						<div class="span3">
-							<!-- MAKE THIS RADIOBUTTON GROUP A FORM! -->
-							<div class="btn-group" data-toggle="buttons-radio">
-							  <button type="button" class="btn">9th</button>
-							  <button type="button" class="btn">10th</button>
-							  <button type="button" class="btn">11th</button>
-							  <button type="button" class="btn">12th</button>
+							<div class="btn-group" data-toggle="buttons-radio" data-toggle-name="year">
+							  <button type="button" class="btn" value="9">9th</button>
+							  <button type="button" class="btn" value="10">10th</button>
+							  <button type="button" class="btn" value="11">11th</button>
+							  <button type="button" class="btn" value="12">12th</button>
 							</div>
+							<input type="hidden" name="year" value="9">
 						</div>
 					</div>
 					<div class="alert alert-error" {% if not year_error %}style="display: none;"{% endif %}>{{year_error}}</div>
@@ -195,16 +195,39 @@
 				<input type="hidden" name="which" value="login">
 			</form>
 		</div>
+
 		<!-- End Log In Modal -->
 
 		<!-- Page Content -->
 		{% block page_content %}{% endblock %}
 		<!-- End Page Content -->
 
+		<div class="push"></div>
+	</div>
+
 	<!-- Footer -->
 	<div class="sticky-footer" style="color: gray;">
 		Copyright 2012 All Rights Reserved
 	</div>
 	<!-- End Footer -->
+
+jQuery(function($) {
+  $('div.btn-group[data-toggle-name=*]').each(function(){
+    var group   = $(this);
+    var form    = group.parents('form').eq(0);
+    var name    = group.attr('data-toggle-name');
+    var hidden  = $('input[name="' + name + '"]', form);
+    $('button', group).each(function(){
+      var button = $(this);
+      button.live('click', function(){
+          hidden.val($(this).val());
+      });
+      if(button.val() == hidden.val()) {
+        button.addClass('active');
+      }
+    });
+  });
+});
+
 </body>
 </html>
