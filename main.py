@@ -20,6 +20,8 @@ from google.appengine.ext.webapp.util import run_wsgi_app
 template_dir = os.path.join(os.path.dirname(__file__), 'templates')
 jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir), autoescape=True)
 
+LOGIN_COOKIE_NAME = 'uohferrvnksj'
+
 class PageHandler(webapp2.RequestHandler):
 	'''Parent class for all handlers, shortens functions'''
 	def write(self, content):
@@ -29,7 +31,7 @@ class PageHandler(webapp2.RequestHandler):
 		return self.request.get(name)
 
 	def get_username(self):
-		username = self.request.cookies.get('uohferrvnksj', '')
+		username = self.request.cookies.get(LOGIN_COOKIE_NAME, '')
 		if username and not username == '':
 			name, hashed_name = username.split("|")
 			return name
@@ -46,13 +48,13 @@ class PageHandler(webapp2.RequestHandler):
 		self.response.out.write(template.render(params))
 
 	def logged_in(self):
-		username = self.request.cookies.get('uohferrvnksj', '')
+		username = self.request.cookies.get(LOGIN_COOKIE_NAME, '')
 		if username and not username == '':
 			name, hashed_name = username.split("|")
 			if name and hashed_name and util.hash_str(name) == hashed_name:
 				return True
 			else:
-				self.delete_cookie('uohferrvnksj')
+				self.delete_cookie(LOGIN_COOKIE_NAME)
 				return False
 		else:
 			return False
@@ -117,6 +119,12 @@ class MainHandler(PageHandler):
 			self.redirect('/')
 
 
+class LogoutHandler(PageHandler):
+	'''Handles logging out'''
+	def get(self):
+		self.delete_cookie(LOGIN_COOKIE_NAME)
+		self.redirect('/')
+
 class GuidesHandler(PageHandler):
 	'''Handles guides: guides.html'''
 	def get(self):
@@ -174,6 +182,7 @@ class ServeHandler(blobstore_handlers.BlobstoreDownloadHandler):
 
 app = webapp2.WSGIApplication([('/?', MainHandler),
 							   ('/about/?', AboutHandler),
+							   ('/logout/?', LogoutHandler),
 							   ('/guides/?', GuidesHandler),
 							   ('/contact/?', ContactHandler),
 							   ('/team/?', TeamHandler),
