@@ -18,6 +18,14 @@
         jQuery(document).ready(function() {
             var alCities = ['Bergen County Academies'].sort();
             $('#school').typeahead({source: alCities, items:5});
+
+            {% if modal %}
+            	{% if modal == 'login' %}
+            		$('#login').modal('show')
+            	{% else %}
+            		$('#signup').modal('show')
+            	{% endif %}
+            {% endif %}
         });
 		{% if not signed_in %}
 		jQuery(function($) {

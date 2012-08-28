@@ -90,7 +90,7 @@ class MainHandler(PageHandler):
 					self.set_cookie(value + ' Path=/')
 				self.redirect('/')
 			else:
-				self.render('index.html', {'username': username, 'wrong': value})
+				self.render('index.html', {'username': username, 'wrong': value, 'modal' : 'login'})
 
 		elif formname == 'signup':
 			username, password, verify, email, school, year, agree = ('', '', '', '', '', '', '')
@@ -115,7 +115,8 @@ class MainHandler(PageHandler):
 										   'email_error': util.get_error(results, 'email'),
 										   'school_error': util.get_error(results, 'school'),
 										   'year_error': util.get_error(results, 'year'),
-										   'agree_error': util.get_error(results, 'agree')})
+										   'agree_error': util.get_error(results, 'agree'),
+										   'modal' : 'signup'})
 		else:
 			self.redirect('/')
 
