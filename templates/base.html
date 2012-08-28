@@ -19,6 +19,25 @@
             var alCities = ['Bergen County Academies'].sort();
             $('#school').typeahead({source: alCities, items:5});
         });
+		{% if not signed_in %}
+		jQuery(function($) {
+		  $('div.btn-group[data-toggle-name=*]').each(function(){
+		    var group   = $(this);
+		    var form    = group.parents('form').eq(0);
+		    var name    = group.attr('data-toggle-name');
+		    var hidden  = $('input[name="' + name + '"]', form);
+		    $('button', group).each(function(){
+		      var button = $(this);
+		      button.live('click', function(){
+		          hidden.val($(this).val());
+		      });
+		      if(button.val() == hidden.val()) {
+		        button.addClass('active');
+		      }
+		    });
+		  });
+		});
+		{% endif %}
 	</script>
 	<!-- End Typeahead Script -->
 
@@ -69,7 +88,7 @@
 		</div>
 		<!-- End BG Switcher -->
 
-		
+		{% if not signed_in %}
 		<!-- Sign Up Modal -->
 		<div id="signup" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
 	    	
@@ -201,6 +220,7 @@
 			</form>
 		</div>
 		<!-- End Log In Modal -->
+		{% endif %}
 
 		<!-- Page Content -->
 		{% block page_content %}{% endblock %}
@@ -214,25 +234,6 @@
 		Copyright 2012 All Rights Reserved
 	</div>
 	<!-- End Footer -->
-{% if signed_in %}
-jQuery(function($) {
-  $('div.btn-group[data-toggle-name=*]').each(function(){
-    var group   = $(this);
-    var form    = group.parents('form').eq(0);
-    var name    = group.attr('data-toggle-name');
-    var hidden  = $('input[name="' + name + '"]', form);
-    $('button', group).each(function(){
-      var button = $(this);
-      button.live('click', function(){
-          hidden.val($(this).val());
-      });
-      if(button.val() == hidden.val()) {
-        button.addClass('active');
-      }
-    });
-  });
-});
-{% endif %}
 
 </body>
 </html>
