@@ -1,15 +1,16 @@
-import jinja2
-import os
-import webapp2
-import secret
-import hmac
 import hashlib
+import hmac
+import jinja2
+import logging
+import os
 import re
 import urllib
 import urllib2
-import logging
-from cStringIO import StringIO
+import webapp2
+
+import secret
 import util
+
 from google.appengine.api import urlfetch
 from google.appengine.ext import blobstore
 from google.appengine.ext import webapp
@@ -64,19 +65,19 @@ class PageHandler(webapp2.RequestHandler):
 
 
 class MainHandler(PageHandler):
-	'''Handles homepage: index.html'''
+	'''Handles homepage: index.html and dashboard.html'''
 	def get(self):
 		logged_in = self.logged_in()
 
 		if logged_in:
-			self.render('dashboard.html', {'signed_in' : True, 'username' : self.get_username()})
+			self.render('dashboard.html', {'signed_in': True, 'username': self.get_username()})
 		else:
-			self.render('index.html', {'signed_in' : False})
+			self.render('index.html', {'signed_in': False})
 
 	def post(self):
-		which = self.rget('which')
+		formname = self.rget('formname')
 
-		if which == 'login':
+		if formname == 'login':
 			username = self.rget('username')
 			key, value = util.check_login(username, self.rget('password'))
 
@@ -89,34 +90,34 @@ class MainHandler(PageHandler):
 					self.set_cookie(value + ' Path=/')
 				self.redirect('/')
 			else:
-				self.render('index.html', {'username' : username, 'wrong' : value})
+				self.render('index.html', {'username': username, 'wrong': value})
 
-		elif which == 'signup':
+		elif formname == 'signup':
 			username, password, verify, email, school, year, agree = ('', '', '', '', '', '', '')
-			username, password, verify, email, school, year, agree = (self.rget('username'), self.rget('password'), self.rget('verify'), self.rget('email'), self.rget('school'), self.rget('year'), self.rget('agree'))
-			results = util.signup(username=username, password=password, verify=verify, email=email, school=school, year=year, agree=agree)
 			username_error, password_error, verify_error, email_error, school_error, year_error, agree_error = ('', '', '', '', '', '', '')
 
+			username, password, verify, email, school, year, agree = [self.rget(x) for x in ('username', 'password', 'verify', 'email', 'school', 'year', 'agree')]
+			results = util.signup(username=username, password=password, verify=verify, email=email, school=school, year=year, agree=agree)
+			
 			logging.error("Signing up")
 
 			if results['success']:
 				logging.error("Success")
 				self.set_cookie(results['cookie'])
-				self.redirect('/')
+				self.redirect('/')	
 			else:
-				self.render('index.html', {'email' : email,
-											'username' : username,
-											'username_error' : util.get_error(results, 'username'),
-											'password_error' : util.get_error(results, 'password'),
-											'verify_error' : util.get_error(results, 'verify'),
-											'email_error' : util.get_error(results, 'email'),
-											'school' : school,
-											'school_error' : util.get_error(results, 'school'),
-											'year_error' : util.get_error(results, 'year'),
-											'agree_error' : util.get_error(results, 'agree')})
+				self.render('index.html', {'email': email,
+										   'username': username,
+										   'school': school,
+										   'username_error': util.get_error(results, 'username'),
+										   'password_error': util.get_error(results, 'password'),
+										   'verify_error': util.get_error(results, 'verify'),
+										   'email_error': util.get_error(results, 'email'),
+										   'school_error': util.get_error(results, 'school'),
+										   'year_error': util.get_error(results, 'year'),
+										   'agree_error': util.get_error(results, 'agree')})
 		else:
 			self.redirect('/')
-
 
 class LogoutHandler(PageHandler):
 	'''Handles logging out'''
@@ -148,7 +149,7 @@ class DashboardHandler(PageHandler):
 	'''Handlers dashboard: dashboard.html'''
 	def get(self):
 		if self.logged_in():
-			self.render('dashboard.html', {'signed_in' : True, 'username' : self.get_username()})
+			self.render('dashboard.html', {'signed_in': True, 'username': self.get_username()})
 		self.redirect('/')
 
 class GuidePageHandler(PageHandler):

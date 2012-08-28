@@ -127,7 +127,7 @@ def signup(username='', password='', verify='', email='', school='', year='', ag
 			hashed_pass = hashed + '|' + salt
 			account = Users(username = username.replace("'", "&lsquo;"), email = email, password = hashed_pass, school = school, grade = int(year), score = 0, confirmed = False)
 			account.put()
-			cookie = 'uohferrvnksj=%s|%s; Expires=%s Path=/' % (str(username), hash_str(username), remember_me())
+			cookie = LOGIN_COOKIE_NAME + '=%s|%s; Expires=%s Path=/' % (str(username), hash_str(username), remember_me())
 			to_return['cookie'] = cookie
 			to_return['success'] = True
 			#add School database functionality... put entered school into db and or add user to school list
