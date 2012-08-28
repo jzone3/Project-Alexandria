@@ -60,11 +60,10 @@ def check_login(username, password):
 		accounts = db.GqlQuery("SELECT * FROM Users WHERE username = '" + username.replace("'", "&lsquo;") + "'")
 		logging.error("DB QUERY - check_login()")
 		accounts = accounts.get()
-		if not accounts:
+		if accounts is None:
 			return [False, 'Username does not exist']
 
-		acc = accounts[0]
-		(db_password, salt) = (acc.password).split("|")
+		(db_password, salt) = (accounts.password).split("|")
 
 		if salted_hash(password, salt) == db_password:
 			return [True, '%s=%s|%s;' % (LOGIN_COOKIE_NAME, str(username), str(hash_str(username)))]
