@@ -104,9 +104,8 @@
 						<input name="school" type="hidden" value="Bergen County Academies">
 						<div class="span2">School</div>
 						<!-- <div class="span3"><div class="input-large uneditable-input">Bergen County Academies</div></div> -->
-						<div class="span3"><input type="text" name="school" id="school" data-provide="typeahead" value="{{ school }}"></div>
+						<div class="span3"><input type="text" autocomplete="off" name="school" id="school" data-provide="typeahead" value="{{ school }}"></div>
 						
-						<!-- Turn browsers autocomplete feature off -->
 						<!-- Make this into a dropdown (so as typing it suggests schools already in database) -->
 					</div>
 					<div class="alert alert-error" {% if not school_error %}style="display: none;"{% endif %}>{{school_error}}</div>
@@ -114,7 +113,7 @@
 						<div class="span2">Grade</div>
 						<div class="span3">
 							<div class="btn-group" data-toggle="buttons-radio" data-toggle-name="year">
-							  <button type="button" class="btn" value="9">9th</button>
+							  <button type="button" class="btn active" value="9">9th</button>
 							  <button type="button" class="btn" value="10">10th</button>
 							  <button type="button" class="btn" value="11">11th</button>
 							  <button type="button" class="btn" value="12">12th</button>

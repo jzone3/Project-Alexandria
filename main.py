@@ -93,8 +93,8 @@ class MainHandler(PageHandler):
 
 		elif which == 'signup':
 			username, password, verify, email, school, year, agree = ('', '', '', '', '', '', '')
-			username, password, verify, email, school, year, agree = (self.get_username(), self.rget('password'), self.rget('verify'), self.rget('email'), self.rget('school'), self.rget('year'), self.rget('agree'))
-			results = util.signup(username, password, verify, email, school, year, agree)
+			username, password, verify, email, school, year, agree = (self.rget('username'), self.rget('password'), self.rget('verify'), self.rget('email'), self.rget('school'), self.rget('year'), self.rget('agree'))
+			results = util.signup(username=username, password=password, verify=verify, email=email, school=school, year=year, agree=agree)
 			username_error, password_error, verify_error, email_error, school_error, year_error, agree_error = ('', '', '', '', '', '', '')
 
 			logging.error("Signing up")
@@ -104,19 +104,16 @@ class MainHandler(PageHandler):
 				self.set_cookie(results['cookie'])
 				self.redirect('/')
 			else:
-				logging.error("Failure")
-				for key, value in results.iteritems():
-					vars()[key + '_error'] = value
 				self.render('index.html', {'email' : email,
 											'username' : username,
-											'username_error' : username_error,
-											'password_error' : password_error,
-											'verify_error' : verify_error,
-											'email_error' : email_error,
+											'username_error' : util.get_error(results, 'username'),
+											'password_error' : util.get_error(results, 'password'),
+											'verify_error' : util.get_error(results, 'verify'),
+											'email_error' : util.get_error(results, 'email'),
 											'school' : school,
-											'school_error' : school_error,
-											'year' : year_error,
-											'agree_error' : agree_error})
+											'school_error' : util.get_error(results, 'school'),
+											'year_error' : util.get_error(results, 'year'),
+											'agree_error' : util.get_error(results, 'agree')})
 		else:
 			self.redirect('/')
 

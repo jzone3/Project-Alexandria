@@ -37,7 +37,13 @@ def salted_hash(password, salt):
 	return hashlib.sha256(password + salt).hexdigest()
 
 def make_salt():
-    return ''.join(random.choice(string.letters) for x in xrange(5))
+	return ''.join(random.choice(string.letters) for x in xrange(5))
+
+def get_error(results, error):
+	if error in results.keys():
+		return results[error]
+	else:
+		return None
 
 def check_login(username, password):
 	"""Checks if login info is correct
@@ -63,7 +69,7 @@ def check_login(username, password):
 			return [True, '%s=%s|%s;' % (LOGIN_COOKIE_NAME, str(username), str(hash_str(username)))]
 	return [False, 'Invalid username and password!']
 
-def signup(username, password, verify, email, school, year, agree):
+def signup(username='', password='', verify='', email='', school='', year='', agree=''):
 	"""Signs up user
 
 	Returns:
@@ -105,10 +111,10 @@ def signup(username, password, verify, email, school, year, agree):
 		to_return['year'] = "That is not a valid grade level"
 	
 	if agree != 'on':
-		agree_error = "You must agree to the Terms of Service to create an account"
+		to_return['agree'] = "You must agree to the Terms of Service to create an account"
 	# self.write(username + ' ' + password + ' ' + verify + ' ' + email + ' ' + school + ' ' + year )
 
-	if len(to_return) == 1 and username != '' and password != '' and school != '' and year != '' and agree == 'on':
+	if len(to_return) == 1:
 		same_username_db = db.GqlQuery("SELECT * FROM Users WHERE username = '" + username.replace("'", "&lsquo;") + "'")
 		logging.error("DB QUERY - signup()")
 		same_username = same_username_db.get()
@@ -121,7 +127,7 @@ def signup(username, password, verify, email, school, year, agree):
 			hashed_pass = hashed + '|' + salt
 			account = Users(username = username.replace("'", "&lsquo;"), email = email, password = hashed_pass, school = school, grade = int(year), score = 0, confirmed = False)
 			account.put()
-			cookie = 'uohferrvnksj=%s|%s; Path=/' % (str(username), hash_str(username))
+			cookie = 'uohferrvnksj=%s|%s; Expires=%s Path=/' % (str(username), hash_str(username), remember_me())
 			to_return['cookie'] = cookie
 			to_return['success'] = True
 			#add School database functionality... put entered school into db and or add user to school list
