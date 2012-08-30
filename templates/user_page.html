@@ -12,16 +12,15 @@
 {% block page_content %}
 	<div class="container">
 		<div class="well">
-
 			<div>
 				<img src="/static/img/avatar.png" style="width:100px;height:100px;float:left;">
 				<div style="margin-left:120px;">
 					<div class="inline">
-						<h1>spez</h1>
-						<span class="userupvotes">&nbsp;&nbsp;+8927 score</span>
+						<h1>{{ result.username }}</h1>
+						<span class="userupvotes">&nbsp;&nbsp;{{ score }} score</span>
 					</div>
 
-					<h6>Senior at Bergen County Academies</h6> 
+					<h6>{{ grade }} at {{ result.school }}</h6> 
 					<h5>
 						<a href="#">Private Message</a> 
 						 |  

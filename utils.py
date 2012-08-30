@@ -61,6 +61,18 @@ def get_error(results, error):
 	else:
 		return None
 
+def str_grade(grade):
+	if grade == '9':
+		return 'Freshman'
+	elif grade =='10':
+		return 'Sophomore'
+	elif grade == '11':
+		return 'Junior'
+	elif grade == '12':
+		return 'Senior'
+	else:
+		return 'Alumnus'
+
 def str_votes(votes):
 	if votes > 0:
 		return '+' + str(votes)

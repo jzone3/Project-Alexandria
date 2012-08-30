@@ -170,7 +170,17 @@ class GuidePageHandler(PageHandler):
 class UserPageHandler(PageHandler):
 	'''Handlers custom user pages: user_page.html'''
 	def get(self, url):
-		self.render('user_page.html')
+		url = url[1:]
+		q = Users.all()
+		q.filter('username =', url)
+		result = q.fetch(1)
+		try:
+			result = result[0]
+			score = str_votes(result.score)
+			grade = str_grade(result.grade)
+			self.render('user_page.html', {'result':result, 'grade':grade, 'score':score})
+		except:
+			self.write('User not found.')
 
 class UploadHandler(PageHandler):
 	def get(self):
