@@ -155,7 +155,17 @@ class DashboardHandler(PageHandler):
 class GuidePageHandler(PageHandler):
 	'''Handlers custom guide pages: guide_page.html'''
 	def get(self, url):
-		self.render('guide_page.html')
+		url = url[1:]
+		q = Guides.all()
+		q.filter('url =', url)
+		result = q.fetch(1)
+		try:
+			result = result[0]
+			votes = str_votes(result.votes)
+			dl_link = '/serve/' + result.blob_key
+			self.render('guide_page.html', {'result':result, 'votes':votes, 'dl_link':dl_link})
+		except:
+			self.write('Guide not found.')
 
 class UserPageHandler(PageHandler):
 	'''Handlers custom user pages: user_page.html'''
@@ -194,7 +204,9 @@ class UploadHandler(PageHandler):
 			self.render('/upload.html', errors)
 		else:
 			tags = get_tags(tags)
-			doc_name = get_filename(title, self.get_username())
+			username = self.get_username()
+			doc_name = get_name(title, username)
+			school = get_school(username)
 			if locked: 
 				locked = True
 			else: 
@@ -207,13 +219,11 @@ class UploadHandler(PageHandler):
 	  		files.finalize(file_name)
 	  		blob_key = files.blobstore.get_blob_key(file_name)
 
-	  		guide = Guides(user_created=self.get_username(), title=title, subject=subject,
-	  			   teacher=teacher, tags=tags, blob_key=blob_key, locked=locked,
-	  			   votes=0, edit_link=doc_url)
+	  		guide = Guides(user_created=username, title=title, subject=subject,
+	  			   teacher=teacher, tags=tags, blob_key=str(blob_key), locked=locked,
+	  			   votes=0, edit_link=doc_url, school=school, url=doc_name)
 	  		guide.put()
-	  		self.redirect('/serve/' + str(blob_key))
-
-
+	  		self.redirect('/guides/' + doc_name)
 
 class ServeHandler(blobstore_handlers.BlobstoreDownloadHandler):
 	def get(self, resource):

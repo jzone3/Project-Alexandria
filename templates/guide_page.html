@@ -15,13 +15,13 @@
 
 			<div class="row-fluid">
 				<div class="span8">
-					<h1>Integrals and Shit</h1>
-					<h3><em>by <a href="#">spez</a></em></h3>
-					<h6> AP Calculus BC, Robinson </h6> 
+					<h1>{{ result.title }}</h1>
+					<h3><em>by <a href="/users/{{ result.user_created }}">{{ result.user_created }}</a></em></h3>
+					<h6>{{ result.subject }}, {{ result.teacher }}</h6> 
 					<h5>
-						<a href="#">Edit</a> 
+						<a href="{{ result.edit_link }}">Edit</a> 
 						 |  
-						<a href="#">Download</a>
+						<a href="{{ dl_link }}">Download</a>
 					</h5>
 				</div>
 				<div class="span4">
@@ -29,7 +29,7 @@
 					  <button class="btn btn-large"><i class="icon-caret-up"></i></button>
 					  <button class="btn btn-large"><i class="icon-caret-down"></i></button>
 					</div>
-					<div style="position:relative;top:90px;left:40px;text-align:right;"><h6>+1242 Votes</h6></div>
+					<div style="position:relative;top:90px;left:40px;text-align:right;"><h6>{{ votes }} Votes</h6></div>
 				</div>
 			</div>
 			<hr>

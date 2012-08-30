@@ -34,10 +34,12 @@ class Guides(db.Model):
 	subject      = db.StringProperty(required = True)
 	teacher      = db.StringProperty(required = True)
 	tags         = db.StringListProperty(required = True)
-	blob_key     = blobstore.BlobReferenceProperty(required = True)
+	blob_key     = db.StringProperty(required = True)
 	locked       = db.BooleanProperty(required = True)
 	votes        = db.IntegerProperty(required = True) 
 	edit_link    = db.StringProperty(required = False)
+	school       = db.StringProperty(required = True)
+	url          = db.StringProperty(required = True)
 	date_created = db.DateTimeProperty(auto_now_add = True)
 
 def remember_me():
@@ -58,6 +60,18 @@ def get_error(results, error):
 		return results[error]
 	else:
 		return None
+
+def str_votes(votes):
+	if votes > 0:
+		return '+' + str(votes)
+	else:
+		return str(votes)
+
+def get_school(username):
+	q = Users.all()
+	q.filter('username =', username)
+	results = q.fetch(1)
+	return results[0].school
 
 def check_login(username, password):
 	"""Checks if login info is correct
@@ -157,7 +171,7 @@ def get_tags(string):
 			tags.append(tag)
 	return tags
 
-def get_filename(title, user):
+def get_name(title, user):
 	title = title.lower()
 	user = user.lower()
 	new_title = ''
@@ -166,7 +180,7 @@ def get_filename(title, user):
 			new_title += char
 		else:
 			new_title += '_'
-	return new_title + '-' + user
+	return new_title + '_' + user
 
 def upload_errors(title, subject, teacher, locked, doc_url, headers):
 	title_error, subject_error, teacher_error, doc_url_error = '', '', '', ''
