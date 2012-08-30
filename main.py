@@ -9,7 +9,7 @@ import urllib2
 import webapp2
 
 import secret
-import util
+from utils import *
 
 from google.appengine.api import files
 from google.appengine.api import urlfetch
@@ -30,7 +30,7 @@ class PageHandler(webapp2.RequestHandler):
 		return self.request.get(name)
 
 	def get_username(self):
-		username = self.request.cookies.get(util.LOGIN_COOKIE_NAME, '')
+		username = self.request.cookies.get(LOGIN_COOKIE_NAME, '')
 		if username and not username == '':
 			name, hashed_name = username.split("|")
 			return name
@@ -45,13 +45,13 @@ class PageHandler(webapp2.RequestHandler):
 		self.response.out.write(template.render(params))
 
 	def logged_in(self):
-		username = self.request.cookies.get(util.LOGIN_COOKIE_NAME, '')
+		username = self.request.cookies.get(LOGIN_COOKIE_NAME, '')
 		if username and not username == '':
 			name, hashed_name = username.split("|")
-			if name and hashed_name and util.hash_str(name) == hashed_name:
+			if name and hashed_name and hash_str(name) == hashed_name:
 				return True
 			else:
-				self.delete_cookie(util.LOGIN_COOKIE_NAME)
+				self.delete_cookie(LOGIN_COOKIE_NAME)
 				return False
 		else:
 			return False
@@ -78,11 +78,11 @@ class MainHandler(PageHandler):
 
 		if formname == 'login':
 			username = self.rget('username')
-			key, value = util.check_login(username, self.rget('password'))
+			key, value = check_login(username, self.rget('password'))
 
 			if key:
 				if self.rget('remember') == 'on':
-					value = value + ' Expires=' + util.remember_me() + ' Path=/'
+					value = value + ' Expires=' + remember_me() + ' Path=/'
 					logging.error(value)
 					self.set_cookie(value)
 				else:
@@ -96,7 +96,7 @@ class MainHandler(PageHandler):
 			username_error, password_error, verify_error, email_error, school_error, year_error, agree_error = ('', '', '', '', '', '', '')
 
 			username, password, verify, email, school, year, agree = [self.rget(x) for x in ('username', 'password', 'verify', 'email', 'school', 'year', 'agree')]
-			results = util.signup(username=username, password=password, verify=verify, email=email, school=school, year=year, agree=agree)
+			results = signup(username=username, password=password, verify=verify, email=email, school=school, year=year, agree=agree)
 			
 			logging.error("Signing up")
 
@@ -108,13 +108,13 @@ class MainHandler(PageHandler):
 				self.render('index.html', {'email': email,
 										   'username': username,
 										   'school': school,
-										   'username_error': util.get_error(results, 'username'),
-										   'password_error': util.get_error(results, 'password'),
-										   'verify_error': util.get_error(results, 'verify'),
-										   'email_error': util.get_error(results, 'email'),
-										   'school_error': util.get_error(results, 'school'),
-										   'year_error': util.get_error(results, 'year'),
-										   'agree_error': util.get_error(results, 'agree'),
+										   'username_error': get_error(results, 'username'),
+										   'password_error': get_error(results, 'password'),
+										   'verify_error': get_error(results, 'verify'),
+										   'email_error': get_error(results, 'email'),
+										   'school_error': get_error(results, 'school'),
+										   'year_error': get_error(results, 'year'),
+										   'agree_error': get_error(results, 'agree'),
 										   'modal' : 'signup'})
 		else:
 			self.redirect('/')
@@ -122,7 +122,7 @@ class MainHandler(PageHandler):
 class LogoutHandler(PageHandler):
 	'''Handles logging out'''
 	def get(self):
-		self.delete_cookie(util.LOGIN_COOKIE_NAME)
+		self.delete_cookie(LOGIN_COOKIE_NAME)
 		self.redirect('/')
 
 class GuidesHandler(PageHandler):
@@ -167,32 +167,53 @@ class UploadHandler(PageHandler):
 		self.render('upload.html')
 
 	def post(self):
-		url = self.rget('file')
-		result = urlfetch.fetch(url)
+		title = self.rget('title')
+		subject = self.rget('subject')
+		teacher = self.rget('teacher')
+		locked = self.rget('locked')
+		doc_url = self.rget('doc_url')
+		tags = self.rget('tags')
+		file_url = self.rget('file')
+		if file_url:
+			# get the file from filepicker.io
+			result = urlfetch.fetch(file_url)
+			headers = result.headers
+			if result.status_code != 200:
+				self.write("Connection Error.")
+				return
+			errors = upload_errors(title, subject, teacher, locked, doc_url, headers)
+		else:
+			errors = upload_errors(title, subject, teacher, locked, doc_url, 
+				                   {'content-type':'application/pdf', 'content-length':'0'})
+			errors['file_error'] = 'Please upload a file.'
 
-		if result.status_code != 200:
-			return "some error"
+		if any(errors.values()):
+			fields = {'title':title, 'subject':subject, 'teacher':teacher, 
+					  'locked':locked, 'doc_url':doc_url, 'tags':tags}
+			errors.update(fields)
+			self.render('/upload.html', errors)
+		else:
+			tags = get_tags(tags)
+			doc_name = get_filename(title, self.get_username())
+			if locked: 
+				locked = True
+			else: 
+				locked = False
 
-		size = int(result.headers['content-length'])
-		mime_type = result.headers['content-type']
+			# write file to blobstore
+			file_name = files.blobstore.create(mime_type=headers['content-type'], _blobinfo_uploaded_filename=doc_name)
+			with files.open(file_name, 'a') as f:
+	  			f.write(result.content)
+	  		files.finalize(file_name)
+	  		blob_key = files.blobstore.get_blob_key(file_name)
 
-		if size > 2097152:
-			self.write('File size too big.')
-			return
+	  		guide = Guides(user_created=self.get_username(), title=title, subject=subject,
+	  			   teacher=teacher, tags=tags, blob_key=blob_key, locked=locked,
+	  			   votes=0, edit_link=doc_url)
+	  		guide.put()
+	  		self.redirect('/serve/' + str(blob_key))
 
-		if (mime_type != 'application/msword' and
-			mime_type != 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' and
-			mime_type != 'application/pdf'):
-			self.write('Wrong file format.')
-			return
 
-		file_name = files.blobstore.create(mime_type=mime_type, _blobinfo_uploaded_filename='test')
-		with files.open(file_name, 'a') as f:
-  			f.write(result.content)
-
-  		files.finalize(file_name)
-  		blob_key = files.blobstore.get_blob_key(file_name)
-  		self.redirect('/serve/' + str(blob_key))
 
 class ServeHandler(blobstore_handlers.BlobstoreDownloadHandler):
 	def get(self, resource):
@@ -207,8 +228,8 @@ app = webapp2.WSGIApplication([('/?', MainHandler),
 							   ('/contact/?', ContactHandler),
 							   ('/team/?', TeamHandler),
 							   ('/dashboard/?', DashboardHandler),
-							   ('/guides/?' + util.PAGE_RE, GuidePageHandler),
-							   ('/user/?'+ util.PAGE_RE, UserPageHandler),
+							   ('/guides/?' + PAGE_RE, GuidePageHandler),
+							   ('/user/?'+ PAGE_RE, UserPageHandler),
 							   ('/upload/?', UploadHandler),
 							   ('/serve/([^/]+)?', ServeHandler)
 							   ], debug=True)

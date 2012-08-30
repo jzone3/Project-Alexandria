@@ -4,7 +4,7 @@
 {% block nav_links %}
 	<li><a href="/">Home</a></li>
 	<li><a href="/guides">Guides</a></li>
-	<li class="active"><a href="/uploads">Upload</a></li>
+	<li class="active"><a href="/upload">Upload</a></li>
 	<li><a href="/about">About</a></li>
 	<li><a href="/contact">Contact</a></li>
 {% endblock %}
@@ -21,41 +21,49 @@
 	        	<div class="row">
 					<div class="span2">Title</div>
 					<div class="span4"><input class="input-xlarge" type="text" name="title" value="{{title}}" placeholder="Name of your guide"></div>
+					<div class="alert alert-error span4" {% if not title_error %}style="display: none;"{% endif %}>{{title_error}}</div>
 				</div>
+				
 	        	<div class="row">
 					<div class="span2">Subject</div>
 					<div class="span4"><input class="input-xlarge" type="text" name="subject" value="{{subject}}" placeholder="e.g. AP Calculus BC"></div>
+					<div class="alert alert-error span4" {% if not subject_error %}style="display: none;"{% endif %}>{{subject_error}}</div>
 				</div>
+				
 	        	<div class="row">
 					<div class="span2">Teacher</div>
 					<div class="span4"><input class="input-xlarge" type="text" name="teacher" value="{{teacher}}" placeholder="Just the last name"></div>
+					<div class="alert alert-error span4" {% if not teacher_error %}style="display: none;"{% endif %}>{{teacher_error}}</div>
 				</div>
+				
 	        	<div class="row">
 					<div class="span2">
 						Locked
 						<a rel="tooltip" data-placement="right" title="A locked study guide is not editable by the community." class="tooltips"><i class="icon-question-sign"></i></a>
 					</div>
-					<div class="span4"><input type="checkbox" name="username"></div>
+					<div class="span4"><input type="checkbox" name="locked" {% if locked %}checked="checked"{% endif %}></div>
 				</div>
 				<div class="row">
 					<div class="span2">
 						Google Doc URL
 						<a href="#" rel="tooltip" data-placement="right" title="The link to a public Google Doc. Not needed if the guide is locked." class="tooltips"><i class="icon-question-sign"></i></a>
 					</div>
-					<div class="span4"><input class="input-xlarge"type="text" name="username" value="{{doc_url}}" placeholder="http://drive.google.com ..."></div>
-				</div>
+					<div class="span4"><input class="input-xlarge"type="text" name="doc_url" value="{{doc_url}}" placeholder="http://docs.google.com ..."></div>
+					<div class="alert alert-error span4" {% if not doc_url_error %}style="display: none;"{% endif %}>{{doc_url_error}}</div>
+				</div>				
 				<div class="row">
 					<div class="span2">
 						File
 					</div>
-					<div class="span4"><input name="file" type="filepicker-dragdrop" data-fp-apikey="AlMIHDT2tQ5KhESQdBkelz" data-fp-option-services="COMPUTER,DROPBOX,GOOGLE_DRIVE" data-fp-button-class="btn btn-inverse"/></div>			
+					<div class="span4"><input name="file" type="filepicker-dragdrop" data-fp-apikey="AlMIHDT2tQ5KhESQdBkelz" data-fp-option-services="COMPUTER,DROPBOX,GOOGLE_DRIVE,EVERNOTE" data-fp-button-class="btn btn-inverse"/></div>			
+					<div class="alert alert-error span4" {% if not file_error %}style="display: none;"{% endif %}>{{file_error}}</div>
 				</div>
 				<div class="row">
 					<div class="span2">
 						Tags
 						<a href="#" rel="tooltip" data-placement="right" title="Single words separated by commas." class="tooltips"><i class="icon-question-sign"></i></a>
 					</div>
-					<div class="span4"><input class="input-xlarge"type="text" name="username" value="{{doc_url}}" placeholder="subtraction, division, chapter, six"></div>
+					<div class="span4"><input class="input-xlarge"type="text" name="tags" value="{{tags}}" placeholder="subtraction, division, chapter, six"></div>
 				</div>
 				<div class="row">
 					<div class="span2">
