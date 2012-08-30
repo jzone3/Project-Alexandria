@@ -11,6 +11,7 @@ import webapp2
 import secret
 import util
 
+from google.appengine.api import files
 from google.appengine.api import urlfetch
 from google.appengine.ext import blobstore
 from google.appengine.ext import webapp
@@ -36,7 +37,7 @@ class PageHandler(webapp2.RequestHandler):
 		return None
 
 	def render(self, template, params={}):
-		if params['signed_in'] is None:
+		if not params.get('signed_in'):
 			params['signed_in'] = self.logged_in()
 			if params['signed_in']:
 				params['username'] = self.get_username()
@@ -161,23 +162,43 @@ class UserPageHandler(PageHandler):
 	def get(self, url):
 		self.render('user_page.html')
 
-class UploadGuideHandler(PageHandler):
+class UploadHandler(PageHandler):
 	def get(self):
-		upload_url = blobstore.create_upload_url('/upload')
-		self.render("uploads.html")
+		self.render('upload.html')
 
-
-class UploadHandler(blobstore_handlers.BlobstoreUploadHandler):
 	def post(self):
-		upload_files = self.get_uploads('file')  # 'file' is file upload field in the form
-		blob_info = upload_files[0]
-		self.redirect('/serve/%s' % blob_info.key())
+		url = self.rget('file')
+		result = urlfetch.fetch(url)
+
+		if result.status_code != 200:
+			return "some error"
+
+		size = int(result.headers['content-length'])
+		mime_type = result.headers['content-type']
+
+		if size > 2097152:
+			self.write('File size too big.')
+			return
+
+		if (mime_type != 'application/msword' and
+			mime_type != 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' and
+			mime_type != 'application/pdf'):
+			self.write('Wrong file format.')
+			return
+
+		file_name = files.blobstore.create(mime_type=mime_type, _blobinfo_uploaded_filename='test')
+		with files.open(file_name, 'a') as f:
+  			f.write(result.content)
+
+  		files.finalize(file_name)
+  		blob_key = files.blobstore.get_blob_key(file_name)
+  		self.redirect('/serve/' + str(blob_key))
 
 class ServeHandler(blobstore_handlers.BlobstoreDownloadHandler):
 	def get(self, resource):
 		resource = str(urllib.unquote(resource))
 		blob_info = blobstore.BlobInfo.get(resource)
-		self.send_blob(blob_info)
+		self.send_blob(blob_info, save_as=blob_info.filename)
 
 app = webapp2.WSGIApplication([('/?', MainHandler),
 							   ('/about/?', AboutHandler),
@@ -186,9 +207,8 @@ app = webapp2.WSGIApplication([('/?', MainHandler),
 							   ('/contact/?', ContactHandler),
 							   ('/team/?', TeamHandler),
 							   ('/dashboard/?', DashboardHandler),
-							   ('/guides' + util.PAGE_RE, GuidePageHandler),
-							   ('/user'+ util.PAGE_RE, UserPageHandler),
-							   ('/uploads/?', UploadGuideHandler),
+							   ('/guides/?' + util.PAGE_RE, GuidePageHandler),
+							   ('/user/?'+ util.PAGE_RE, UserPageHandler),
 							   ('/upload/?', UploadHandler),
 							   ('/serve/([^/]+)?', ServeHandler)
 							   ], debug=True)

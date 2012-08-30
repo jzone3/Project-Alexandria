@@ -26,6 +26,16 @@ class Users(db.Model):
 	password     = db.StringProperty(required = True)
 	date_created = db.DateTimeProperty(auto_now_add = True)
 
+class Guides(db.Model):
+	user_created  = db.StringProperty(required = True)
+	title         = db.StringProperty(required = True)
+	subject       = db.StringProperty(required = True)
+	teacher       = db.StringProperty(required = True)
+	tags          = db.StringListProperty(required = True)
+	edit_link     = db.StringProperty(required = False)
+	download_link = db.StringProperty(required = True)
+	date_created  = db.DateTimeProperty(auto_now_add = True)
+
 def remember_me():
 	expiration = datetime.datetime.now() + datetime.timedelta(days=50)
 	return expiration.strftime("%a, %d-%b-%Y %H:%M:%S PST")
