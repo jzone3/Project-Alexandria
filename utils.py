@@ -218,10 +218,11 @@ def upload_errors(title, subject, teacher, locked, doc_url, headers):
 
 	if (mime_type != 'application/msword' and
 		mime_type != 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' and
-		mime_type != 'application/pdf'):
+		mime_type != 'application/pdf' and
+		mime_type != 'text/plain' and
+		mime_type != 'application/rtf'):
 		file_error += 'Wrong file format.'
 
 	return {'title_error':title_error, 'subject_error':subject_error, 
 			'teacher_error':teacher_error, 'doc_url_error':doc_url_error,
 			'file_error':file_error}
-	

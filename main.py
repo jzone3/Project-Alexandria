@@ -204,7 +204,7 @@ class UploadHandler(PageHandler):
 			errors = upload_errors(title, subject, teacher, locked, doc_url, headers)
 		else:
 			errors = upload_errors(title, subject, teacher, locked, doc_url, 
-				                   {'content-type':'application/pdf', 'content-length':'0'})
+				                   {'content-type':'text/plain', 'content-length':'0'})
 			errors['file_error'] = 'Please upload a file.'
 
 		if any(errors.values()):
