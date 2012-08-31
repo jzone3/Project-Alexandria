@@ -1,33 +1,46 @@
 {% extends "base.html" %}
 {% block title %}Project Alexandria{% endblock %}
+
 {% block nav_links %}
-	<li><a href="#">Home</a></li>
-	<li><a href="/guides">Guides</a></li>
-	<li><a href="/upload">Upload</a></li>
-	<li><a href="/about">About</a></li>
-	<li><a href="/contact">Contact</a></li>
+<li><a href="/">Home</a></li>
+<li><a href="/guides">Guides</a></li>
+<li><a href="/upload">Upload</a></li>
+<li><a href="/about">About</a></li>
+<li><a href="/contact">Contact</a></li>
+{% endblock %}
+
+{% block blockbg %}
+<body style="background-color:#F1F1F1;">
 {% endblock %}
 
 {% block page_content %}
-	<div class="container">
-		<br/><br/>
-		<!-- Hero Unit -->
-		<div class="hero-unit">
-			<h1 class="textcenter logo">Project Alexandria</h1>
+		<div style="padding:15px;background-image:url('../static/img/home_bg.jpg')">
+			<h1 class="textcenter logo" style="font-size:100px;color:white;padding-top:130px;padding-bottom:20px;text-shadow: 1px 2px black;">Project Alexandria</h1>
 			<br />
-			<p class="textcenter">Praesent faucibus, sapien non adipiscing eleifend, ipsum magna rhoncus turpis, sed suscipit orci neque non turpis. Praesent bibendum ultrices sodales. Sed vehicula varius quam vitae ullamcorper. It's fucking awesome.</p>
-			<center>
-			<a class="btn introbtn btn-large btn-primary" href="#signup" role="button" data-toggle="modal">Join the Revolution</a>
-			</center>
+			<p class="textcenter" style="font-size:30px;color:white;padding-top:50px;text-shadow: 1px 1px black;">Study with the world. Join the revolution.</p>
+
+		<center>
+			<div style="width: 600px;height: 30px;margin-top: 40px;padding-top: 20px;padding-bottom: 20px;background-color: rgba(165, 165, 165, 0.46);border-radius: 5px;">
+				<form>
+					<input type="text" class="input-xlarge search-query" placeholder="Search for any study guide">
+					<button type="submit" class="btn btn-primary"><i class="icon-search"></i></button>
+					<span style="color:white;">&nbsp;&nbsp;&nbsp;-or-&nbsp;&nbsp;&nbsp;</span>
+					<a style="color:white;" href="/about">Learn More</a>
+				</form>
+			</div>
+		</center>	
 
 		</div>
-		<!-- End Hero Unit -->
 
-		<!-- Progress Bar -->
-		<div class="progress progress-striped active">
-			<div class="bar" style="width: 40%;"></div>
+		<div class="container" style="margin-top:25px;">
+			<!-- Progress Bar -->
+			<div class="progress progress-striped active">
+				<div class="bar" style="width: 60%;"></div>
+			</div>
+			<p style="text-align: right;">We're currently 60% done.</p>
+			<!--End Progress Bar -->
 		</div>
-		<p style="text-align: right;">We're currently 55% done.</p>
-		<!--End Progress Bar -->
-	</div>
+
 {% endblock %}
+
+

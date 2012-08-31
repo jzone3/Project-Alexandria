@@ -10,7 +10,14 @@
 	<script src="/static/js/jquery.js"></script>
 </head>
 
-<body background="/static/img/bg14.png">
+<!-- If Custom Background, e.g. homepage -->
+{% if blockbg %}
+	{% block blockbg %}{% endblock %}
+{% else %}
+	<body background="/static/img/bg9.png">
+{% endif %}
+<!-- End If Custom Background -->
+
 	<script src="/static/js/bootstrap.js"></script>
 
 	<!-- Typeahead Script -->
@@ -90,12 +97,6 @@
 		</div>
 		<!-- End Nav Bar -->
 
-		<!-- BG Switcher -->
-		<div>
-			<!-- to be implemented -->
-		</div>
-		<!-- End BG Switcher -->
-
 		{% if not signed_in %}
 		<!-- Sign Up Modal -->
 		<div id="signup" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
@@ -174,7 +175,7 @@
 	        	</div>
 	        	<div class="modal-footer">
 	        		<div style="float:left;">
-	        			<a href="#login" role="button" data-toggle="modal">Already signed up?</a>
+	        			<a href="#login" role="button" data-toggle="modal" onclick="$('#signup').modal('hide')">Already signed up?</a>
 	        		</div>
 	        		<input class="btn btn-primary" type="submit">
 					<button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
@@ -219,7 +220,7 @@
 				</div>
 				<div class="modal-footer">
 					<div style="float:left;">
-	        			<a href="#signup" role="button" data-toggle="modal">Need an account?</a>
+	        			<a href="#signup" role="button" data-toggle="modal" onclick="$('#login').modal('hide')">Need an account?</a>
 	        		</div>
 					<input class="btn btn-primary" type="submit"> 
 					<button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>

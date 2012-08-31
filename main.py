@@ -71,7 +71,7 @@ class MainHandler(PageHandler):
 		if logged_in:
 			self.render('dashboard.html', {'signed_in': True, 'username': self.get_username()})
 		else:
-			self.render('index.html', {'signed_in': False})
+			self.render('index.html', {'signed_in': False, 'blockbg':True})
 
 	def post(self):
 		formname = self.rget('formname')

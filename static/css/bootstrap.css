@@ -4961,6 +4961,13 @@ button.close {
     margin-left: 0;
   }
 }
+@media (min-width: 0px) {
+  .nav-collapse.collapse {
+    height: auto !important;
+    overflow: visible !important;
+  }
+}
+
 
 /* Custom CSS */
 
@@ -5060,4 +5067,9 @@ div.inline > span  { display: inline; }
 
 div.row {
   min-height: 39px;
+}
+
+.superbtn{
+
+  width: 217px;
 }
