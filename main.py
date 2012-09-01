@@ -158,13 +158,12 @@ class GuidePageHandler(PageHandler):
 		url = url[1:]
 		q = Guides.all()
 		q.filter('url =', url)
-		result = q.fetch(1)
-		try:
-			result = result[0]
+		result = q.get()
+		if result:
 			votes = str_votes(result.votes)
 			dl_link = '/serve/' + result.blob_key
 			self.render('guide_page.html', {'result':result, 'votes':votes, 'dl_link':dl_link})
-		except:
+		else:
 			self.write('Guide not found.')
 
 class UserPageHandler(PageHandler):
@@ -173,13 +172,12 @@ class UserPageHandler(PageHandler):
 		url = url[1:]
 		q = Users.all()
 		q.filter('username =', url)
-		result = q.fetch(1)
-		try:
-			result = result[0]
+		result = q.get()
+		if result:
 			score = str_votes(result.score)
 			grade = str_grade(result.grade)
 			self.render('user_page.html', {'result':result, 'grade':grade, 'score':score})
-		except:
+		else:
 			self.write('User not found.')
 
 class UploadHandler(PageHandler):
@@ -241,6 +239,33 @@ class ServeHandler(blobstore_handlers.BlobstoreDownloadHandler):
 		blob_info = blobstore.BlobInfo.get(resource)
 		self.send_blob(blob_info, save_as=blob_info.filename)
 
+from search import *
+from collections import Counter
+
+class Tags(db.Model):
+	tags = db.StringListProperty()
+	title = db.StringProperty()
+
+for entry in db_entries:
+	t = Tags(tags=entry['tags'], title=entry['title'])
+	t.put()
+
+class Test(PageHandler):
+	def get(self):
+		keywords = ['notes']
+		queries = []
+		for k in keywords:
+			query = db.Query(Tags)
+			query.filter('tags =', k)
+			results = query.run()
+			map(lambda x: queries.append(x), results)
+
+		#counts = Counter(queries)
+		for result in results:
+			self.write(queries)
+
+
+
 app = webapp2.WSGIApplication([('/?', MainHandler),
 							   ('/about/?', AboutHandler),
 							   ('/logout/?', LogoutHandler),
@@ -251,5 +276,6 @@ app = webapp2.WSGIApplication([('/?', MainHandler),
 							   ('/guides/?' + PAGE_RE, GuidePageHandler),
 							   ('/user/?'+ PAGE_RE, UserPageHandler),
 							   ('/upload/?', UploadHandler),
-							   ('/serve/([^/]+)?', ServeHandler)
+							   ('/serve/([^/]+)?', ServeHandler),
+							   ('/test', Test)
 							   ], debug=True)

@@ -62,13 +62,13 @@ def get_error(results, error):
 		return None
 
 def str_grade(grade):
-	if grade == '9':
+	if grade == 9:
 		return 'Freshman'
-	elif grade =='10':
+	elif grade == 10:
 		return 'Sophomore'
-	elif grade == '11':
+	elif grade == 11:
 		return 'Junior'
-	elif grade == '12':
+	elif grade == 12:
 		return 'Senior'
 	else:
 		return 'Alumnus'
@@ -82,8 +82,11 @@ def str_votes(votes):
 def get_school(username):
 	q = Users.all()
 	q.filter('username =', username)
-	results = q.fetch(1)
-	return results[0].school
+	results = q.get()
+	if results:
+		return results.school
+	else:
+		return None
 
 def check_login(username, password):
 	"""Checks if login info is correct
