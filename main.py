@@ -36,13 +36,23 @@ class PageHandler(webapp2.RequestHandler):
 			return name
 		return None
 
+	def list_to_str(self, lst):
+		to_return = '['
+		for i in lst:
+			if i == lst[len(lst) - 1]:
+				to_return += '"' + i + '"]'
+			else:
+				to_return += '"' + i + '",'
+		return to_return
+
 	def render(self, template, params={}):
 		params['signed_in'] = self.logged_in()
-		logging.error(params.get('signed_in'))
 		if params['signed_in']:
 			params['username'] = self.get_username()
 		else:
-			params['username'] = ''
+			params['all_schools'] = self.list_to_str(get_schools())
+			if not 'username' in params.keys():
+				params['username'] = ''
 		template = jinja_env.get_template(template)
 		self.response.out.write(template.render(params))
 
@@ -85,7 +95,6 @@ class MainHandler(PageHandler):
 			if key:
 				if self.rget('remember') == 'on':
 					value = value + ' Expires=' + remember_me() + ' Path=/'
-					logging.error(value)
 					self.set_cookie(value)
 				else:
 					self.set_cookie(value + ' Path=/')
@@ -100,10 +109,8 @@ class MainHandler(PageHandler):
 			username, password, verify, email, school, year, agree = [self.rget(x) for x in ('username', 'password', 'verify', 'email', 'school', 'year', 'agree')]
 			results = signup(username=username, password=password, verify=verify, email=email, school=school, year=year, agree=agree)
 			
-			logging.error("Signing up")
-
 			if results['success']:
-				logging.error("Success")
+				add_school(school)
 				self.set_cookie(results['cookie'])
 				self.redirect('/')	
 			else:

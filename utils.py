@@ -10,6 +10,7 @@ import time
 
 from google.appengine.ext import db
 from google.appengine.ext import blobstore
+from google.appengine.api import memcache
 
 USER_RE = re.compile(r"^[a-zA-Z0-9_-]{3,20}$")
 PASS_RE = re.compile(r"^.{3,20}$")
@@ -229,3 +230,17 @@ def upload_errors(title, subject, teacher, locked, doc_url, headers):
 	return {'title_error':title_error, 'subject_error':subject_error, 
 			'teacher_error':teacher_error, 'doc_url_error':doc_url_error,
 			'file_error':file_error}
+
+def get_schools():
+	lst = memcache.get('all_schools')
+	if not lst:
+		lst = ['Bergen County Academies']
+		memcache.set('all_schools', lst)
+	return lst
+
+def add_school(new_school):
+	# implement CAS later
+	current_schools = get_schools()
+	if not new_school in current_schools:
+		current_schools.append(new_school)
+	memcache.set('all_schools', current_schools)

@@ -24,8 +24,7 @@
 	<!-- Typeahead Script -->
     <script type="text/javascript">	    
         jQuery(document).ready(function() {
-            var alCities = ['Bergen County Academies'].sort();
-            $('#school').typeahead({source: alCities, items:5});
+            $('#school').typeahead({source: {{ all_schools | safe }}.sort(), items:5});
 
             {% if modal %}
             	{% if modal == 'login' %}
@@ -130,10 +129,9 @@
 					</div>
 					<div class="alert alert-error" {% if not verify_error %}style="display: none;"{% endif %}>{{verify_error}}</div>
 					<div class="row">
-						<input name="school" type="hidden" value="Bergen County Academies">
 						<div class="span2">School</div>
 						<!-- <div class="span3"><div class="input-large uneditable-input">Bergen County Academies</div></div> -->
-						<div class="span3"><input type="text" autocomplete="off" name="school" id="school" data-provide="typeahead" value="{{ school }}"></div>
+						<div class="span3"><input type="text" autocomplete="off" name="school" id="school" data-provide="typeahead"></div>
 						
 						<!-- Make this into a dropdown (so as typing it suggests schools already in database) -->
 					</div>
@@ -151,23 +149,7 @@
 						</div>
 					</div>
 					<div class="alert alert-error" {% if not year_error %}style="display: none;"{% endif %}>{{year_error}}</div>
-<!-- 						<div class="row">
-						<div class="span2">Academy</div>
-						<div class="span3">
-							<select name="academy">
-								<option>AAST</option>
-								<option>ABF</option>
-								<option>ACHA</option>
-								<option>AEDT</option>
-								<option>AMST</option>
-								<option>ATCS</option>
-								<option>AVPA</option>
-							</select>
-						</div>
-					</div> -->
-
 					<br/>
-
 					<label class="checkbox" >
 						<input type="checkbox" name="agree"> I agree to the Project Alexandria <a href="tos">Terms of Service</a>
 					</label>
