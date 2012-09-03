@@ -3,7 +3,9 @@
 {% block nav_links %}
 	<li class="active"><a href="#">Home</a></li>
 	<li><a href="/guides">Guides</a></li>
-	<li><a href="/upload">Upload</a></li>
+	{% if signed_in %}
+		<li><a href="/upload">Upload</a></li>
+	{% endif %}
 	<li><a href="/about">About</a></li>
 	<li><a href="/contact">Contact</a></li>
 {% endblock %}

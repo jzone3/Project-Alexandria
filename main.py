@@ -37,10 +37,12 @@ class PageHandler(webapp2.RequestHandler):
 		return None
 
 	def render(self, template, params={}):
-		if not params.get('signed_in'):
-			params['signed_in'] = self.logged_in()
-			if params['signed_in']:
-				params['username'] = self.get_username()
+		params['signed_in'] = self.logged_in()
+		logging.error(params.get('signed_in'))
+		if params['signed_in']:
+			params['username'] = self.get_username()
+		else:
+			params['username'] = ''
 		template = jinja_env.get_template(template)
 		self.response.out.write(template.render(params))
 
@@ -69,9 +71,9 @@ class MainHandler(PageHandler):
 		logged_in = self.logged_in()
 
 		if logged_in:
-			self.render('dashboard.html', {'signed_in': True, 'username': self.get_username()})
+			self.render('dashboard.html')
 		else:
-			self.render('index.html', {'signed_in': False, 'blockbg':True})
+			self.render('index.html', {'blockbg':True})
 
 	def post(self):
 		formname = self.rget('formname')
@@ -149,7 +151,7 @@ class DashboardHandler(PageHandler):
 	'''Handlers dashboard: dashboard.html'''
 	def get(self):
 		if self.logged_in():
-			self.render('dashboard.html', {'signed_in': True, 'username': self.get_username()})
+			self.render('dashboard.html')
 		self.redirect('/')
 
 class GuidePageHandler(PageHandler):
@@ -182,7 +184,10 @@ class UserPageHandler(PageHandler):
 
 class UploadHandler(PageHandler):
 	def get(self):
-		self.render('upload.html')
+		if self.logged_in():
+			self.render('upload.html')
+		else:
+			self.redirect('/')
 
 	def post(self):
 		title = self.rget('title')
