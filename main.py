@@ -281,6 +281,10 @@ class NotFoundHandler(PageHandler):
 		self.error(404)
 		self.render('404.html')
 
+class ToSHandler(PageHandler):
+	def get(self):
+		self.render('tos.html')
+
 app = webapp2.WSGIApplication([('/?', MainHandler),
 							   ('/about/?', AboutHandler),
 							   ('/logout/?', LogoutHandler),
@@ -293,5 +297,6 @@ app = webapp2.WSGIApplication([('/?', MainHandler),
 							   ('/upload/?', UploadHandler),
 							   ('/serve/([^/]+)?', ServeHandler),
 							   ('/test', Test),
+							   ('/tos/?', ToSHandler),
 							   ('/.*', NotFoundHandler)
 							   ], debug=True)
