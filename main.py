@@ -103,24 +103,22 @@ class MainHandler(PageHandler):
 				self.render('index.html', {'username': username, 'wrong': value, 'modal' : 'login'})
 
 		elif formname == 'signup':
-			username, password, verify, email, school, year, agree = ('', '', '', '', '', '', '')
-			username_error, password_error, verify_error, email_error, school_error, year_error, agree_error = ('', '', '', '', '', '', '')
+			username, password, verify, school, year, agree = ('', '', '', '', '', '')
+			username_error, password_error, verify_error, school_error, year_error, agree_error = ('', '', '', '', '', '')
 
-			username, password, verify, email, school, year, agree = [self.rget(x) for x in ('username', 'password', 'verify', 'email', 'school', 'year', 'agree')]
-			results = signup(username=username, password=password, verify=verify, email=email, school=school, year=year, agree=agree)
+			username, password, verify, school, year, agree = [self.rget(x) for x in ('username', 'password', 'verify', 'school', 'year', 'agree')]
+			results = signup(username=username, password=password, verify=verify, school=school, year=year, agree=agree)
 			
 			if results['success']:
 				add_school(school)
 				self.set_cookie(results['cookie'])
 				self.redirect('/')	
 			else:
-				self.render('index.html', {'email': email,
-										   'username': username,
+				self.render('index.html', {'username': username,
 										   'school': school,
 										   'username_error': get_error(results, 'username'),
 										   'password_error': get_error(results, 'password'),
 										   'verify_error': get_error(results, 'verify'),
-										   'email_error': get_error(results, 'email'),
 										   'school_error': get_error(results, 'school'),
 										   'year_error': get_error(results, 'year'),
 										   'agree_error': get_error(results, 'agree'),

@@ -21,7 +21,6 @@ LOGIN_COOKIE_NAME = 'uohferrvnksj'
 
 class Users(db.Model):
 	username     = db.StringProperty(required = True)
-	email        = db.StringProperty(required = True)
 	school       = db.StringProperty(required = True)
 	grade        = db.IntegerProperty(required = True)
 	score        = db.IntegerProperty(required = True) 
@@ -113,7 +112,7 @@ def check_login(username, password):
 			return [True, '%s=%s|%s;' % (LOGIN_COOKIE_NAME, str(username), str(hash_str(username)))]
 	return [False, 'Invalid username and password!']
 
-def signup(username='', password='', verify='', email='', school='', year='', agree=''):
+def signup(username='', password='', verify='', school='', year='', agree=''):
 	"""Signs up user
 
 	Returns:
@@ -139,10 +138,10 @@ def signup(username='', password='', verify='', email='', school='', year='', ag
 	elif verify != password:
 		to_return['verify'] = "Your passwords didn't match."
 	
-	if email == '':
-		to_return['email'] = "Please enter a email"
-	elif not EMAIL_RE.match(email):
-		to_return['email'] = "That's not a valid email."
+	# if email == '':
+	# 	to_return['email'] = "Please enter a email"
+	# elif not EMAIL_RE.match(email):
+	# 	to_return['email'] = "That's not a valid email."
 	
 	if school == '':
 		to_return['school'] = "Please enter a school"
@@ -169,7 +168,7 @@ def signup(username='', password='', verify='', email='', school='', year='', ag
 			salt = make_salt()
 			hashed = salted_hash(password, salt)
 			hashed_pass = hashed + '|' + salt
-			account = Users(username = username.replace("'", "&lsquo;"), email = email, password = hashed_pass, school = school, grade = int(year), score = 0, confirmed = False)
+			account = Users(username = username.replace("'", "&lsquo;"), password = hashed_pass, school = school, grade = int(year), score = 0, confirmed = False)
 			account.put()
 			cookie = LOGIN_COOKIE_NAME + '=%s|%s; Expires=%s Path=/' % (str(username), hash_str(username), remember_me())
 			to_return['cookie'] = cookie
