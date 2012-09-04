@@ -173,7 +173,8 @@ class GuidePageHandler(PageHandler):
 			dl_link = '/serve/' + result.blob_key
 			self.render('guide_page.html', {'result':result, 'votes':votes, 'dl_link':dl_link})
 		else:
-			self.write('Guide not found.')
+			self.error(404)
+			self.render('guide404.html')
 
 class UserPageHandler(PageHandler):
 	'''Handlers custom user pages: user_page.html'''
@@ -183,11 +184,12 @@ class UserPageHandler(PageHandler):
 		q.filter('username =', url)
 		result = q.get()
 		if result:
-			score = str_votes(result.score)
+			score = int(str_votes(result.score))
 			grade = str_grade(result.grade)
 			self.render('user_page.html', {'result':result, 'grade':grade, 'score':score})
 		else:
-			self.write('User not found.')
+			self.error(404)
+			self.render('user404.html', {'user' : url})
 
 class UploadHandler(PageHandler):
 	def get(self):
@@ -276,7 +278,10 @@ class Test(PageHandler):
 		for result in results:
 			self.write(queries)
 
-
+class NotFoundHandler(PageHandler):
+	def get(self):
+		self.error(404)
+		self.render('404.html')
 
 app = webapp2.WSGIApplication([('/?', MainHandler),
 							   ('/about/?', AboutHandler),
@@ -289,5 +294,6 @@ app = webapp2.WSGIApplication([('/?', MainHandler),
 							   ('/user/?'+ PAGE_RE, UserPageHandler),
 							   ('/upload/?', UploadHandler),
 							   ('/serve/([^/]+)?', ServeHandler),
-							   ('/test', Test)
+							   ('/test', Test),
+							   ('/.*', NotFoundHandler)
 							   ], debug=True)

@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}spez{% endblock %}
+{% block title %}{{ result.username }}{% endblock %}
 
 {% block nav_links %}
 	<li><a href="/">Home</a></li>
@@ -19,15 +19,21 @@
 				<div style="margin-left:120px;">
 					<div class="inline">
 						<h1>{{ result.username }}</h1>
-						<span class="userupvotes">&nbsp;&nbsp;{{ score }} score</span>
+						{% if score > 0 %}
+							<span class="userupvotes" style="color: #25C29C;">&nbsp;&nbsp;{{ score }} score</span>
+						{% elif score == 0 %}
+							<span class="userupvotes">&nbsp;&nbsp;{{ score }} score</span>
+						{% else %}
+							<span class="userupvotes" style="color: #FF0066">&nbsp;&nbsp;{{ score }} score</span>
+						{% endif %}
 					</div>
 
 					<h6>{{ grade }} at {{ result.school }}</h6> 
-					<h5>
+					<!-- <h5>
 						<a href="#">Private Message</a> 
 						 |  
 						<a href="#">Report this User</a>
-					</h5>
+					</h5> -->
 				</div>
 			</div>
 			<hr>
