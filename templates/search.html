@@ -17,10 +17,12 @@
 		<center>
 			<h1>Search Results</h1>
 		</center>
-		<br/><hr/>
+		<hr/>
+		{% if results %}
 		<table class="table-hover">
 			<thead>
 				<tr>
+					<th>&nbsp;</th>
 					<th>Title</th>
 					<th>Subject</th>
 					<th>Teacher</th>
@@ -30,7 +32,13 @@
 			<tbody>
 			{% for result in results %}
 				<tr>
-					<td>{{ result.title }}</td>
+					<td>
+						<div class="btn-group btn-group btn-group-vertical">
+							<button class="btn btn-mini"><i class="icon-caret-up"></i></button>
+							<button class="btn btn-mini"><i class="icon-caret-down"></i></button>
+						</div>
+					</td>
+					<td><a href="/guides/{{ result.url }}">{{ result.title }}</a></td>
 					<td>{{ result.subject }}</td>
 					<td>{{ result.teacher }}</td>
 					<td>{{ result.votes }}</td>
@@ -38,6 +46,9 @@
 			{% endfor %}
 			</tbody>
 		</table>
+		{% else %}
+		<center><h3>No results found.</h3></center>
+		{% endif %}
 	</div>
 </div>
 {% endblock %}

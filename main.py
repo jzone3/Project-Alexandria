@@ -137,6 +137,8 @@ class LogoutHandler(BaseHandler):
 class GuidesHandler(BaseHandler):
 	'''Handles guides: guides.html'''
 	def get(self):
+		if self.rget('q'):
+			self.redirect('/search?q=' + self.rget('q'))
 		self.render('guides.html')
 
 class AboutHandler(BaseHandler):
@@ -157,6 +159,9 @@ class TeamHandler(BaseHandler):
 class DashboardHandler(BaseHandler):
 	'''Handlers dashboard: dashboard.html'''
 	def get(self):
+		if self.rget('q'):
+			self.redirect('/search?q=' + self.rget('q'))
+
 		if self.logged_in():
 			self.render('dashboard.html')
 		self.redirect('/')
@@ -275,9 +280,17 @@ class SearchHandler(BaseHandler):
 		results = []
 
 		for ranking in rankings:
-			results.append(Guides.get(ranking[0]))
+			# get guides by key
+			guide = Guides.get(ranking[0])
+			# format results
+			result = {'url':guide.url, 'title':guide.title, 'subject':guide.subject,
+					  'teacher':guide.teacher, 'votes':str_votes(guide.votes)}
+			results.append(result)
 
-		self.render('search.html', {'results':results})
+		if results:
+			self.render('search.html', {'results':results})
+		else:
+			self.render('search.html')
 
 # class Test(BaseHandler):
 # 	def get(self):

@@ -5076,3 +5076,7 @@ div.row {
 
   width: 217px;
 }
+
+hr {
+  border-bottom:1px solid #B6B6B6;
+}
