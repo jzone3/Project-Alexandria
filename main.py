@@ -11,6 +11,7 @@ import secret
 from search import *
 from utils import *
 
+import externals.ayah
 from google.appengine.api import files
 from google.appengine.api import urlfetch
 from google.appengine.ext import blobstore
@@ -292,13 +293,11 @@ class SearchHandler(BaseHandler):
 		else:
 			self.render('search.html')
 
-# class Test(BaseHandler):
-# 	def get(self):
-# 		index = get_index('bca')
-# 		query = 'notes'
-# 		rankings = get_rankings(query, index)
-# 		self.write(rankings)
-# 		self.write(search())
+class Test(BaseHandler):
+	def get(self):
+		externals.ayah.configure('d0c72a37abaade0a97df7db197be973d50314c63', 'b4548ab348733eae84146b8caa5db982b1b8fd77')
+		html = externals.ayah.get_publisher_html()
+		self.write('<form><input type="text">'+html+'<button type="submit"></button></form>')
 
 app = webapp2.WSGIApplication([('/?', MainHandler),
 							   ('/about/?', AboutHandler),
@@ -312,6 +311,7 @@ app = webapp2.WSGIApplication([('/?', MainHandler),
 							   ('/upload/?', UploadHandler),
 							   ('/serve/([^/]+)?', ServeHandler),
 							   ('/tos/?', ToSHandler),
-							   ('/search', SearchHandler),							   
+							   ('/search', SearchHandler),	
+							   ('/test', Test),						   
 							   ('/.*', NotFoundHandler),
 							   ], debug=True)

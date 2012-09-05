@@ -6,8 +6,9 @@ import string
 import random
 import datetime
 import time
-import simplejson
 
+
+from django.utils import simplejson
 from google.appengine.ext import db
 from google.appengine.ext import blobstore
 from google.appengine.api import memcache

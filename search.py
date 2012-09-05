@@ -1,5 +1,5 @@
 import operator
-import simplejson
+from django.utils import simplejson
 
 from google.appengine.ext import db
 
