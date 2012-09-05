@@ -5005,7 +5005,11 @@ body {
 }
 
 .logo {
-  font-family: 'Nothing You Could Do', cursive;
+  font-family: 'Junge', cursive;
+}
+
+.logo:hover{
+  color:black;
 }
 
 .table-hover {

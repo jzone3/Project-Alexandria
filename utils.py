@@ -3,14 +3,17 @@ import hmac
 import hashlib
 import logging
 import string
-import secret
 import random
 import datetime
 import time
+import simplejson
 
 from google.appengine.ext import db
 from google.appengine.ext import blobstore
 from google.appengine.api import memcache
+
+import secret
+from database import *
 
 USER_RE = re.compile(r"^[a-zA-Z0-9_-]{3,20}$")
 PASS_RE = re.compile(r"^.{3,20}$")
@@ -18,29 +21,6 @@ EMAIL_RE = re.compile(r"^[\S]+@[\S]+\.[\S]+$")
 SCHOOL_RE= re.compile(r"^[a-zA-Z0-9 _]{1,30}$")
 PAGE_RE = r'(/(?:[a-zA-Z0-9_-]+/?)*)'
 LOGIN_COOKIE_NAME = 'uohferrvnksj'
-
-class Users(db.Model):
-	username     = db.StringProperty(required = True)
-	school       = db.StringProperty(required = True)
-	grade        = db.IntegerProperty(required = True)
-	score        = db.IntegerProperty(required = True) 
-	confirmed    = db.BooleanProperty(required = True) 
-	password     = db.StringProperty(required = True)
-	date_created = db.DateTimeProperty(auto_now_add = True)
-
-class Guides(db.Model):
-	user_created = db.StringProperty(required = True)
-	title        = db.StringProperty(required = True)
-	subject      = db.StringProperty(required = True)
-	teacher      = db.StringProperty(required = True)
-	tags         = db.StringListProperty(required = True)
-	blob_key     = db.StringProperty(required = True)
-	locked       = db.BooleanProperty(required = True)
-	votes        = db.IntegerProperty(required = True) 
-	edit_link    = db.StringProperty(required = False)
-	school       = db.StringProperty(required = True)
-	url          = db.StringProperty(required = True)
-	date_created = db.DateTimeProperty(auto_now_add = True)
 
 def remember_me():
 	expiration = datetime.datetime.now() + datetime.timedelta(days=50)
@@ -207,9 +187,9 @@ def upload_errors(title, subject, teacher, locked, doc_url, headers):
 		teacher_error = 'Please provide a teacher.'
 	if not locked and not doc_url:
 		doc_url_error = 'Please provide a Google Docs URL. '
-	if 'docs.google' not in doc_url:
+	if not locked and 'docs.google' not in doc_url:
 		doc_url_error = 'Please provide a Google Docs URL. '
-	if doc_url[0:4] != 'http':
+	if not locked and doc_url[0:4] != 'http':
 		doc_url_error += 'Please include http:// or https:// before the URL.'
 
 	file_error = ''

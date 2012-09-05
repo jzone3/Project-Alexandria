@@ -4,24 +4,23 @@ import jinja2
 import logging
 import os
 import re
-import urllib
 import urllib2
 import webapp2
 
 import secret
+from search import *
 from utils import *
 
 from google.appengine.api import files
 from google.appengine.api import urlfetch
 from google.appengine.ext import blobstore
-from google.appengine.ext import webapp
 from google.appengine.ext.webapp import blobstore_handlers
 from google.appengine.ext.webapp.util import run_wsgi_app
 
 template_dir = os.path.join(os.path.dirname(__file__), 'templates')
 jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir), autoescape=True)
 
-class PageHandler(webapp2.RequestHandler):
+class BaseHandler(webapp2.RequestHandler):
 	'''Parent class for all handlers, shortens functions'''
 	def write(self, content):
 		return self.response.out.write(content)
@@ -32,8 +31,7 @@ class PageHandler(webapp2.RequestHandler):
 	def get_username(self):
 		username = self.request.cookies.get(LOGIN_COOKIE_NAME, '')
 		if username and not username == '':
-			name, hashed_name = username.split("|")
-			return name
+			return username.split("|")[0]
 		return None
 
 	def list_to_str(self, lst):
@@ -75,10 +73,13 @@ class PageHandler(webapp2.RequestHandler):
 		self.response.headers.add_header('Set-Cookie', '%s=; Path=/' % cookie)
 
 
-class MainHandler(PageHandler):
+class MainHandler(BaseHandler):
 	'''Handles homepage: index.html and dashboard.html'''
 	def get(self):
 		logged_in = self.logged_in()
+
+		if self.rget('q'):
+			self.redirect('/search?q=' + self.rget('q'))
 
 		if logged_in:
 			self.render('dashboard.html')
@@ -123,43 +124,44 @@ class MainHandler(PageHandler):
 										   'year_error': get_error(results, 'year'),
 										   'agree_error': get_error(results, 'agree'),
 										   'modal' : 'signup'})
+
 		else:
 			self.redirect('/')
 
-class LogoutHandler(PageHandler):
+class LogoutHandler(BaseHandler):
 	'''Handles logging out'''
 	def get(self):
 		self.delete_cookie(LOGIN_COOKIE_NAME)
 		self.redirect('/')
 
-class GuidesHandler(PageHandler):
+class GuidesHandler(BaseHandler):
 	'''Handles guides: guides.html'''
 	def get(self):
 		self.render('guides.html')
 
-class AboutHandler(PageHandler):
+class AboutHandler(BaseHandler):
 	'''Handles about: about.html'''
 	def get(self):
 		self.render('about.html')
 
-class ContactHandler(PageHandler):
+class ContactHandler(BaseHandler):
 	'''Handles contact: contact.html'''
 	def get(self):
 		self.render('contact.html')
 
-class TeamHandler(PageHandler):
+class TeamHandler(BaseHandler):
 	'''Handles team: team.html'''
 	def get(self):
 		self.render('team.html')
 
-class DashboardHandler(PageHandler):
+class DashboardHandler(BaseHandler):
 	'''Handlers dashboard: dashboard.html'''
 	def get(self):
 		if self.logged_in():
 			self.render('dashboard.html')
 		self.redirect('/')
 
-class GuidePageHandler(PageHandler):
+class GuidePageHandler(BaseHandler):
 	'''Handlers custom guide pages: guide_page.html'''
 	def get(self, url):
 		url = url[1:]
@@ -174,7 +176,7 @@ class GuidePageHandler(PageHandler):
 			self.error(404)
 			self.render('guide404.html')
 
-class UserPageHandler(PageHandler):
+class UserPageHandler(BaseHandler):
 	'''Handlers custom user pages: user_page.html'''
 	def get(self, url):
 		url = url[1:]
@@ -189,7 +191,7 @@ class UserPageHandler(PageHandler):
 			self.error(404)
 			self.render('user404.html', {'user' : url})
 
-class UploadHandler(PageHandler):
+class UploadHandler(BaseHandler):
 	def get(self):
 		if self.logged_in():
 			self.render('upload.html')
@@ -204,6 +206,7 @@ class UploadHandler(PageHandler):
 		doc_url = self.rget('doc_url')
 		tags = self.rget('tags')
 		file_url = self.rget('file')
+
 		if file_url:
 			# get the file from filepicker.io
 			result = urlfetch.fetch(file_url)
@@ -223,7 +226,7 @@ class UploadHandler(PageHandler):
 			errors.update(fields)
 			self.render('/upload.html', errors)
 		else:
-			tags = get_tags(tags)
+			tags = get_tags(tags) + create_tags(title, subject, teacher)
 			username = self.get_username()
 			doc_name = get_name(title, username)
 			school = get_school(username)
@@ -243,6 +246,11 @@ class UploadHandler(PageHandler):
 	  			   teacher=teacher, tags=tags, blob_key=str(blob_key), locked=locked,
 	  			   votes=0, edit_link=doc_url, school=school, url=doc_name)
 	  		guide.put()
+	  		
+	  		# add guide to index
+	  		key = str(guide.key())
+	  		add_to_index(school, key, tags)
+
 	  		self.redirect('/guides/' + doc_name)
 
 class ServeHandler(blobstore_handlers.BlobstoreDownloadHandler):
@@ -251,39 +259,33 @@ class ServeHandler(blobstore_handlers.BlobstoreDownloadHandler):
 		blob_info = blobstore.BlobInfo.get(resource)
 		self.send_blob(blob_info, save_as=blob_info.filename)
 
-from search import *
-from collections import Counter
-
-class Tags(db.Model):
-	tags = db.StringListProperty()
-	title = db.StringProperty()
-
-for entry in db_entries:
-	t = Tags(tags=entry['tags'], title=entry['title'])
-	t.put()
-
-class Test(PageHandler):
-	def get(self):
-		keywords = ['notes']
-		queries = []
-		for k in keywords:
-			query = db.Query(Tags)
-			query.filter('tags =', k)
-			results = query.run()
-			map(lambda x: queries.append(x), results)
-
-		#counts = Counter(queries)
-		for result in results:
-			self.write(queries)
-
-class NotFoundHandler(PageHandler):
+class NotFoundHandler(BaseHandler):
 	def get(self):
 		self.error(404)
 		self.render('404.html')
 
-class ToSHandler(PageHandler):
+class ToSHandler(BaseHandler):
 	def get(self):
 		self.render('tos.html')
+
+class SearchHandler(BaseHandler):
+	def get(self):
+		query = self.rget('q')
+		rankings = search('bca', query)
+		results = []
+
+		for ranking in rankings:
+			results.append(Guides.get(ranking[0]))
+
+		self.render('search.html', {'results':results})
+
+# class Test(BaseHandler):
+# 	def get(self):
+# 		index = get_index('bca')
+# 		query = 'notes'
+# 		rankings = get_rankings(query, index)
+# 		self.write(rankings)
+# 		self.write(search())
 
 app = webapp2.WSGIApplication([('/?', MainHandler),
 							   ('/about/?', AboutHandler),
@@ -296,7 +298,7 @@ app = webapp2.WSGIApplication([('/?', MainHandler),
 							   ('/user/?'+ PAGE_RE, UserPageHandler),
 							   ('/upload/?', UploadHandler),
 							   ('/serve/([^/]+)?', ServeHandler),
-							   ('/test', Test),
 							   ('/tos/?', ToSHandler),
-							   ('/.*', NotFoundHandler)
+							   ('/search', SearchHandler),							   
+							   ('/.*', NotFoundHandler),
 							   ], debug=True)

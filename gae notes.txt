@@ -1,0 +1,49 @@
+### db query ###
+q = db.Query(Users) #or
+q = Users.all()
+
+q.filter('title =', 'Imagine')
+
+for user in q:
+	print user.name
+
+# equivalent to
+
+for user in q.run():
+	print user.name
+
+result = q.get()
+print result.name
+
+result = q.fetch(limit=5)
+for user in results:
+	print user.name
+######
+
+# add two dictionaries:
+d1.update(d2)
+
+# to update an entity
+q = Indexes.all()
+q.filter(...)
+result = q.get()
+result.prop = '1234'
+result.put()
+
+
+# get a key
+address = Address()
+address.key()
+
+# get an id
+address.key().id()
+
+# retrieve by key
+Address.get(key)
+
+# retrieve by id
+Address.get_by_id(30001)
+
+### json ###
+dumps() turns text to JSON string
+loads() turns JSON string into text
