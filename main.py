@@ -65,7 +65,7 @@ class BaseHandler(webapp2.RequestHandler):
 				self.delete_cookie(LOGIN_COOKIE_NAME)
 				return False
 		else:
-			return False
+			return False		
 
 	def set_cookie(self, cookie):
 		self.response.headers.add_header('Set-Cookie', cookie)
@@ -100,6 +100,7 @@ class MainHandler(BaseHandler):
 					self.set_cookie(value)
 				else:
 					self.set_cookie(value + ' Path=/')
+				self.set_cookie(str('school=%s'%get_school(username)))
 				self.redirect('/')
 			else:
 				self.render('index.html', {'username': username, 'wrong': value, 'modal' : 'login'})
@@ -114,6 +115,7 @@ class MainHandler(BaseHandler):
 			if results['success']:
 				add_school(school)
 				self.set_cookie(results['cookie'])
+				self.set_cookie(str('school=%s'%school))
 				self.redirect('/')	
 			else:
 				self.render('index.html', {'username': username,
@@ -277,7 +279,10 @@ class ToSHandler(BaseHandler):
 class SearchHandler(BaseHandler):
 	def get(self):
 		query = self.rget('q')
-		rankings = search('bca', query)
+		school = self.request.cookies.get('school')
+		if not school:
+			school = 'Bergen County Academies'
+		rankings = search(school, query)
 		results = []
 
 		for ranking in rankings:

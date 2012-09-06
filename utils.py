@@ -91,7 +91,7 @@ def check_login(username, password):
 
 		if salted_hash(password, salt) == db_password:
 			return [True, '%s=%s|%s;' % (LOGIN_COOKIE_NAME, str(username), str(hash_str(username)))]
-	return [False, 'Invalid username and password!']
+	return [False, 'Invalid username or password!']
 
 def signup(username='', password='', verify='', school='', year='', agree=''):
 	"""Signs up user
