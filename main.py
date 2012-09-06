@@ -49,9 +49,17 @@ class BaseHandler(webapp2.RequestHandler):
 		if params['signed_in']:
 			params['username'] = self.get_username()
 		else:
+			# setup school list for typeahead
 			params['all_schools'] = self.list_to_str(get_schools())
+			# set username to blank
 			if not 'username' in params.keys():
 				params['username'] = ''
+			# setup areyouahuman
+			externals.ayah.configure('9ee379aab47a91907b9f9b505204b16494367d56', 
+									 '7ec7c6561c6dba467095b91dd58778f2c60fbaf2')
+			widget_html = externals.ayah.get_publisher_html()
+			params['widget_html'] = widget_html
+
 		template = jinja_env.get_template(template)
 		self.response.out.write(template.render(params))
 
@@ -106,11 +114,11 @@ class MainHandler(BaseHandler):
 				self.render('index.html', {'username': username, 'wrong': value, 'modal' : 'login'})
 
 		elif formname == 'signup':
-			username, password, verify, school, year, agree = ('', '', '', '', '', '')
-			username_error, password_error, verify_error, school_error, year_error, agree_error = ('', '', '', '', '', '')
+			username, password, verify, school, year, agree, human = ('', '', '', '', '', '', '')
+			username_error, password_error, verify_error, school_error, year_error, agree_error, human_error = ('', '', '', '', '', '', '')
 
-			username, password, verify, school, year, agree = [self.rget(x) for x in ('username', 'password', 'verify', 'school', 'year', 'agree')]
-			results = signup(username=username, password=password, verify=verify, school=school, year=year, agree=agree)
+			username, password, verify, school, year, agree, human = [self.rget(x) for x in ('username', 'password', 'verify', 'school', 'year', 'agree', 'session_secret')]
+			results = signup(username=username, password=password, verify=verify, school=school, year=year, agree=agree, human=human)
 			
 			if results['success']:
 				add_school(school)
@@ -126,7 +134,8 @@ class MainHandler(BaseHandler):
 										   'school_error': get_error(results, 'school'),
 										   'year_error': get_error(results, 'year'),
 										   'agree_error': get_error(results, 'agree'),
-										   'modal' : 'signup'})
+										   'human_error': get_error(results, 'human'),
+										   'modal': 'signup'})
 
 		else:
 			self.redirect('/')
@@ -300,9 +309,17 @@ class SearchHandler(BaseHandler):
 
 class Test(BaseHandler):
 	def get(self):
-		externals.ayah.configure('d0c72a37abaade0a97df7db197be973d50314c63', 'b4548ab348733eae84146b8caa5db982b1b8fd77')
+		externals.ayah.configure('9ee379aab47a91907b9f9b505204b16494367d56', '7ec7c6561c6dba467095b91dd58778f2c60fbaf2')
 		html = externals.ayah.get_publisher_html()
-		self.write('<form><input type="text">'+html+'<button type="submit"></button></form>')
+		self.write('<form method="post"><input type="text">'+html+'<button type="submit"></button></form>')
+
+	def post(self):
+		secret = self.rget('session_secret')
+		externals.ayah.configure('9ee379aab47a91907b9f9b505204b16494367d56', '7ec7c6561c6dba467095b91dd58778f2c60fbaf2')
+		if externals.ayah.score_result(secret):
+			self.write(secret)
+		else:
+			self.write('no')
 
 app = webapp2.WSGIApplication([('/?', MainHandler),
 							   ('/about/?', AboutHandler),

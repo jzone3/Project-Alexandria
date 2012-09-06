@@ -47,3 +47,8 @@ Address.get_by_id(30001)
 ### json ###
 dumps() turns text to JSON string
 loads() turns JSON string into text
+
+### jinja2 ###
+
+{{ content | safe }}
+turns off autoescape for one field

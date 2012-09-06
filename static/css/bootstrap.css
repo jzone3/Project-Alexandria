@@ -4346,11 +4346,13 @@ button.close {
     float: left;
     margin-left: 20px;
   }
-  .container,
+  .container{
+    width: 724px;
+  }
   .navbar-static-top .container,
   .navbar-fixed-top .container,
   .navbar-fixed-bottom .container {
-    width: 724px;
+    width: 830px;
   }
   .span12 {
     width: 724px;

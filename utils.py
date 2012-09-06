@@ -7,8 +7,8 @@ import random
 import datetime
 import time
 
-
 from django.utils import simplejson
+import externals.ayah
 from google.appengine.ext import db
 from google.appengine.ext import blobstore
 from google.appengine.api import memcache
@@ -93,7 +93,7 @@ def check_login(username, password):
 			return [True, '%s=%s|%s;' % (LOGIN_COOKIE_NAME, str(username), str(hash_str(username)))]
 	return [False, 'Invalid username or password!']
 
-def signup(username='', password='', verify='', school='', year='', agree=''):
+def signup(username='', password='', verify='', school='', year='', agree='', human=''):
 	"""Signs up user
 
 	Returns:
@@ -119,11 +119,6 @@ def signup(username='', password='', verify='', school='', year='', agree=''):
 	elif verify != password:
 		to_return['verify'] = "Your passwords didn't match."
 	
-	# if email == '':
-	# 	to_return['email'] = "Please enter a email"
-	# elif not EMAIL_RE.match(email):
-	# 	to_return['email'] = "That's not a valid email."
-	
 	if school == '':
 		to_return['school'] = "Please enter a school"
 	if not SCHOOL_RE.match(school):
@@ -137,6 +132,12 @@ def signup(username='', password='', verify='', school='', year='', agree=''):
 	if agree != 'on':
 		to_return['agree'] = "You must agree to the Terms of Service to create an account"
 	# self.write(username + ' ' + password + ' ' + verify + ' ' + email + ' ' + school + ' ' + year )
+
+	# check areyouahuman result
+	externals.ayah.configure('9ee379aab47a91907b9f9b505204b16494367d56', 
+							 '7ec7c6561c6dba467095b91dd58778f2c60fbaf2')
+	if not externals.ayah.score_result(human):
+		to_return['human'] = "Please try the human test again."
 
 	if len(to_return) == 1:
 		same_username_db = db.GqlQuery("SELECT * FROM Users WHERE username = '" + username.replace("'", "&lsquo;") + "'")

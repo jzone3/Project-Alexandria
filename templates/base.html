@@ -56,6 +56,13 @@
 	</script>
 	<!-- End Typeahead Script -->
 
+	<script type="text/javascript">
+	function showMe (it, box) { 
+	   var vis = (box.checked) ? "block" : "none"; 
+	   document.getElementById(it).style.display = vis;
+	 } 
+	</script>
+
 	<div class="wrapper">
 	<!-- Nav Bar -->
 		<div class="navbar navbar-fixed-top">
@@ -131,8 +138,6 @@
 						<div class="span2">School</div>
 						<!-- <div class="span3"><div class="input-large uneditable-input">Bergen County Academies</div></div> -->
 						<div class="span3"><input type="text" autocomplete="off" name="school" id="school" data-provide="typeahead"></div>
-						
-						<!-- Make this into a dropdown (so as typing it suggests schools already in database) -->
 					</div>
 					<div class="alert alert-error" {% if not school_error %}style="display: none;"{% endif %}>{{school_error}}</div>
 					<div class="row">
@@ -148,11 +153,17 @@
 						</div>
 					</div>
 					<div class="alert alert-error" {% if not year_error %}style="display: none;"{% endif %}>{{year_error}}</div>
-					<br/>
-					<label class="checkbox" >
-						<input type="checkbox" name="agree"> I agree to the Project Alexandria <a href="tos" target="_blank">Terms of Service</a>
+					<br />
+					<label class="checkbox">
+						<input type="checkbox" name="agree" onClick="$('#human').show('slow');"> I agree to the Project Alexandria <a href="tos" target="_blank">Terms of Service</a>
 					</label>
 					<div class="alert alert-error" {% if not agree_error %}style="display: none;"{% endif %}>{{agree_error}}</div>
+					<div id="human" class="row" style="display:none;">
+						<div class="span4" style="margin-left:100px;margin-top:15px;">
+							{{ widget_html | safe }}
+						</div>
+					</div>
+					<div class="alert alert-error" {% if not human_error %}style="display: none;"{% endif %}>{{human_error}}</div>
 
 	        	</div>
 	        	<div class="modal-footer">
