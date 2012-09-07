@@ -123,7 +123,7 @@ def signup(username='', password='', verify='', school='', year='', agree='', hu
 	elif verify != password:
 		to_return['verify'] = "Your passwords didn't match."
 
-	if not EMAIL_RE.match(email):
+	if email != '' and not EMAIL_RE.match(email):
 		to_return['email'] = "That's not a valid email."
 	
 	if school == '':
@@ -221,8 +221,14 @@ def upload_errors(title, subject, teacher, locked, doc_url, headers):
 def get_schools():
 	lst = memcache.get('all_schools')
 	if not lst:
-		lst = ['Bergen County Academies']
-		memcache.set('all_schools', lst)
+		all_users = db.GqlQuery("SELECT * FROM Users")
+		schools = []
+		for i in all_users:
+			if not i.school in schools:
+				schools.append(i.school)
+		if len(schools) == 0:
+			schools = ['Bergen County Academies']
+		memcache.set('all_schools', schools)
 	return lst
 
 def add_school(new_school):
