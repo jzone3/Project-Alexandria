@@ -381,15 +381,15 @@ class ChangePasswordHandler(BaseHandler):
 
 	def post(self):
 		old_password, new_password, verify_new_password = [self.rget(x) for x in ['old_password', 'new_password', 'verify_new_password']]
-		if new_password == verify_new_password:
+		# if new_password == verify_new_password:
 			#FINISH
 
-		results = new_email(email, self.get_username())
-		if results[0]:
-			self.redirect('/preferences')
-		else:
-			self.render('prefs.html', {'email_error' : results[1]})
-			# implement error
+		# results = new_email(email, self.get_username())
+		# if results[0]:
+		# 	self.redirect('/preferences')
+		# else:
+		# 	self.render('prefs.html', {'email_error' : results[1]})
+		# implement error
 
 app = webapp2.WSGIApplication([('/?', MainHandler),
 							   ('/about/?', AboutHandler),
