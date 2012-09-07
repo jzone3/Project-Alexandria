@@ -18,9 +18,9 @@
 			</center>
 			<br/>
 			<hr>
-			{% if email and email != '' %}
+			{% if email == '' %}
 				<h3>Add an email:</h3>
-				<form action="/add_email" method="post">
+				<form action="/change_email" method="post">
 					<div class="row">
 						<div class="span2">
 							Email:
@@ -33,15 +33,15 @@
 				</form>
 			{% else %}
 				{% if not email_verified %}
-					<h3>Your email ({{email}}) is not yet verified!</h3>
+					<h3>Your email (<a href="mailto:{{email}}">{{email}}</a>) is not yet verified!</h3>
 					<form action="/resend_email" method="post">
 						<input type="hidden" name="type" value="resend_email_verification">
-						<input type="submit" class="btn btn-primary">
+						<input type="submit" class="btn btn-primary" value="Resend Verification">
 					</form>
 				{% endif %}
 				<hr>
 				<h3>Change your email:</h3>
-				<form action="/add_email" method="post">
+				<form action="/change_email" method="post">
 					<div class="row">
 						<div class="span2">
 							Email:
@@ -54,18 +54,24 @@
 				</form>
 			{% endif %}
 			<hr>
+			<h3>Change your school:</h3>
 			<form action="/change_school">
 				<div class="row">
 					<div class="span2">
 						School:
 					</div>
-					<div class="span2">
-						Typeahead thing
+					<div class="span3">
+						<input type="text" autocomplete="off" name="school" id="school" data-provide="typeahead" placeholder="{{school}}">
+					</div>
+					<div class="span3">
+						<div class="alert alert-error" {% if not school_error %}style="display: none;"{% endif %}>{{school_error}}</div>
 					</div>
 				</div>
+				<input class="btn btn-primary" type="submit" value="Change School">
 			</form>
 			<hr>
-			<form action="/resetpassword" method="post">
+			<h3>Change Password:</h3>
+			<form action="/change_password" method="post">
 				<div class="row">
 					<div class="span2">
 						Current Password:

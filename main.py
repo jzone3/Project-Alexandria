@@ -45,12 +45,13 @@ class BaseHandler(webapp2.RequestHandler):
 		return to_return
 
 	def render(self, template, params={}):
+		# setup school list for typeahead
+		params['all_schools'] = self.list_to_str(get_schools())
+
 		params['signed_in'] = self.logged_in()
 		if params['signed_in']:
 			params['username'] = self.get_username()
 		else:
-			# setup school list for typeahead
-			params['all_schools'] = self.list_to_str(get_schools())
 			# set username to blank
 			if not 'username' in params.keys():
 				params['username'] = ''
@@ -62,6 +63,23 @@ class BaseHandler(webapp2.RequestHandler):
 
 		template = jinja_env.get_template(template)
 		self.response.out.write(template.render(params))
+
+	def render_prefs(self):
+		username = self.get_username()
+		user = get_user(username)
+		try:
+			email = user.email
+		except:
+			email = None
+		try:
+			email_verified = user.email_verified
+		except:
+			email_verified = None
+		try:
+			school = user.school
+		except:
+			school = None
+		self.render('prefs.html', {'email' : email, 'email_verified' : email_verified, 'school' : school})
 
 	def logged_in(self):
 		username = self.request.cookies.get(LOGIN_COOKIE_NAME, '')
@@ -237,7 +255,7 @@ class UploadHandler(BaseHandler):
 			errors = upload_errors(title, subject, teacher, locked, doc_url, headers)
 		else:
 			errors = upload_errors(title, subject, teacher, locked, doc_url, 
-				                   {'content-type':'text/plain', 'content-length':'0'})
+								   {'content-type':'text/plain', 'content-length':'0'})
 			errors['file_error'] = 'Please upload a file.'
 
 		if any(errors.values()):
@@ -258,20 +276,20 @@ class UploadHandler(BaseHandler):
 			# write file to blobstore
 			file_name = files.blobstore.create(mime_type=headers['content-type'], _blobinfo_uploaded_filename=doc_name)
 			with files.open(file_name, 'a') as f:
-	  			f.write(result.content)
-	  		files.finalize(file_name)
-	  		blob_key = files.blobstore.get_blob_key(file_name)
+				f.write(result.content)
+			files.finalize(file_name)
+			blob_key = files.blobstore.get_blob_key(file_name)
 
-	  		guide = Guides(user_created=username, title=title, subject=subject,
-	  			   teacher=teacher, tags=tags, blob_key=str(blob_key), locked=locked,
-	  			   votes=0, edit_link=doc_url, school=school, url=doc_name)
-	  		guide.put()
-	  		
-	  		# add guide to index
-	  		key = str(guide.key())
-	  		add_to_index(school, key, tags)
+			guide = Guides(user_created=username, title=title, subject=subject,
+				   teacher=teacher, tags=tags, blob_key=str(blob_key), locked=locked,
+				   votes=0, edit_link=doc_url, school=school, url=doc_name)
+			guide.put()
+			
+			# add guide to index
+			key = str(guide.key())
+			add_to_index(school, key, tags)
 
-	  		self.redirect('/guides/' + doc_name)
+			self.redirect('/guides/' + doc_name)
 
 class ServeHandler(blobstore_handlers.BlobstoreDownloadHandler):
 	def get(self, resource):
@@ -327,10 +345,51 @@ class Test(BaseHandler):
 class PreferencesHandler(BaseHandler):
 	def get(self):
 		if self.logged_in():
-			self.render('prefs.html')
+			self.render_prefs()
 		else:
-			self.redirect('/prefs.html')
+			self.redirect('/')
 
+class ChangeEmailHandler(BaseHandler):
+	def get(self):
+		self.redirect('/preferences')
+
+	def post(self):
+		email = self.rget('email')
+		results = new_email(email, self.get_username())
+		if results[0]:
+			self.redirect('/preferences')
+		else:
+			self.render('prefs.html', {'email_error' : results[1]})
+			# implement error in HTML
+
+class ChangeSchoolHandler(BaseHandler):
+	def get(self):
+		self.redirect('/preferences')
+
+	def post(self):
+		school = self.rget('school')
+		results = change_school(school)
+		if results[0]:
+			self.render_prefs()
+		else:
+			self.write(results[1])
+			self.render('prefs', {'school_error' : results[1]})
+
+class ChangePasswordHandler(BaseHandler):
+	def get(self):
+		self.redirect('/preferences')
+
+	def post(self):
+		old_password, new_password, verify_new_password = [self.rget(x) for x in ['old_password', 'new_password', 'verify_new_password']]
+		if new_password == verify_new_password:
+			#FINISH
+
+		results = new_email(email, self.get_username())
+		if results[0]:
+			self.redirect('/preferences')
+		else:
+			self.render('prefs.html', {'email_error' : results[1]})
+			# implement error
 
 app = webapp2.WSGIApplication([('/?', MainHandler),
 							   ('/about/?', AboutHandler),
@@ -346,6 +405,9 @@ app = webapp2.WSGIApplication([('/?', MainHandler),
 							   ('/tos/?', ToSHandler),
 							   ('/preferences/?', PreferencesHandler),
 							   ('/search', SearchHandler),	
-							   ('/test', Test),						   
+							   ('/change_email/?', ChangeEmailHandler),
+							   ('/change_school/?', ChangeSchoolHandler),
+							   ('/change_password/?', ChangePasswordHandler),
+							   ('/test', Test),
 							   ('/.*', NotFoundHandler),
 							   ], debug=True)

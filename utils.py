@@ -42,6 +42,10 @@ def get_error(results, error):
 	else:
 		return None
 
+def get_user(username):
+	user = (db.GqlQuery("SELECT * FROM Users WHERE username = '" + username.replace("'", "&lsquo;") + "'")).get()
+	return user
+
 def str_grade(grade):
 	if grade == 9:
 		return 'Freshman'
@@ -119,9 +123,7 @@ def signup(username='', password='', verify='', school='', year='', agree='', hu
 	elif verify != password:
 		to_return['verify'] = "Your passwords didn't match."
 
-	if email == '':
-		to_return['email'] = "Please enter a email"
-	elif not EMAIL_RE.match(email):
+	if not EMAIL_RE.match(email):
 		to_return['email'] = "That's not a valid email."
 	
 	if school == '':
@@ -229,3 +231,42 @@ def add_school(new_school):
 	if not new_school in current_schools:
 		current_schools.append(new_school)
 	memcache.set('all_schools', current_schools)
+
+def change_school(school, username):
+	user = get_user(username)
+	if school == '':
+		return [False, 'No school entered']
+	if not SCHOOL_RE.match(school):
+		return [False, "That is not a valid school name"]
+	add_school(school)
+	user.school = school
+	user.put()
+	return [True]
+
+def new_email(email, username):
+	"""
+	Returns:
+		[Success_bool, error]
+	"""
+	if email == '':
+		return [False, 'No email entered']
+	if not EMAIL_RE.match(email):
+		return [False, "That's not a valid email."]
+
+	user = get_user(username)
+	user.email = email
+	user.put()
+	return [True]
+
+def change_password(old, new, username):
+	# WRITE THIS
+
+	if email == '':
+		return [False, 'No email entered']
+	if not EMAIL_RE.match(email):
+		return [False, "That's not a valid email."]
+
+	user = get_user(username)
+	user.email = email
+	user.put()
+	return [True]
