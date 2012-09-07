@@ -114,11 +114,11 @@ class MainHandler(BaseHandler):
 				self.render('index.html', {'username': username, 'wrong': value, 'modal' : 'login'})
 
 		elif formname == 'signup':
-			username, password, verify, school, year, agree, human = ('', '', '', '', '', '', '')
-			username_error, password_error, verify_error, school_error, year_error, agree_error, human_error = ('', '', '', '', '', '', '')
+			username, password, verify, school, year, agree, human, email = ('', '', '', '', '', '', '', '')
+			username_error, password_error, verify_error, school_error, year_error, agree_error, human_error, email_error = ('', '', '', '', '', '', '', '')
 
-			username, password, verify, school, year, agree, human = [self.rget(x) for x in ('username', 'password', 'verify', 'school', 'year', 'agree', 'session_secret')]
-			results = signup(username=username, password=password, verify=verify, school=school, year=year, agree=agree, human=human)
+			username, password, verify, school, year, agree, human, email = [self.rget(x) for x in ('username', 'password', 'verify', 'school', 'year', 'agree', 'session_secret', 'email')]
+			results = signup(username=username, password=password, verify=verify, school=school, year=year, agree=agree, human=human, email=email)
 			
 			if results['success']:
 				add_school(school)
@@ -128,6 +128,8 @@ class MainHandler(BaseHandler):
 			else:
 				self.render('index.html', {'username': username,
 										   'school': school,
+										   'email' : email,
+										   'email_error' : get_error(results, 'email'),
 										   'username_error': get_error(results, 'username'),
 										   'password_error': get_error(results, 'password'),
 										   'verify_error': get_error(results, 'verify'),
@@ -176,7 +178,8 @@ class DashboardHandler(BaseHandler):
 
 		if self.logged_in():
 			self.render('dashboard.html')
-		self.redirect('/')
+		else:
+			self.redirect('/')
 
 class GuidePageHandler(BaseHandler):
 	'''Handlers custom guide pages: guide_page.html'''
@@ -321,6 +324,14 @@ class Test(BaseHandler):
 		else:
 			self.write('no')
 
+class PreferencesHandler(BaseHandler):
+	def get(self):
+		if self.logged_in():
+			self.render('prefs.html')
+		else:
+			self.redirect('/prefs.html')
+
+
 app = webapp2.WSGIApplication([('/?', MainHandler),
 							   ('/about/?', AboutHandler),
 							   ('/logout/?', LogoutHandler),
@@ -333,6 +344,7 @@ app = webapp2.WSGIApplication([('/?', MainHandler),
 							   ('/upload/?', UploadHandler),
 							   ('/serve/([^/]+)?', ServeHandler),
 							   ('/tos/?', ToSHandler),
+							   ('/preferences/?', PreferencesHandler),
 							   ('/search', SearchHandler),	
 							   ('/test', Test),						   
 							   ('/.*', NotFoundHandler),

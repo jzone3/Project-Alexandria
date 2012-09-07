@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% block title %}Preferences{% endblock %}
+{% block nav_links %}
+	<li class="active"><a href="#">Home</a></li>
+	<li><a href="/guides">Guides</a></li>
+	{% if signed_in %}
+		<li><a href="/upload">Upload</a></li>
+	{% endif %}
+	<li><a href="/about">About</a></li>
+	<li><a href="/contact">Contact</a></li>
+{% endblock %}
+
+{% block page_content %}
+	<div class="container">
+		<div class="well">
+			<center>
+				<h1>{{username}}'s Preferences</h1>
+			</center>
+			<br/>
+			<hr>
+			{% if email and email != '' %}
+				<h3>Add an email:</h3>
+				<form action="/add_email" method="post">
+					<div class="row">
+						<div class="span2">
+							Email:
+						</div>
+						<div class="span2">
+							<input type="text" name="email">
+						</div>
+					</div>
+					<input type="submit" value="Add Email" class="btn btn-primary">
+				</form>
+			{% else %}
+				{% if not email_verified %}
+					<h3>Your email ({{email}}) is not yet verified!</h3>
+					<form action="/resend_email" method="post">
+						<input type="hidden" name="type" value="resend_email_verification">
+						<input type="submit" class="btn btn-primary">
+					</form>
+				{% endif %}
+				<hr>
+				<h3>Change your email:</h3>
+				<form action="/add_email" method="post">
+					<div class="row">
+						<div class="span2">
+							Email:
+						</div>
+						<div class="span2">
+							<input type="text" name="email">
+						</div>
+					</div>
+					<input type="submit" value="Change Email" class="btn btn-primary">
+				</form>
+			{% endif %}
+			<hr>
+			<form action="/change_school">
+				<div class="row">
+					<div class="span2">
+						School:
+					</div>
+					<div class="span2">
+						Typeahead thing
+					</div>
+				</div>
+			</form>
+			<hr>
+			<form action="/resetpassword" method="post">
+				<div class="row">
+					<div class="span2">
+						Current Password:
+					</div>
+					<div class="span2">
+						<input type="password" name="current_password">
+					</div>
+				</div>
+				<div class="row">
+					<div class="span2">
+						New Password:
+					</div>
+					<div class="span2">
+						<input type="password" name="new_password">
+					</div>
+				</div>
+				<div class="row">
+					<div class="span2">
+						Verify New Password:
+					</div>
+					<div class="span2">
+						<input type="password" name="verify_new_password">
+					</div>
+				</div>
+				<div class="row">
+					<div class="span2">
+						<input type="submit" class="btn btn-primary" value="Reset Password"></a>
+					</div>
+				</div>
+			</form>
+			<hr>
+			<strong>WARNING: CHANGES ARE PERMANENT!</strong><br/>
+			<button class="btn btn-danger" onclick="">Delete Account Permanently</button>
+		</div>
+	</div>
+{% endblock %}

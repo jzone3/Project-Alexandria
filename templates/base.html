@@ -88,7 +88,7 @@
 				                    <ul class="dropdown-menu" role="menu" aria-labelledby="navuser">
 				                        <li><a tabindex="-1" href="/user/{{ username }}">Profile</a></li>
 				                        <li><a tabindex="-1" href="#">Inbox</a></li>
-				                        <li><a tabindex="-1" href="#">Preferences</a></li>
+				                        <li><a tabindex="-1" href="/preferences">Preferences</a></li>
 				                        <li class="divider"></li>
 				                        <li><a tabindex="-1" href="/logout">Log Out</a></li>
 				                    </ul>
@@ -119,11 +119,11 @@
 						<div class="span3"><input type="text" name="username" type="text" value="{{username}}"></div>
 					</div>
 					<div class="alert alert-error" {% if not username_error %}style="display: none;"{% endif %}>{{username_error}}</div>
-<!-- 					<div class="row">
-						<div class="span2">Email</div>
+					<div class="row">
+						<div class="span2">Email <i>(optional)</i></div>
 						<div class="span3"><input type="text" name="email" type="text" value="{{email}}"></div>
 					</div>
-					<div class="alert alert-error" {% if not email_error %}style="display: none;"{% endif %}>{{email_error}}</div> -->
+					<div class="alert alert-error" {% if not email_error %}style="display: none;"{% endif %}>{{email_error}}</div>
 					<div class="row">
 						<div class="span2">Password</div>
 						<div class="span3"><input name="password" type="password"></div>

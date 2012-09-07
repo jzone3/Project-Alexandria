@@ -10,6 +10,7 @@ class Users(db.Model):
 	confirmed    = db.BooleanProperty(required = True) 
 	password     = db.StringProperty(required = True)
 	date_created = db.DateTimeProperty(auto_now_add = True)
+	email        = db.StringProperty(required = True)
 
 class Guides(db.Model):
 	user_created = db.StringProperty(required = True)
