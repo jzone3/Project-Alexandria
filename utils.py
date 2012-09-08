@@ -246,12 +246,12 @@ def add_school(new_school):
 	memcache.set('all_schools', current_schools)
 
 def change_school(school, username):
-	user = get_user(username)
 	if school == '':
 		return [False, 'No school entered']
 	if not SCHOOL_RE.match(school):
 		return [False, "That is not a valid school name"]
 	add_school(school)
+	user = get_user(username)
 	user.school = school
 	user.put()
 	return [True]
@@ -271,15 +271,39 @@ def new_email(email, username):
 	user.put()
 	return [True]
 
-def change_password(old, new, username):
-	# WRITE THIS
-
-	if email == '':
-		return [False, 'No email entered']
-	if not EMAIL_RE.match(email):
-		return [False, "That's not a valid email."]
+def change_password(old, new, verify, username):
+	if new == '':
+		return [False, {'new_password_error' : "Please enter a password"}]
+	if old == '':
+		return [False, {'new_password_error' : "Please enter your current password"}]
+	elif not PASS_RE.match(new):
+		return [False, {'new_password_error' : "That's not a valid password."}]
+	elif verify == '':
+		return [False, {'verify_new_password_error' : "Please verify your password"}]
+	elif verify != new:
+		return [False, {'verify_new_password_error' : "Your passwords didn't match."}]
 
 	user = get_user(username)
-	user.email = email
-	user.put()
-	return [True]
+	logging.error(old)
+	(db_password, db_salt) = (user.password).split("|")
+	if salted_hash(old, db_salt) == db_password:		
+		salt = make_salt()
+		hashed = salted_hash(new, salt)
+		hashed_pass = hashed + '|' + salt
+
+		user.password = hashed_pass
+		user.put()
+
+		cookie = LOGIN_COOKIE_NAME + '=%s|%s; Expires=%s Path=/' % (str(username), hash_str(username), remember_me())
+		return [True, cookie]
+	else:
+		return [False, {'current_password_error' : 'Incorrect current password'}]
+
+def delete_user_account(username):
+	user = db.GqlQuery("SELECT * FROM Users WHERE username = '" + username.replace("'", "&lsquo;") + "'")
+	for i in user:
+		i.delete()
+
+def save_feedback(content, origin):
+	new_feedback = Feedback(content = content, origin = origin)
+	new_feedback.put()

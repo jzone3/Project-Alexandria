@@ -1,13 +1,14 @@
 {% extends "base.html" %}
 {% block title %}Preferences{% endblock %}
 {% block nav_links %}
-	<li class="active"><a href="#">Home</a></li>
+	<li><a href="/">Home</a></li>
 	<li><a href="/guides">Guides</a></li>
 	{% if signed_in %}
 		<li><a href="/upload">Upload</a></li>
 	{% endif %}
 	<li><a href="/about">About</a></li>
 	<li><a href="/contact">Contact</a></li>
+
 {% endblock %}
 
 {% block page_content %}
@@ -17,6 +18,10 @@
 				<h1>{{username}}'s Preferences</h1>
 			</center>
 			<br/>
+			<div class="alert alert-success" {% if not password_success %}style="display: none;"{% endif %}>Your password has successfully been changed!</div>
+			<div class="alert alert-success" {% if not school_success %}style="display: none;"{% endif %}>Your school has successfully been changed!</div>
+			<div class="alert alert-success" {% if not email_success %}style="display: none;"{% endif %}>Your school has successfully been changed!</div>
+			<div class="alert alert-success" {% if not verification_success %}style="display: none;"{% endif %}>Another verification email has been sent!</div>
 			<hr>
 			{% if email == '' %}
 				<h3>Add an email:</h3>
@@ -25,8 +30,11 @@
 						<div class="span2">
 							Email:
 						</div>
-						<div class="span2">
+						<div class="span3">
 							<input type="text" name="email">
+						</div>
+						<div class="span3">
+							<div class="alert alert-error" {% if not email_error %}style="display: none;"{% endif %}>{{email_error}}</div>
 						</div>
 					</div>
 					<input type="submit" value="Add Email" class="btn btn-primary">
@@ -46,8 +54,11 @@
 						<div class="span2">
 							Email:
 						</div>
-						<div class="span2">
+						<div class="span3">
 							<input type="text" name="email">
+						</div>
+						<div class="span3">
+							<div class="alert alert-error" {% if not email_error %}style="display: none;"{% endif %}>{{email_error}}</div>
 						</div>
 					</div>
 					<input type="submit" value="Change Email" class="btn btn-primary">
@@ -55,7 +66,7 @@
 			{% endif %}
 			<hr>
 			<h3>Change your school:</h3>
-			<form action="/change_school">
+			<form action="/change_school" method="post">
 				<div class="row">
 					<div class="span2">
 						School:
@@ -76,24 +87,39 @@
 					<div class="span2">
 						Current Password:
 					</div>
-					<div class="span2">
+					<div class="span3">
 						<input type="password" name="current_password">
+					</div>
+					<div class="span4">
+						{% if current_password_error %}
+							<div class="alert alert-error">{{current_password_error}}</div>
+						{% endif %}
 					</div>
 				</div>
 				<div class="row">
 					<div class="span2">
 						New Password:
 					</div>
-					<div class="span2">
+					<div class="span3">
 						<input type="password" name="new_password">
+					</div>
+					<div class="span4">
+						{% if new_password_error %}
+							<div class="alert alert-error">{{new_password_error}}</div>
+						{% endif %}
 					</div>
 				</div>
 				<div class="row">
 					<div class="span2">
 						Verify New Password:
 					</div>
-					<div class="span2">
+					<div class="span3">
 						<input type="password" name="verify_new_password">
+					</div>
+					<div class="span4">
+						{% if verify_new_password_error %}
+							<div class="alert alert-error">{{verify_new_password_error}}</div>
+						{% endif %}
 					</div>
 				</div>
 				<div class="row">
@@ -104,7 +130,7 @@
 			</form>
 			<hr>
 			<strong>WARNING: CHANGES ARE PERMANENT!</strong><br/>
-			<button class="btn btn-danger" onclick="">Delete Account Permanently</button>
+			<a class="btn btn-danger" href="/delete_account">Delete Account Permanently</a>
 		</div>
 	</div>
 {% endblock %}

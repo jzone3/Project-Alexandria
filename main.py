@@ -64,22 +64,34 @@ class BaseHandler(webapp2.RequestHandler):
 		template = jinja_env.get_template(template)
 		self.response.out.write(template.render(params))
 
-	def render_prefs(self):
+	def render_prefs(self, params={}):
 		username = self.get_username()
 		user = get_user(username)
-		try:
-			email = user.email
-		except:
-			email = None
-		try:
-			email_verified = user.email_verified
-		except:
-			email_verified = None
-		try:
-			school = user.school
-		except:
-			school = None
-		self.render('prefs.html', {'email' : email, 'email_verified' : email_verified, 'school' : school})
+		if not 'email' in params.keys():
+			try:
+				email = user.email
+			except:
+				email = None
+		else:
+			email = params['email']
+			del params['email']
+
+		if not 'email_verified' in params.keys():
+			try:
+				email_verified = user.email_verified
+			except:
+				email_verified = None
+		else:
+			email_verified = params['email_verified']
+			del params['email_verified']
+		school = self.get_school_cookie()
+		logging.error(school)
+		if 'school' in params.keys():
+			del params['school']
+		new_params = {'email' : email, 'email_verified' : email_verified, 'school' : school}
+		all_params = dict(new_params)
+		all_params.update(params)
+		self.render('prefs.html', all_params)
 
 	def logged_in(self):
 		username = self.request.cookies.get(LOGIN_COOKIE_NAME, '')
@@ -89,6 +101,7 @@ class BaseHandler(webapp2.RequestHandler):
 				return True
 			else:
 				self.delete_cookie(LOGIN_COOKIE_NAME)
+				self.delete_cookie(school)
 				return False
 		else:
 			return False		
@@ -143,7 +156,7 @@ class MainHandler(BaseHandler):
 				self.set_school_cookie(get_school(username))
 				self.redirect('/')
 			else:
-				self.render('index.html', {'username': username, 'wrong': value, 'modal' : 'login'})
+				self.render('index.html', {'username': username, 'wrong': value, 'modal' : 'login', 'blockbg' : True})
 
 		elif formname == 'signup':
 			username, password, verify, school, year, agree, human, email = ('', '', '', '', '', '', '', '')
@@ -169,6 +182,8 @@ class MainHandler(BaseHandler):
 										   'year_error': get_error(results, 'year'),
 										   'agree_error': get_error(results, 'agree'),
 										   'human_error': get_error(results, 'human'),
+										   'choice' : int(year),
+										   'blockbg' : True,
 										   'modal': 'signup'})
 
 		else:
@@ -373,42 +388,72 @@ class ChangeEmailHandler(BaseHandler):
 		self.redirect('/preferences')
 
 	def post(self):
-		email = self.rget('email')
-		results = new_email(email, self.get_username())
-		if results[0]:
-			self.redirect('/preferences')
+		if self.logged_in():
+			email = self.rget('email')
+			results = new_email(email, self.get_username())
+			if results[0]:
+				self.render_prefs({'email_success' : True})
+			else:
+				self.render_prefs({'email_error' : results[1]})
 		else:
-			self.render('prefs.html', {'email_error' : results[1]})
-			# implement error in HTML
+			self.redirect('/')
 
 class ChangeSchoolHandler(BaseHandler):
 	def get(self):
 		self.redirect('/preferences')
 
 	def post(self):
-		school = self.rget('school')
-		results = change_school(school)
-		if results[0]:
-			self.render_prefs()
+		if self.logged_in():
+			school = self.rget('school')
+			results = change_school(school, self.get_username())
+			if results[0]:
+				self.set_cookie(str('school=%s'%school.replace(' ', '_')))
+				self.render_prefs({'school_success' : True})
+			else:
+				self.write(results[1])
+				self.render('prefs', {'school_error' : results[1]})
 		else:
-			self.write(results[1])
-			self.render('prefs', {'school_error' : results[1]})
+			self.redirect('/')
 
 class ChangePasswordHandler(BaseHandler):
 	def get(self):
 		self.redirect('/preferences')
 
 	def post(self):
-		old_password, new_password, verify_new_password = [self.rget(x) for x in ['old_password', 'new_password', 'verify_new_password']]
-		# if new_password == verify_new_password:
-			#FINISH
+		if self.logged_in():
+			username = self.get_username()
+			old_password, new_password, verify_new_password= [self.rget(x) for x in ['current_password', 'new_password', 'verify_new_password']]
+			results = change_password(old_password, new_password, verify_new_password, username)
+			if results[0]:
+				self.set_cookie(results[1])
+				self.render_prefs({'username' : username, 'password_success' : True})
+			else:
+				self.render_prefs(results[1])
+		else:
+			self.redirect('/')
 
-		# results = new_email(email, self.get_username())
-		# if results[0]:
-		# 	self.redirect('/preferences')
-		# else:
-		# 	self.render('prefs.html', {'email_error' : results[1]})
-		# implement error
+class DeleteAccountHandler(BaseHandler):
+	def get(self):
+		if self.logged_in():
+			self.render('delete_account.html')
+		else:
+			self.redirect('/')
+
+	def post(self):
+		if self.logged_in():
+			password = self.rget('password')
+			if check_login(self.get_username(), password):
+				feedback = self.rget('feedback')
+				if feedback:
+					save_feedback(feedback, 'delete_account')
+				delete_user_account(self.get_username())
+				self.delete_cookie(LOGIN_COOKIE_NAME)
+				self.delete_cookie('school')
+				self.redirect('/')
+			else:
+				self.render('/delete_account')
+		else:
+			self.redirect('/')
 
 app = webapp2.WSGIApplication([('/?', MainHandler),
 							   ('/about/?', AboutHandler),
@@ -427,6 +472,7 @@ app = webapp2.WSGIApplication([('/?', MainHandler),
 							   ('/change_email/?', ChangeEmailHandler),
 							   ('/change_school/?', ChangeSchoolHandler),
 							   ('/change_password/?', ChangePasswordHandler),
+							   ('/delete_account/?', DeleteAccountHandler),
 							   # ('/test', Test),
 							   ('/.*', NotFoundHandler),
 							   ], debug=True)

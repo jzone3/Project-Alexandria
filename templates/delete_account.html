@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Delete Account{% endblock %}
+{% block nav_links %}
+	<li><a href="/">Home</a></li>
+	<li><a href="/guides">Guides</a></li>
+	{% if signed_in %}
+		<li><a href="/upload">Upload</a></li>
+	{% endif %}
+	<li><a href="/about">About</a></li>
+	<li><a href="/contact">Contact</a></li>
+
+{% endblock %}
+
+{% block page_content %}
+	<div class="container">
+		<div class="well">
+			<center>
+				<h1>We are sad to see you go!</h1>
+				<h3><strong style="color: red;">WARNING: CHANGES ARE PERMANENT!</strong></h3>
+				<h4>We are not responsible for any lost data</h4>
+			</center>
+			<br/>
+			<form action="/delete_account" method="post">
+				<div class="row">
+					<br/>
+					<div class="span3">
+						Password:
+					</div>
+					<div class="span3">
+						<input type="password" name="current_password">
+					</div>
+				</div>
+				<div class="row">
+					<div class="span3">
+						Why are you leaving? <i>(optional)</i><br/>
+					</div>
+					<div class="span3">
+						<textarea type="text" name="feedback"></textarea>
+					</div>
+				</div>
+				<div class="row">
+					<div class="span2">
+						<input type="submit" class="btn btn-danger" value="Delete Account Permanently"></a>
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+{% endblock %}
