@@ -136,7 +136,7 @@ class MainHandler(BaseHandler):
 			self.redirect('/search?q=' + self.rget('q'))
 
 		if logged_in:
-			self.render('dashboard.html')
+			self.render('dashboard.html', {'submitted' : get_submitted(self.get_username())})
 		else:
 			self.render('index.html', {'blockbg':True})
 
@@ -233,7 +233,7 @@ class GuidePageHandler(BaseHandler):
 	def get(self, url):
 		url = url[1:]
 		q = Guides.all()
-		q.filter('url =', url)
+		q.filter('url =', url.lower())
 		result = q.get()
 		if result:
 			votes = str_votes(result.votes)
@@ -404,10 +404,10 @@ class ChangeSchoolHandler(BaseHandler):
 
 	def post(self):
 		if self.logged_in():
-			school = self.rget('school')
+			school = self.get_school_cookie()
 			results = change_school(school, self.get_username())
 			if results[0]:
-				self.set_cookie(str('school=%s'%school.replace(' ', '_')))
+				self.set_school_cookie(school)
 				self.render_prefs({'school_success' : True})
 			else:
 				self.write(results[1])
