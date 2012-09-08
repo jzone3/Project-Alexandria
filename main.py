@@ -156,7 +156,7 @@ class MainHandler(BaseHandler):
 				self.set_school_cookie(get_school(username))
 				self.redirect('/')
 			else:
-				self.render('index.html', {'username': username, 'wrong': value, 'modal' : 'login'})
+				self.render('index.html', {'username': username, 'wrong': value, 'modal' : 'login', 'blockbg' : True})
 
 		elif formname == 'signup':
 			username, password, verify, school, year, agree, human, email = ('', '', '', '', '', '', '', '')
@@ -182,6 +182,8 @@ class MainHandler(BaseHandler):
 										   'year_error': get_error(results, 'year'),
 										   'agree_error': get_error(results, 'agree'),
 										   'human_error': get_error(results, 'human'),
+										   'choice' : int(year),
+										   'blockbg' : True,
 										   'modal': 'signup'})
 
 		else:

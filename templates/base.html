@@ -144,12 +144,23 @@
 						<div class="span2">Grade</div>
 						<div class="span3">
 							<div class="btn-group" data-toggle="buttons-radio" data-toggle-name="year">
-							  <button type="button" class="btn active" value="9">9th</button>
-							  <button type="button" class="btn" value="10">10th</button>
-							  <button type="button" class="btn" value="11">11th</button>
-							  <button type="button" class="btn" value="12">12th</button>
+								{% for i in [9, 10, 11, 12] %}
+									{% if (choice and choice == i) or (not choice and i == 9): %}
+										<button type="button" class="btn active" value="{{i}}">{{i}}th</button>
+									{% else %}
+										<button type="button" class="btn" value="{{i}}">{{i}}th</button>
+									{% endif %}
+								{% endfor %}
+								<!-- <button type="button" class="btn active" value="9">9th</button>
+								<button type="button" class="btn" value="10">10th</button>
+								<button type="button" class="btn" value="11">11th</button>
+								<button type="button" class="btn" value="12">12th</button> -->
 							</div>
-							<input type="hidden" name="year" value="9">
+							{% if choice %}
+								<input type="hidden" name="year" value="{{choice}}">
+							{% else %}
+								<input type="hidden" name="year" value="9">
+							{% endif %}
 						</div>
 					</div>
 					<div class="alert alert-error" {% if not year_error %}style="display: none;"{% endif %}>{{year_error}}</div>
