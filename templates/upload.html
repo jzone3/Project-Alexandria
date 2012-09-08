@@ -39,17 +39,17 @@
 	        	<div class="row">
 					<div class="span2">
 						Locked
-						<a rel="tooltip" data-placement="right" title="A locked study guide is not editable by the community." class="tooltips"><i class="icon-question-sign"></i></a>
+						<a rel="tooltip" data-placement="right" title="A locked study guide is not editable by the community." class="tooltips" onclick="$('#edit_url').modal('hide')"><i class="icon-question-sign"></i></a>
 					</div>
 					<div class="span4"><input type="checkbox" name="locked" {% if locked %}checked="checked"{% endif %}></div>
 				</div>
-				<div class="row">
+				<div id="edit_url" class="row">
 					<div class="span2">
 						Google Doc URL
 						<a href="#" rel="tooltip" data-placement="right" title="The link to a public Google Doc. Not needed if the guide is locked." class="tooltips"><i class="icon-question-sign"></i></a>
 					</div>
-					<div class="span4"><input class="input-xlarge"type="text" name="doc_url" value="{{doc_url}}" placeholder="http://docs.google.com ..."></div>
-					<div class="alert alert-error span4" {% if not doc_url_error %}style="display: none;"{% endif %}>{{doc_url_error}}</div>
+					<div class="span4"><input class="input-xlarge"type="text" name="edit_url" value="{{edit_url}}" placeholder="http://docs.google.com ..."></div>
+					<div class="alert alert-error span4" {% if not edit_url_error %}style="display: none;"{% endif %}>{{edit_url_error}}</div>
 				</div>				
 				<div class="row">
 					<div class="span2">

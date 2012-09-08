@@ -174,7 +174,8 @@ def get_tags(string):
 			tags.append(tag)
 	return tags
 
-def get_name(title, user):
+def get_filename(title, user):
+	'''Makes a filename from the guide title and uploading user'''
 	title = title.lower()
 	user = user.lower()
 	new_title = ''
@@ -184,6 +185,12 @@ def get_name(title, user):
 		else:
 			new_title += '_'
 	return new_title + '_' + user
+
+def get_url(filename, user):
+	'''Creates url: user/guidename from filename and uploading user'''
+	user = user.lower()
+	filename = filename[:filename.rfind('_')]
+	return user + '/' + filename
 
 def upload_errors(title, subject, teacher, locked, doc_url, headers):
 	title_error, subject_error, teacher_error, doc_url_error = '', '', '', ''

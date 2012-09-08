@@ -137,7 +137,7 @@
 					<div class="row">
 						<div class="span2">School</div>
 						<!-- <div class="span3"><div class="input-large uneditable-input">Bergen County Academies</div></div> -->
-						<div class="span3"><input type="text" autocomplete="off" name="school" id="school" data-provide="typeahead"></div>
+						<div class="span3"><input type="text" autocomplete="off" name="school" id="school" data-provide="typeahead" value={{ school }}></div>
 					</div>
 					<div class="alert alert-error" {% if not school_error %}style="display: none;"{% endif %}>{{school_error}}</div>
 					<div class="row">
@@ -159,7 +159,7 @@
 					</label>
 					<div class="alert alert-error" {% if not agree_error %}style="display: none;"{% endif %}>{{agree_error}}</div>
 					<div id="human" class="row" style="display:none;">
-						<div class="span4" style="margin-left:100px;margin-top:15px;">
+						<div class="span4" style="margin-left:104px;margin-top:15px;">
 							{{ widget_html | safe }}
 						</div>
 					</div>

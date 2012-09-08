@@ -21,7 +21,7 @@ class Guides(db.Model):
 	blob_key     = db.StringProperty(required = True)
 	locked       = db.BooleanProperty(required = True)
 	votes        = db.IntegerProperty(required = True) 
-	edit_link    = db.StringProperty(required = False)
+	edit_url    = db.StringProperty(required = False)
 	school       = db.StringProperty(required = True)
 	url          = db.StringProperty(required = True)
 	date_created = db.DateTimeProperty(auto_now_add = True)

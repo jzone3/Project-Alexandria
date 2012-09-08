@@ -99,6 +99,20 @@ class BaseHandler(webapp2.RequestHandler):
 	def delete_cookie(self, cookie):
 		self.response.headers.add_header('Set-Cookie', '%s=; Path=/' % cookie)
 
+	def set_school_cookie(self, school):
+		'''sets and formats school cookie'''
+		school = str(school).replace(' ', '_')
+		self.set_cookie('school='+school)
+
+	def get_school_cookie(self):
+		'''retrieves school and formats from cookie'''
+		school = self.request.cookies.get('school', '')
+		if school:
+			school = school.replace('_', ' ')
+			return school
+		else:
+			return None
+
 
 class MainHandler(BaseHandler):
 	'''Handles homepage: index.html and dashboard.html'''
@@ -126,7 +140,7 @@ class MainHandler(BaseHandler):
 					self.set_cookie(value)
 				else:
 					self.set_cookie(value + ' Path=/')
-				self.set_cookie(str('school=%s'%get_school(username)))
+				self.set_school_cookie(get_school(username))
 				self.redirect('/')
 			else:
 				self.render('index.html', {'username': username, 'wrong': value, 'modal' : 'login'})
@@ -141,7 +155,7 @@ class MainHandler(BaseHandler):
 			if results['success']:
 				add_school(school)
 				self.set_cookie(results['cookie'])
-				self.set_cookie(str('school=%s'%school))
+				self.set_school_cookie(school)
 				self.redirect('/')	
 			else:
 				self.render('index.html', {'username': username,
@@ -241,7 +255,7 @@ class UploadHandler(BaseHandler):
 		subject = self.rget('subject')
 		teacher = self.rget('teacher')
 		locked = self.rget('locked')
-		doc_url = self.rget('doc_url')
+		edit_url = self.rget('edit_url')
 		tags = self.rget('tags')
 		file_url = self.rget('file')
 
@@ -252,21 +266,21 @@ class UploadHandler(BaseHandler):
 			if result.status_code != 200:
 				self.write("Connection Error.")
 				return
-			errors = upload_errors(title, subject, teacher, locked, doc_url, headers)
+			errors = upload_errors(title, subject, teacher, locked, edit_url, headers)
 		else:
-			errors = upload_errors(title, subject, teacher, locked, doc_url, 
+			errors = upload_errors(title, subject, teacher, locked, edit_url, 
 								   {'content-type':'text/plain', 'content-length':'0'})
 			errors['file_error'] = 'Please upload a file.'
 
 		if any(errors.values()):
 			fields = {'title':title, 'subject':subject, 'teacher':teacher, 
-					  'locked':locked, 'doc_url':doc_url, 'tags':tags}
+					  'locked':locked, 'edit_url':edit_url, 'tags':tags}
 			errors.update(fields)
 			self.render('/upload.html', errors)
 		else:
 			tags = get_tags(tags) + create_tags(title, subject, teacher)
 			username = self.get_username()
-			doc_name = get_name(title, username)
+			filename = get_filename(title, username)
 			school = get_school(username)
 			if locked: 
 				locked = True
@@ -274,22 +288,26 @@ class UploadHandler(BaseHandler):
 				locked = False
 
 			# write file to blobstore
-			file_name = files.blobstore.create(mime_type=headers['content-type'], _blobinfo_uploaded_filename=doc_name)
-			with files.open(file_name, 'a') as f:
-				f.write(result.content)
-			files.finalize(file_name)
-			blob_key = files.blobstore.get_blob_key(file_name)
+			f = files.blobstore.create(mime_type=headers['content-type'], _blobinfo_uploaded_filename=filename)
+			with files.open(f, 'a') as data:
+				data.write(result.content)
+			files.finalize(f)
+			blob_key = files.blobstore.get_blob_key(f)
 
+			# construct url for guide page
+			url = get_url(filename, username)
+
+			# add guide to db
 			guide = Guides(user_created=username, title=title, subject=subject,
 				   teacher=teacher, tags=tags, blob_key=str(blob_key), locked=locked,
-				   votes=0, edit_link=doc_url, school=school, url=doc_name)
+				   votes=0, edit_url=edit_url, school=school, url=url)
 			guide.put()
 			
 			# add guide to index
 			key = str(guide.key())
 			add_to_index(school, key, tags)
 
-			self.redirect('/guides/' + doc_name)
+			self.redirect('/guides/' + url)
 
 class ServeHandler(blobstore_handlers.BlobstoreDownloadHandler):
 	def get(self, resource):
@@ -309,10 +327,11 @@ class ToSHandler(BaseHandler):
 class SearchHandler(BaseHandler):
 	def get(self):
 		query = self.rget('q')
-		school = self.request.cookies.get('school')
+		school = self.get_school_cookie()
 		if not school:
 			school = 'Bergen County Academies'
 		rankings = search(school, query)
+
 		results = []
 
 		for ranking in rankings:
@@ -328,19 +347,19 @@ class SearchHandler(BaseHandler):
 		else:
 			self.render('search.html')
 
-class Test(BaseHandler):
-	def get(self):
-		externals.ayah.configure('9ee379aab47a91907b9f9b505204b16494367d56', '7ec7c6561c6dba467095b91dd58778f2c60fbaf2')
-		html = externals.ayah.get_publisher_html()
-		self.write('<form method="post"><input type="text">'+html+'<button type="submit"></button></form>')
+# class Test(BaseHandler):
+# 	def get(self):
+# 		externals.ayah.configure('9ee379aab47a91907b9f9b505204b16494367d56', '7ec7c6561c6dba467095b91dd58778f2c60fbaf2')
+# 		html = externals.ayah.get_publisher_html()
+# 		self.write('<form method="post"><input type="text">'+html+'<button type="submit"></button></form>')
 
-	def post(self):
-		secret = self.rget('session_secret')
-		externals.ayah.configure('9ee379aab47a91907b9f9b505204b16494367d56', '7ec7c6561c6dba467095b91dd58778f2c60fbaf2')
-		if externals.ayah.score_result(secret):
-			self.write(secret)
-		else:
-			self.write('no')
+# 	def post(self):
+# 		secret = self.rget('session_secret')
+# 		externals.ayah.configure('9ee379aab47a91907b9f9b505204b16494367d56', '7ec7c6561c6dba467095b91dd58778f2c60fbaf2')
+# 		if externals.ayah.score_result(secret):
+# 			self.write(secret)
+# 		else:
+# 			self.write('no')
 
 class PreferencesHandler(BaseHandler):
 	def get(self):
@@ -398,8 +417,8 @@ app = webapp2.WSGIApplication([('/?', MainHandler),
 							   ('/contact/?', ContactHandler),
 							   ('/team/?', TeamHandler),
 							   ('/dashboard/?', DashboardHandler),
-							   ('/guides/?' + PAGE_RE, GuidePageHandler),
-							   ('/user/?'+ PAGE_RE, UserPageHandler),
+							   ('/guides' + PAGE_RE, GuidePageHandler),
+							   ('/user'+ PAGE_RE, UserPageHandler),
 							   ('/upload/?', UploadHandler),
 							   ('/serve/([^/]+)?', ServeHandler),
 							   ('/tos/?', ToSHandler),
@@ -408,6 +427,6 @@ app = webapp2.WSGIApplication([('/?', MainHandler),
 							   ('/change_email/?', ChangeEmailHandler),
 							   ('/change_school/?', ChangeSchoolHandler),
 							   ('/change_password/?', ChangePasswordHandler),
-							   ('/test', Test),
+							   # ('/test', Test),
 							   ('/.*', NotFoundHandler),
 							   ], debug=True)
