@@ -16,34 +16,83 @@
 {% endblock %}
 
 {% block page_content %}
-		<div style="padding:15px;background-image:url('../static/img/home_bg.jpg');background-position:center;">
-			<h1 class="textcenter logo" style="font-size:100px;color:white;padding-top:130px;padding-bottom:20px;text-shadow: 1px 2px black;">Project Alexandria</h1>
-			<br />
-			<p class="textcenter" style="font-size:30px;color:white;padding-top:50px;text-shadow: -1px 0 1px black, 0 1px 1px black, 1px 0 1px black, 0 -1px 1px black">Study Efficiently, Study Together.</p>
-			<p class="textcenter" style="font-size:20px;color:white;text-shadow: -1px 0 1px black, 0 1px 1px black, 1px 0 1px black, 0 -1px 1px black">Share and Collaborate on Study Guides.</p>
-			
+	<!-- Smooth Scroll Script -->
+	<script type="text/javascript">
+		function goToByScroll(id){
+		$('html,body').animate({scrollTop: $(id).offset().top},'medium');
+		}
+		$(document).ready(function(){
+			$('.scroll').click(function(){
+			goToByScroll($(this).attr('href'));
+			return false;
+			});
+		});
+	</script>
+	<!-- End Smooth Scroll Script -->
 
-		<center>
-			<div style="width: 600px;height: 30px;margin-top: 40px;margin-bottom:25px;padding-top: 20px;padding-bottom: 20px;background-color: rgba(0, 0, 0, 0.43);border-radius: 5px;">
-				<form method="get">
-					<input type="text" name="q" class="input-xlarge search-query" placeholder="Search for any study guide">
-					<button type="submit" class="btn btn-primary"><i class="icon-search"></i></button>
-					<span style="color:white;">&nbsp;&nbsp;&nbsp;-or-&nbsp;&nbsp;&nbsp;</span>
-					<a style="color:white;" href="/about">Learn More</a>
-				</form>
-			</div>
-		</center>	
 
+	<div id="top" style="padding:15px;background-image:url('../static/img/home_bg.jpg');background-position:center;">
+		<h1  class="textcenter logo" style="font-size:100px;color:white;padding-top:130px;padding-bottom:20px;text-shadow: 2px 2px 3px black;">Project Alexandria</h1>
+		<br />
+		<p class="textcenter" style="font-size: 42px;color:white;padding-top:50px;">Study smarter.</p>
+		<p class="textcenter" style="font-size: 28px;color:white;padding-top: 12px;">Find, share, and collaborate on study guides.</p>
+		
+
+	<center>
+		<div style="width: 600px;height: 30px;margin-top: 40px;margin-bottom:25px;padding-top: 20px;padding-bottom: 20px;background-color: rgba(0, 0, 0, 0.43);border-radius: 5px;">
+			<form class="form" method="get">
+				<input type="text" name="q" class="input-xlarge search-query" placeholder="Search for any study guide">
+				<button type="submit" class="btn btn-primary"><i class="icon-search"></i></button>
+				<span style="color:white;">&nbsp;&nbsp;&nbsp;-or-&nbsp;&nbsp;&nbsp;</span>
+				<a style="color:white;" class="scroll" href="#more">Learn More</a>
+			</form>
 		</div>
+	</center>	
 
-		<div class="container" style="margin-top:25px;">
-		<!--
-			<div class="progress progress-striped active">
-				<div class="bar" style="width: 60%;"></div>
-			</div>
-			<p style="text-align: right;">We're currently 60% done.</p>
-		-->
+	</div>
+
+	<div id="more" class="container" style="margin-top:25px;">
+		<div class="textcenter" style="padding:12px;">
+			<h3 style="font-family: 'Junge', cursive;text-shadow: 0px 1px 1px #4d4d4d; color: #222;margin-top:35px;">We help you study with the world's best study guides.</h3>
 		</div>
+		<hr style="margin-top:-10px;margin-bottom:30px;"/>
+		<center style="font-size:17px;">
+			<div style="padding:12px;margin-left:auto;margin-right:auto;">
+				<h1 style="text-shadow: 0px 1px 3px #4D4D4D; color: white;font-size:85px;display:inline;line-height:80px;">1</h1>
+				<br />
+				<span>Search for your class.</span>
+				<br />
+				<img src="/static/img/step1.png" style="border:solid 1px;margin-top:10px;">
+			</div>
+			<div style="padding:12px;">
+				<h1 style="text-shadow: 0px 1px 3px #4D4D4D; color: white;font-size:85px;display:inline;line-height:80px;">2</h1>
+				<br />
+				<span>Find a study guide, download it, or help edit it.</span>
+				<br />
+				<img src="/static/img/step2.png" style="border:solid 1px;margin-top:10px;">
+			</div>
+			<div style="padding:12px;">
+				<h1 style="text-shadow: 0px 1px 3px #4D4D4D; color: white;font-size:85px;display:inline;line-height:80px;">3</h1>
+				<br />
+				<span>If you like a guide, vote it up! It shows other students which guides are the best.</span>
+				<br />
+				<img src="/static/img/step3.png" style="border:solid 1px;margin-top:10px;">
+			</div>
+			<div style="padding:12px;">
+				<h1 style="text-shadow: 0px 1px 3px #4D4D4D; color: white;font-size:85px;display:inline;line-height:80px;">4</h1>
+				<br />
+				<span>Want to start your own study guide? Just upload the file and we'll take care of the rest.</span>
+				<br />
+				<img src="/static/img/step4.png" style="border:solid 1px;margin-top:10px;">
+			</div>
+
+		
+		<div style="padding:12px;margin-bottom:25px;">
+			<span>Sound good? Make an <a href="#signup" role="button" data-toggle="modal">account</a> or just start <a href="#top" class="scroll">searching</a> right away.</span>
+		</div>
+		</center>
+
+	</div>
 
 {% endblock %}
 
