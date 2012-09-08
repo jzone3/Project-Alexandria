@@ -87,7 +87,7 @@
 			                      	<a href="#" id="navuser" role="button" class="dropdown-toggle" data-toggle="dropdown">{{ username }}</a>
 				                    <ul class="dropdown-menu" role="menu" aria-labelledby="navuser">
 				                        <li><a tabindex="-1" href="/user/{{ username }}">Profile</a></li>
-				                        <li><a tabindex="-1" href="#">Inbox</a></li>
+				                        <!-- <li><a tabindex="-1" href="#">Inbox</a></li> -->
 				                        <li><a tabindex="-1" href="/preferences">Preferences</a></li>
 				                        <li class="divider"></li>
 				                        <li><a tabindex="-1" href="/logout">Log Out</a></li>
@@ -137,7 +137,7 @@
 					<div class="row">
 						<div class="span2">School</div>
 						<!-- <div class="span3"><div class="input-large uneditable-input">Bergen County Academies</div></div> -->
-						<div class="span3"><input type="text" autocomplete="off" name="school" id="school" data-provide="typeahead" value={{ school }}></div>
+						<div class="span3"><input type="text" autocomplete="off" name="school" id="school" data-provide="typeahead" value="{{ school }}"></div>
 					</div>
 					<div class="alert alert-error" {% if not school_error %}style="display: none;"{% endif %}>{{school_error}}</div>
 					<div class="row">

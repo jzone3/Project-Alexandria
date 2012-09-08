@@ -164,13 +164,14 @@ class MainHandler(BaseHandler):
 
 			username, password, verify, school, year, agree, human, email = [self.rget(x) for x in ('username', 'password', 'verify', 'school', 'year', 'agree', 'session_secret', 'email')]
 			results = signup(username=username, password=password, verify=verify, school=school, year=year, agree=agree, human=human, email=email)
-			
+			logging.error(school)
 			if results['success']:
 				add_school(school)
 				self.set_cookie(results['cookie'])
 				self.set_school_cookie(school)
 				self.redirect('/')	
 			else:
+				logging.error(school)
 				self.render('index.html', {'username': username,
 										   'school': school,
 										   'email' : email,
@@ -379,7 +380,11 @@ class SearchHandler(BaseHandler):
 class PreferencesHandler(BaseHandler):
 	def get(self):
 		if self.logged_in():
-			self.render_prefs()
+			school_success = self.rget('school_success')
+			if school_success:
+				self.render_prefs({'school_success' : True})
+			else:
+				self.render_prefs()
 		else:
 			self.redirect('/')
 
@@ -404,11 +409,12 @@ class ChangeSchoolHandler(BaseHandler):
 
 	def post(self):
 		if self.logged_in():
-			school = self.get_school_cookie()
+			school = self.rget('school')
 			results = change_school(school, self.get_username())
 			if results[0]:
 				self.set_school_cookie(school)
-				self.render_prefs({'school_success' : True})
+				self.redirect('/preferences?school_success=True')
+				# self.render_prefs({'school_success' : True})
 			else:
 				self.write(results[1])
 				self.render('prefs', {'school_error' : results[1]})
