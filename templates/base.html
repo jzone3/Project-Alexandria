@@ -4,6 +4,7 @@
 	<title>{% block title %}{% endblock %} - Project Alexandria</title>
 	<link rel="shortcut icon" href="/static/img/fav_small.png" />
 	<link type="text/css" rel="stylesheet" href="/static/css/bootstrap.css">
+	<link type ="text/css" rel="stylesheet" href="/static/css/bootstrap-responsive.css">
 	<link type ="text/css" rel="stylesheet" href="/static/css/font-awesome.css">
 	<link type ="text/css" rel="stylesheet" href="/static/css/custom.css">
 	<link type ="text/css" rel="stylesheet" href="/static/css/auth-buttons.css">
@@ -87,7 +88,7 @@
 			                      	<a href="#" id="navuser" role="button" class="dropdown-toggle" data-toggle="dropdown">{{ username }}</a>
 				                    <ul class="dropdown-menu" role="menu" aria-labelledby="navuser">
 				                        <li><a tabindex="-1" href="/user/{{ username }}">Profile</a></li>
-				                        <li><a tabindex="-1" href="#">Inbox</a></li>
+				                        <!-- <li><a tabindex="-1" href="#">Inbox</a></li> -->
 				                        <li><a tabindex="-1" href="/preferences">Preferences</a></li>
 				                        <li class="divider"></li>
 				                        <li><a tabindex="-1" href="/logout">Log Out</a></li>

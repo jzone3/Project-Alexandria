@@ -136,7 +136,7 @@ class MainHandler(BaseHandler):
 			self.redirect('/search?q=' + self.rget('q'))
 
 		if logged_in:
-			self.render('dashboard.html')
+			self.render('dashboard.html', {'submitted' : get_submitted(self.get_username())})
 		else:
 			self.render('index.html', {'blockbg':True})
 
@@ -164,13 +164,14 @@ class MainHandler(BaseHandler):
 
 			username, password, verify, school, year, agree, human, email = [self.rget(x) for x in ('username', 'password', 'verify', 'school', 'year', 'agree', 'session_secret', 'email')]
 			results = signup(username=username, password=password, verify=verify, school=school, year=year, agree=agree, human=human, email=email)
-			
+			logging.error(school)
 			if results['success']:
 				add_school(school)
 				self.set_cookie(results['cookie'])
 				self.set_school_cookie(school)
 				self.redirect('/')	
 			else:
+				logging.error(school)
 				self.render('index.html', {'username': username,
 										   'school': school,
 										   'email' : email,
@@ -233,7 +234,7 @@ class GuidePageHandler(BaseHandler):
 	def get(self, url):
 		url = url[1:]
 		q = Guides.all()
-		q.filter('url =', url)
+		q.filter('url =', url.lower())
 		result = q.get()
 		if result:
 			votes = str_votes(result.votes)
@@ -379,7 +380,11 @@ class SearchHandler(BaseHandler):
 class PreferencesHandler(BaseHandler):
 	def get(self):
 		if self.logged_in():
-			self.render_prefs()
+			school_success = self.rget('school_success')
+			if school_success:
+				self.render_prefs({'school_success' : True})
+			else:
+				self.render_prefs()
 		else:
 			self.redirect('/')
 
@@ -407,8 +412,9 @@ class ChangeSchoolHandler(BaseHandler):
 			school = self.rget('school')
 			results = change_school(school, self.get_username())
 			if results[0]:
-				self.set_cookie(str('school=%s'%school.replace(' ', '_')))
-				self.render_prefs({'school_success' : True})
+				self.set_school_cookie(school)
+				self.redirect('/preferences?school_success=True')
+				# self.render_prefs({'school_success' : True})
 			else:
 				self.write(results[1])
 				self.render('prefs', {'school_error' : results[1]})
