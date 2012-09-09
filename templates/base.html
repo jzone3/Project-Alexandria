@@ -4,9 +4,9 @@
 	<title>{% block title %}{% endblock %} - Project Alexandria</title>
 	<link rel="shortcut icon" href="/static/img/fav_small.png" />
 	<link type="text/css" rel="stylesheet" href="/static/css/bootstrap.css">
-	<link type ="text/css" rel="stylesheet" href="/static/css/bootstrap-responsive.css">
 	<link type ="text/css" rel="stylesheet" href="/static/css/font-awesome.css">
 	<link type ="text/css" rel="stylesheet" href="/static/css/custom.css">
+	<link type ="text/css" rel="stylesheet" href="/static/css/auth-buttons.css">
 	<link href='http://fonts.googleapis.com/css?family=Junge' rel='stylesheet' type='text/css'>
 	<script src="/static/js/jquery.js"></script>
 </head>
@@ -107,75 +107,87 @@
 		{% if not signed_in %}
 		<!-- Sign Up Modal -->
 		<div id="signup" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-	    	
 			<form method="post" action="/">
 		        <div class="modal-header">
 		              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
 		              <h3 id="myModalLabel">Create an Account</h3>
 		        </div>
 		        <div class="modal-body">
-		        	<div class="row">
-						<div class="span2">Username</div>
-						<div class="span3"><input type="text" name="username" type="text" value="{{username}}"></div>
-					</div>
-					<div class="alert alert-error" {% if not username_error %}style="display: none;"{% endif %}>{{username_error}}</div>
-					<div class="row">
-						<div class="span2">Email <i>(optional)</i></div>
-						<div class="span3"><input type="text" name="email" type="text" value="{{email}}"></div>
-					</div>
-					<div class="alert alert-error" {% if not email_error %}style="display: none;"{% endif %}>{{email_error}}</div>
-					<div class="row">
-						<div class="span2">Password</div>
-						<div class="span3"><input name="password" type="password"></div>
-					</div>
-					<div class="alert alert-error" {% if not password_error %}style="display: none;"{% endif %}>{{password_error}}</div>
-					<div class="row">
-						<div class="span2">Verify Password</div>
-						<div class="span3"><input name="verify" type="password"></div>
-					</div>
-					<div class="alert alert-error" {% if not verify_error %}style="display: none;"{% endif %}>{{verify_error}}</div>
-					<div class="row">
-						<div class="span2">School</div>
-						<!-- <div class="span3"><div class="input-large uneditable-input">Bergen County Academies</div></div> -->
-						<div class="span3"><input type="text" autocomplete="off" name="school" id="school" data-provide="typeahead" value={{ school }}></div>
-					</div>
-					<div class="alert alert-error" {% if not school_error %}style="display: none;"{% endif %}>{{school_error}}</div>
-					<div class="row">
-						<div class="span2">Grade</div>
-						<div class="span3">
-							<div class="btn-group" data-toggle="buttons-radio" data-toggle-name="year">
-								{% for i in [9, 10, 11, 12] %}
-									{% if (choice and choice == i) or (not choice and i == 9): %}
-										<button type="button" class="btn active" value="{{i}}">{{i}}th</button>
-									{% else %}
-										<button type="button" class="btn" value="{{i}}">{{i}}th</button>
-									{% endif %}
-								{% endfor %}
-								<!-- <button type="button" class="btn active" value="9">9th</button>
-								<button type="button" class="btn" value="10">10th</button>
-								<button type="button" class="btn" value="11">11th</button>
-								<button type="button" class="btn" value="12">12th</button> -->
+		        	<div class="row" style="min-height:0;">
+		        		<center>
+			    			<a class="btn-auth btn-google" href="#">
+							    Sign in with <b>Google</b>
+							</a>
+			    			<a class="btn-auth btn-facebook" href="#">
+							    Sign in with <b>Facebook</b>
+							</a>
+		        		</center>
+		   			</div>
+		   			<hr />
+		   			<center><h4 style="margin-bottom:15px;">Don't have Facebook or Google? <a href="#" onClick="$('#form').show('slow');">Sign up.</a></h4></center>
+		   			<div id="form" {% if not modal %}style="display:none;"{% endif %}>
+			        	<div class="row">
+							<div class="span2">Username</div>
+							<div class="span3"><input type="text" name="username" type="text" value="{{username}}"></div>
+						</div>
+						<div class="alert alert-error" {% if not username_error %}style="display: none;"{% endif %}>{{username_error}}</div>
+						<div class="row">
+							<div class="span2">Email <i>(optional)</i></div>
+							<div class="span3"><input type="text" name="email" type="text" value="{{email}}"></div>
+						</div>
+						<div class="alert alert-error" {% if not email_error %}style="display: none;"{% endif %}>{{email_error}}</div>
+						<div class="row">
+							<div class="span2">Password</div>
+							<div class="span3"><input name="password" type="password"></div>
+						</div>
+						<div class="alert alert-error" {% if not password_error %}style="display: none;"{% endif %}>{{password_error}}</div>
+						<div class="row">
+							<div class="span2">Verify Password</div>
+							<div class="span3"><input name="verify" type="password"></div>
+						</div>
+						<div class="alert alert-error" {% if not verify_error %}style="display: none;"{% endif %}>{{verify_error}}</div>
+						<div class="row">
+							<div class="span2">School</div>
+							<!-- <div class="span3"><div class="input-large uneditable-input">Bergen County Academies</div></div> -->
+							<div class="span3"><input type="text" autocomplete="off" name="school" id="school" data-provide="typeahead" value={{ school }}></div>
+						</div>
+						<div class="alert alert-error" {% if not school_error %}style="display: none;"{% endif %}>{{school_error}}</div>
+						<div class="row">
+							<div class="span2">Grade</div>
+							<div class="span3">
+								<div class="btn-group" data-toggle="buttons-radio" data-toggle-name="year">
+									{% for i in [9, 10, 11, 12] %}
+										{% if (choice and choice == i) or (not choice and i == 9): %}
+											<button type="button" class="btn active" value="{{i}}">{{i}}th</button>
+										{% else %}
+											<button type="button" class="btn" value="{{i}}">{{i}}th</button>
+										{% endif %}
+									{% endfor %}
+									<!-- <button type="button" class="btn active" value="9">9th</button>
+									<button type="button" class="btn" value="10">10th</button>
+									<button type="button" class="btn" value="11">11th</button>
+									<button type="button" class="btn" value="12">12th</button> -->
+								</div>
+								{% if choice %}
+									<input type="hidden" name="year" value="{{choice}}">
+								{% else %}
+									<input type="hidden" name="year" value="9">
+								{% endif %}
 							</div>
-							{% if choice %}
-								<input type="hidden" name="year" value="{{choice}}">
-							{% else %}
-								<input type="hidden" name="year" value="9">
-							{% endif %}
 						</div>
-					</div>
-					<div class="alert alert-error" {% if not year_error %}style="display: none;"{% endif %}>{{year_error}}</div>
-					<br />
-					<label class="checkbox">
-						<input type="checkbox" name="agree" onClick="$('#human').show('slow');"> I agree to the Project Alexandria <a href="tos" target="_blank">Terms of Service</a>
-					</label>
-					<div class="alert alert-error" {% if not agree_error %}style="display: none;"{% endif %}>{{agree_error}}</div>
-					<div id="human" class="row" style="display:none;">
-						<div class="span4" style="margin-left:104px;margin-top:15px;">
-							{{ widget_html | safe }}
+						<div class="alert alert-error" {% if not year_error %}style="display: none;"{% endif %}>{{year_error}}</div>
+						<br />
+						<label class="checkbox">
+							<input type="checkbox" name="agree"> I agree to the Project Alexandria <a href="tos" target="_blank">Terms of Service</a>
+						</label>
+						<div class="alert alert-error" {% if not agree_error %}style="display: none;"{% endif %}>{{agree_error}}</div>
+						<div id="human" class="row">
+							<div class="span4" style="margin-left:104px;margin-top:15px;">
+								{{ widget_html | safe }}
+							</div>
 						</div>
-					</div>
-					<div class="alert alert-error" {% if not human_error %}style="display: none;"{% endif %}>{{human_error}}</div>
-
+						<div class="alert alert-error" {% if not human_error %}style="display: none;"{% endif %}>{{human_error}}</div>
+	        		</div>
 	        	</div>
 	        	<div class="modal-footer">
 	        		<div style="float:left;">
