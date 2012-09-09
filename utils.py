@@ -227,7 +227,7 @@ def upload_errors(title, subject, teacher, locked, doc_url, headers):
 
 def get_schools():
 	lst = memcache.get('all_schools')
-	if not lst:
+	if lst is None:
 		all_users = db.GqlQuery("SELECT * FROM Users")
 		schools = []
 		for i in all_users:
