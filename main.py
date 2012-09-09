@@ -4,6 +4,7 @@ import jinja2
 import logging
 import os
 import re
+import urllib
 import urllib2
 import webapp2
 
