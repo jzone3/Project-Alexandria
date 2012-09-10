@@ -137,7 +137,7 @@ class MainHandler(BaseHandler):
 			self.redirect('/search?q=' + self.rget('q'))
 
 		if logged_in:
-			self.render('dashboard.html', {'submitted' : get_submitted(self.get_username())})
+			self.render('dashboard.html', {'submitted' : get_submitted(self.get_username())})			
 		else:
 			self.render('index.html', {'blockbg':True})
 
@@ -195,6 +195,7 @@ class LogoutHandler(BaseHandler):
 	'''Handles logging out'''
 	def get(self):
 		self.delete_cookie(LOGIN_COOKIE_NAME)
+		self.delete_cookie('ACSID')
 		self.redirect('/')
 
 class GuidesHandler(BaseHandler):

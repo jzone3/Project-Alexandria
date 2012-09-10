@@ -12,6 +12,41 @@
 {% endblock %}
 
 {% block page_content %}
+<!-- Typeahead Script -->
+<script type="text/javascript">	    
+    jQuery(document).ready(function() {
+        $('#schools').typeahead({source: {{ all_schools | safe }}.sort(), items:5});
+
+        {% if modal %}
+        	{% if modal == 'login' %}
+        		$('#login').modal('show')
+        	{% else %}
+        		$('#signup').modal('show')
+        	{% endif %}
+        {% endif %}
+    });
+	{% if not signed_in %}
+	jQuery(function($) {
+	  $('div.btn-group[data-toggle-name=*]').each(function(){
+	    var group   = $(this);
+	    var form    = group.parents('form').eq(0);
+	    var name    = group.attr('data-toggle-name');
+	    var hidden  = $('input[name="' + name + '"]', form);
+	    $('button', group).each(function(){
+	      var button = $(this);
+	      button.live('click', function(){
+	          hidden.val($(this).val());
+	      });
+	      if(button.val() == hidden.val()) {
+	        button.addClass('active');
+	      }
+	    });
+	  });
+	});
+	{% endif %}
+</script>
+<!-- End Typeahead Script -->
+
 <div class="container">
 	<div class="well">
 		<center>
@@ -51,7 +86,7 @@
 				<div class="row">
 					<div class="span2">School:</div>
 					<div class="span3">
-						<input type="text" autocomplete="off" name="school" id="school" data-provide="typeahead" value={{ school }}>
+						<input type="text" autocomplete="off" name="school" id="schools" data-provide="typeahead" value={{ school }}>
 					</div>
 				</div>
 				<div class="row" {% if not school_error %}style="display: none;"{% endif %}>
