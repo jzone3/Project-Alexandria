@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>{% block title %}{% endblock %} - Project Alexandria</title>
+	<link rel="shortcut icon" href="/static/img/fav_small.png" />
+	<link type="text/css" rel="stylesheet" href="/static/css/bootstrap.css">
+	<link type ="text/css" rel="stylesheet" href="/static/css/font-awesome.css">
+	<link type ="text/css" rel="stylesheet" href="/static/css/custom.css">
+	<link type ="text/css" rel="stylesheet" href="/static/css/auth-buttons.css">
+	<link href='http://fonts.googleapis.com/css?family=Junge' rel='stylesheet' type='text/css'>
+	<script src="/static/js/jquery.js"></script>
+</head>
+
+<!-- If Custom Background, e.g. homepage -->
+{% if blockbg %}
+	{% block blockbg %}{% endblock %}
+{% else %}
+	<body background="/static/img/bg12.png">
+{% endif %}
+<!-- End If Custom Background -->
+
+	<script src="/static/js/bootstrap.js"></script>
+
+	<!-- Typeahead Script -->
+    <script type="text/javascript">	    
+        jQuery(document).ready(function() {
+            $('#school').typeahead({source: {{ all_schools | safe }}.sort(), items:5});
+
+            {% if modal %}
+            	{% if modal == 'login' %}
+            		$('#login').modal('show')
+            	{% else %}
+            		$('#signup').modal('show')
+            	{% endif %}
+            {% endif %}
+        });
+		{% if not signed_in %}
+		jQuery(function($) {
+		  $('div.btn-group[data-toggle-name=*]').each(function(){
+		    var group   = $(this);
+		    var form    = group.parents('form').eq(0);
+		    var name    = group.attr('data-toggle-name');
+		    var hidden  = $('input[name="' + name + '"]', form);
+		    $('button', group).each(function(){
+		      var button = $(this);
+		      button.live('click', function(){
+		          hidden.val($(this).val());
+		      });
+		      if(button.val() == hidden.val()) {
+		        button.addClass('active');
+		      }
+		    });
+		  });
+		});
+		{% endif %}
+	</script>
+	<!-- End Typeahead Script -->
+
+	<script type="text/javascript">
+	function showMe (it, box) { 
+	   var vis = (box.checked) ? "block" : "none"; 
+	   document.getElementById(it).style.display = vis;
+	 } 
+	</script>
+
+	<div class="wrapper">
+	<!-- Nav Bar -->
+		<div class="navbar navbar-fixed-top">
+			<div class="navbar-inner">
+				<div class="container">
+					<!-- Compress Nav Bar Info -->
+					<a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+					</a>
+					<!-- End Compress Nav Bar Info -->
+					<a class="brand logo" href="/">&nbsp;Project Alexandria</a>
+					<div class="nav-collapse collapse">
+						<ul class="nav">
+							{% block nav_links %}{% endblock %}
+						</ul>
+						<ul class="nav pull-right">
+							{% if signed_in %}							
+								<li><a id="navwelcome">Welcome,</a></li>
+			                    <li id="fat-menu" class="dropdown">
+			                      	<a href="#" id="navuser" role="button" class="dropdown-toggle" data-toggle="dropdown">{{ username }}</a>
+				                    <ul class="dropdown-menu" role="menu" aria-labelledby="navuser">
+				                        <li><a tabindex="-1" href="/user/{{ username }}">Profile</a></li>
+				                        <!-- <li><a tabindex="-1" href="#">Inbox</a></li> -->
+				                        <li><a tabindex="-1" href="/preferences">Preferences</a></li>
+				                        <li class="divider"></li>
+				                        <li><a tabindex="-1" href="/logout">Log Out</a></li>
+				                    </ul>
+				                </li>			                      
+							{% else %}
+								<a href="#signup" role="button" class="btn" data-toggle="modal">Sign Up</a>
+								<a href="#login" role="button" class="btn btn-inverse" data-toggle="modal">Log In</a>
+							{% endif %}
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- End Nav Bar -->
+
+		{% if not signed_in %}
+		<!-- Sign Up Modal -->
+		<div id="signup" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+			<form method="post" action="/">
+		        <div class="modal-header">
+		              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+		              <h3 id="myModalLabel">Create an Account</h3>
+		        </div>
+		        <div class="modal-body">
+<<<<<<< HEAD
+		        	<div class="row" style="min-height:0;">
+		        		<center>
+			    			<a class="btn-auth btn-google" href="#">
+							    Sign in with <b>Google</b>
+							</a>
+			    			<a class="btn-auth btn-facebook" href="#">
+							    Sign in with <b>Facebook</b>
+							</a>
+		        		</center>
+		   			</div>
+		   			<hr />
+		   			<center><h4 style="margin-bottom:15px;">Don't have Facebook or Google? <a href="#" onClick="$('#form').show('slow');">Sign up.</a></h4></center>
+		   			<div id="form" {% if not modal %}style="display:none;"{% endif %}>
+			        	<div class="row">
+							<div class="span2">Username</div>
+							<div class="span3"><input type="text" name="username" type="text" value="{{username}}"></div>
+						</div>
+						<div class="alert alert-error" {% if not username_error %}style="display: none;"{% endif %}>{{username_error}}</div>
+						<div class="row">
+							<div class="span2">Email <i>(optional)</i></div>
+							<div class="span3"><input type="text" name="email" type="text" value="{{email}}"></div>
+						</div>
+						<div class="alert alert-error" {% if not email_error %}style="display: none;"{% endif %}>{{email_error}}</div>
+						<div class="row">
+							<div class="span2">Password</div>
+							<div class="span3"><input name="password" type="password"></div>
+						</div>
+						<div class="alert alert-error" {% if not password_error %}style="display: none;"{% endif %}>{{password_error}}</div>
+						<div class="row">
+							<div class="span2">Verify Password</div>
+							<div class="span3"><input name="verify" type="password"></div>
+						</div>
+						<div class="alert alert-error" {% if not verify_error %}style="display: none;"{% endif %}>{{verify_error}}</div>
+						<div class="row">
+							<div class="span2">School</div>
+							<!-- <div class="span3"><div class="input-large uneditable-input">Bergen County Academies</div></div> -->
+							<div class="span3"><input type="text" autocomplete="off" name="school" id="school" data-provide="typeahead" value={{ school }}></div>
+						</div>
+						<div class="alert alert-error" {% if not school_error %}style="display: none;"{% endif %}>{{school_error}}</div>
+						<div class="row">
+							<div class="span2">Grade</div>
+							<div class="span3">
+								<div class="btn-group" data-toggle="buttons-radio" data-toggle-name="year">
+									{% for i in [9, 10, 11, 12] %}
+										{% if (choice and choice == i) or (not choice and i == 9): %}
+											<button type="button" class="btn active" value="{{i}}">{{i}}th</button>
+										{% else %}
+											<button type="button" class="btn" value="{{i}}">{{i}}th</button>
+										{% endif %}
+									{% endfor %}
+									<!-- <button type="button" class="btn active" value="9">9th</button>
+									<button type="button" class="btn" value="10">10th</button>
+									<button type="button" class="btn" value="11">11th</button>
+									<button type="button" class="btn" value="12">12th</button> -->
+								</div>
+								{% if choice %}
+									<input type="hidden" name="year" value="{{choice}}">
+								{% else %}
+									<input type="hidden" name="year" value="9">
+								{% endif %}
+=======
+		        	<div class="row">
+						<div class="span2">Username</div>
+						<div class="span3"><input type="text" name="username" type="text" value="{{username}}"></div>
+					</div>
+					<div class="alert alert-error" {% if not username_error %}style="display: none;"{% endif %}>{{username_error}}</div>
+					<div class="row">
+						<div class="span2">Email <i>(optional)</i></div>
+						<div class="span3"><input type="text" name="email" type="text" value="{{email}}"></div>
+					</div>
+					<div class="alert alert-error" {% if not email_error %}style="display: none;"{% endif %}>{{email_error}}</div>
+					<div class="row">
+						<div class="span2">Password</div>
+						<div class="span3"><input name="password" type="password"></div>
+					</div>
+					<div class="alert alert-error" {% if not password_error %}style="display: none;"{% endif %}>{{password_error}}</div>
+					<div class="row">
+						<div class="span2">Verify Password</div>
+						<div class="span3"><input name="verify" type="password"></div>
+					</div>
+					<div class="alert alert-error" {% if not verify_error %}style="display: none;"{% endif %}>{{verify_error}}</div>
+					<div class="row">
+						<div class="span2">School</div>
+						<!-- <div class="span3"><div class="input-large uneditable-input">Bergen County Academies</div></div> -->
+						<div class="span3"><input type="text" autocomplete="off" name="school" id="school" data-provide="typeahead" value="{{ school }}"></div>
+					</div>
+					<div class="alert alert-error" {% if not school_error %}style="display: none;"{% endif %}>{{school_error}}</div>
+					<div class="row">
+						<div class="span2">Grade</div>
+						<div class="span3">
+							<div class="btn-group" data-toggle="buttons-radio" data-toggle-name="year">
+								{% for i in [9, 10, 11, 12] %}
+									{% if (choice and choice == i) or (not choice and i == 9): %}
+										<button type="button" class="btn active" value="{{i}}">{{i}}th</button>
+									{% else %}
+										<button type="button" class="btn" value="{{i}}">{{i}}th</button>
+									{% endif %}
+								{% endfor %}
+								<!-- <button type="button" class="btn active" value="9">9th</button>
+								<button type="button" class="btn" value="10">10th</button>
+								<button type="button" class="btn" value="11">11th</button>
+								<button type="button" class="btn" value="12">12th</button> -->
+>>>>>>> 2a3cd53ebc4f4dd831210cbbedec7c5d7dac1b80
+							</div>
+						</div>
+						<div class="alert alert-error" {% if not year_error %}style="display: none;"{% endif %}>{{year_error}}</div>
+						<br />
+						<label class="checkbox">
+							<input type="checkbox" name="agree"> I agree to the Project Alexandria <a href="tos" target="_blank">Terms of Service</a>
+						</label>
+						<div class="alert alert-error" {% if not agree_error %}style="display: none;"{% endif %}>{{agree_error}}</div>
+						<div id="human" class="row">
+							<div class="span4" style="margin-left:104px;margin-top:15px;">
+								{{ widget_html | safe }}
+							</div>
+						</div>
+						<div class="alert alert-error" {% if not human_error %}style="display: none;"{% endif %}>{{human_error}}</div>
+	        		</div>
+	        	</div>
+	        	<div class="modal-footer">
+	        		<div style="float:left;">
+	        			<a href="#login" role="button" data-toggle="modal" onclick="$('#signup').modal('hide')">Already signed up?</a>
+	        		</div>
+	        		<input class="btn btn-primary" type="submit">
+					<button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+				</div>
+				<input type="hidden" name="formname" value="signup">
+	        </form>
+	    </div>
+		<!-- End Sign Up Modal -->
+
+		<!-- Log In Modal -->
+		<div id="login" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+			<form method="post" action="/">
+		        <div class="modal-header">
+		              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+		              <h3 id="myModalLabel">Log In</h3>
+		        </div>
+		        <div class="modal-body">
+					<div class="row">
+						<div class="span2">Username</div>
+						<div class="span3"><input name="username" type="text" value="{{username}}"></div>
+					</div>
+					<div class="row">
+						<div class="span2">Password</div>
+						<div class="span3"><input name="password" type="password"></div>
+					</div>
+					<div class="row">
+						<div class="span2">&nbsp;</div>
+						<div class="span3">
+							<label class="checkbox">
+					        	<input type="checkbox" name="remember"> Remember me
+					      	</label>
+					    </div>
+					</div>
+					{% if wrong %}
+					<div class="row">
+						<div class="span5">
+							<div class="span3 alert alert-error" style="margin-left: auto; width: 100%;">{{wrong}}</div>
+						</div>
+					</div>
+					{% endif %}
+				</div>
+				<div class="modal-footer">
+					<div style="float:left;">
+	        			<a href="#signup" role="button" data-toggle="modal" onclick="$('#login').modal('hide')">Need an account?</a>
+	        		</div>
+					<input class="btn btn-primary" type="submit"> 
+					<button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+				</div>
+				<input type="hidden" name="formname" value="login">
+			</form>
+		</div>
+		<!-- End Log In Modal -->
+		{% endif %}
+
+		<!-- Page Content -->
+		{% block page_content %}{% endblock %}
+		<!-- End Page Content -->
+
+		<div class="push"></div>
+	</div>
+
+	<!-- Footer -->
+	<div class="sticky-footer" style="color: gray;">
+		Copyright 2012 All Rights Reserved
+	</div>
+	<!-- End Footer -->
+
+</body>
+</html>

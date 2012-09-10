@@ -462,6 +462,15 @@ class DeleteAccountHandler(BaseHandler):
 		else:
 			self.redirect('/')
 
+from google.appengine.api import users
+
+class GoogleAuthHandler(BaseHandler):
+    def get(self):
+        self.redirect(users.create_login_url("/"))
+
+        	
+
+
 app = webapp2.WSGIApplication([('/?', MainHandler),
 							   ('/about/?', AboutHandler),
 							   ('/logout/?', LogoutHandler),
@@ -480,6 +489,7 @@ app = webapp2.WSGIApplication([('/?', MainHandler),
 							   ('/change_school/?', ChangeSchoolHandler),
 							   ('/change_password/?', ChangePasswordHandler),
 							   ('/delete_account/?', DeleteAccountHandler),
+							   ('/google_auth/?', GoogleAuthHandler),
 							   # ('/test', Test),
 							   ('/.*', NotFoundHandler),
 							   ], debug=True)

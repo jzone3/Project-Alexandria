@@ -27,6 +27,9 @@
 			return false;
 			});
 		});
+		function goToSearch(){
+			$('html,body').animate({scrollTop: $('#top').offset().top},'medium', function(){$('#search').focus();});
+		}
 	</script>
 	<!-- End Smooth Scroll Script -->
 
@@ -41,7 +44,7 @@
 	<center>
 		<div style="width: 600px;height: 30px;margin-top: 40px;margin-bottom:25px;padding-top: 20px;padding-bottom: 20px;background-color: rgba(0, 0, 0, 0.43);border-radius: 5px;">
 			<form class="form" method="get">
-				<input type="text" name="q" class="input-xlarge search-query" placeholder="Search for any study guide">
+				<input type="text" name="q" id="search" class="input-xlarge search-query" placeholder="Search for any study guide">
 				<button type="submit" class="btn btn-primary"><i class="icon-search"></i></button>
 				<span style="color:white;">&nbsp;&nbsp;&nbsp;-or-&nbsp;&nbsp;&nbsp;</span>
 				<a style="color:white;" class="scroll" href="#more">Learn More</a>
@@ -88,7 +91,7 @@
 
 		
 		<div style="padding:12px;margin-bottom:25px;">
-			<span>Make an <a href="#signup" role="button" data-toggle="modal">account</a> or just start <a href="#top" class="scroll">searching</a> right away.</span>
+			<span>Make an <a href="#signup" role="button" data-toggle="modal">account</a> or just start <a href="#top" class="scroll" onclick="goToSearch()">searching</a> right away.</span>
 		</div>
 		</center>
 
