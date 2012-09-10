@@ -164,6 +164,46 @@ def signup(username='', password='', verify='', school='', year='', agree='', hu
 			to_return['success'] = True
 	return to_return
 
+def signup_ext(username='', school='', year='', agree='', email=''):
+	"""Signs up user from google/facebook"""
+
+	to_return = {'success' : False}
+	
+	if username == '':
+		to_return['username'] = "Please enter a username"
+	elif not USER_RE.match(username):
+		to_return['username'] = "That's not a valid username."
+	
+	if school == '':
+		to_return['school'] = "Please enter a school"
+	if not SCHOOL_RE.match(school):
+		to_return['school'] = "That is not a valid school name"
+	
+	if year == '':
+		to_return['year'] = "Please enter a year"
+	if not int(year) in [9,10,11,12]:
+		to_return['year'] = "That is not a valid grade level"
+	
+	if agree != 'on':
+		to_return['agree'] = "You must agree to the Terms of Service to create an account"
+
+	if len(to_return) == 1:
+		same_username_db = db.GqlQuery("SELECT * FROM Users WHERE username = '" + username.replace("'", "&lsquo;") + "'")
+		logging.error("DB QUERY - signup()")
+		same_username = same_username_db.get()
+
+		if same_username:
+			to_return['username'] = "Username already exists!"
+		else:
+			account = Users(username = username.replace("'", "&lsquo;"), school = school, grade = int(year), score = 0, confirmed = False, email = email)
+			account.put()
+			cookie = LOGIN_COOKIE_NAME + '=%s|%s; Expires=%s Path=/' % (str(username), hash_str(username), remember_me())
+			to_return['cookie'] = cookie
+			to_return['success'] = True
+			
+	return to_return
+
+
 def get_tags(string):
 	'''Gets tags from a comma separated string'''
 	splitted = string.split(',')

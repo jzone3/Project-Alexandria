@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}PA - Sign Up{% endblock %}
+
+{% block nav_links %}
+<li><a href="/">Home</a></li>
+<li><a href="/guides">Guides</a></li>
+{% if signed_in %}
+	<li><a href="/upload">Upload</a></li>
+{% endif %}
+<li><a href="/about">About</a></li>
+<li><a href="/contact">Contact</a></li>
+{% endblock %}
+
+{% block page_content %}
+<div class="container">
+	<div class="well">
+		<center>
+			<h2>Almost done! Just tell us who you are.</h2><br />
+		</center>
+			<form method="post">
+				<div class="row">
+					<div class="span2">Username:</div>
+					<div class="span3"><input type="text" name="username" value={{username}}></div>
+				</div>
+				<div class="row"  {% if not username_error %}style="display: none;"{% endif %}>
+					<div class="span5 alert alert-error">{{username_error}}</div>
+				</div>
+
+				<div class="row">
+					<div class="span2">Grade:</div>
+					<div class="span3">
+						<div class="btn-group" data-toggle="buttons-radio" data-toggle-name="year">
+							{% for i in [9, 10, 11, 12] %}
+								{% if (choice and choice == i) or (not choice and i == 9): %}
+									<button type="button" class="btn active" value="{{i}}">{{i}}th</button>
+								{% else %}
+									<button type="button" class="btn" value="{{i}}">{{i}}th</button>
+								{% endif %}
+							{% endfor %}
+						</div>
+						{% if choice %}
+							<input type="hidden" name="year" value="{{choice}}">
+						{% else %}
+							<input type="hidden" name="year" value="9">
+						{% endif %}
+					</div>
+				</div>
+				<div class="row" {% if not year_error %}style="display: none;"{% endif %}>
+					<div class="span5 alert alert-error">{{year_error}}</div>
+				</div>
+				<div class="row">
+					<div class="span2">School:</div>
+					<div class="span3">
+						<input type="text" autocomplete="off" name="school" id="school" data-provide="typeahead" value={{ school }}>
+					</div>
+				</div>
+				<div class="row" {% if not school_error %}style="display: none;"{% endif %}>
+					<div class="span5 alert alert-error">{{school_error}}</div>
+				</div>
+				<br />
+				<div class="row">
+					<div class="span5">
+					<label class="checkbox">
+						<input type="checkbox" name="agree">I agree to the Project Alexandria <a href="tos" target="_blank">Terms of Service</a>
+					</label>
+					</div>
+				</div>
+				<div class="row" {% if not agree_error %}style="display: none;"{% endif %}>
+					<div class="span5 alert alert-error" >{{agree_error}}</div>
+				</div>
+				<div class="row">
+					<div class="span2">
+					<input class="btn btn-primary" type="submit" value="We're Done!">
+					</div>
+				</div>
+			</form>
+		
+	</div>
+</div>
+{% endblock %}

@@ -464,11 +464,71 @@ class DeleteAccountHandler(BaseHandler):
 
 from google.appengine.api import users
 
-class GoogleAuthHandler(BaseHandler):
+class GoogleSignupHandler(BaseHandler):
     def get(self):
-        self.redirect(users.create_login_url("/"))
+        self.redirect(users.create_login_url("/ext_signup"))
 
-        	
+class GoogleLoginHandler(BaseHandler):
+	def google_login(self, user):
+		q = Users.all()
+		q.filter('email =', user.email())
+		account = q.get()
+		if account:
+			username = account.username
+			cookie = LOGIN_COOKIE_NAME + '=%s|%s; Expires=%s Path=/' % (str(username), hash_str(username), remember_me())
+			self.set_cookie(cookie)
+			return True
+		else:
+			return False
+
+	def get(self):
+		user = users.get_current_user()
+		if user:
+			if self.google_login(user):
+				self.redirect('/')
+			else:
+				self.render('index.html', {'blockbg': True,
+										   'modal':'login',
+										   'google_error':"""There was no information found for your Google Account. Did you mean to <a href="#signup" role="button" data-toggle="modal" onclick="$('#login').modal('hide')">sign up</a>?""",
+										   })
+				return
+
+		else:
+			self.redirect(users.create_login_url("/google_login"))
+
+class ExternalSignUp(BaseHandler):
+	def get(self):
+		user = users.get_current_user()
+		if not user:
+			self.redirect('/google_signup')
+		self.render('external_signup.html')
+
+	def post(self):
+		user = users.get_current_user()
+		if user:
+			username = self.rget('username')
+			school = self.rget('school')
+			year = self.rget('year')
+			agree = self.rget('agree')
+			email = user.email()
+
+			result = signup_ext(username, school, year, agree, email)
+
+			if result['success']:
+				cookie = result['cookie']
+				self.set_cookie(cookie)
+				self.redirect('/')
+			else:
+				self.render('external_signup.html', {'username_error':result.get('username'),
+													 'school_error':result.get('school'),
+													 'year_error':result.get('year'),
+													 'agree_error':result.get('agree'),
+													 'username':username,
+													 'school':school,
+													 'choice':year})
+
+		else:
+			self.redirect('/google_signup')
 
 
 app = webapp2.WSGIApplication([('/?', MainHandler),
@@ -489,7 +549,9 @@ app = webapp2.WSGIApplication([('/?', MainHandler),
 							   ('/change_school/?', ChangeSchoolHandler),
 							   ('/change_password/?', ChangePasswordHandler),
 							   ('/delete_account/?', DeleteAccountHandler),
-							   ('/google_auth/?', GoogleAuthHandler),
+							   ('/google_signup/?', GoogleSignupHandler),
+							   ('/google_login/?', GoogleLoginHandler),
+							   ('/ext_signup/?', ExternalSignUp),
 							   # ('/test', Test),
 							   ('/.*', NotFoundHandler),
 							   ], debug=True)

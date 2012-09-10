@@ -8,7 +8,7 @@ class Users(db.Model):
 	grade        = db.IntegerProperty(required = True)
 	score        = db.IntegerProperty(required = True) 
 	confirmed    = db.BooleanProperty(required = True) 
-	password     = db.StringProperty(required = True)
+	password     = db.StringProperty(required = False)
 	date_created = db.DateTimeProperty(auto_now_add = True)
 	email        = db.StringProperty(required = False)
 

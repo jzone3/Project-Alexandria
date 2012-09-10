@@ -10,12 +10,17 @@
 	<li><a href="/contact">Contact</a></li>
 {% endblock %}
 
+{% block blockbg %}
+<body background="/static/img/bg16.jpg">
+{% endblock %}
+
 {% block page_content %}
 	<div class="container">
-		<div class="well">
+		<div class="well error_well">
 			<h1>Error: 404 - Page Not Found</h1>
-			<hr>
 			<h3>The page you requested was not found! </h3>
+			<p>Try searching something else, double-checking the URL, or taking a 30 minute walk to take a break from studying.</p>
+			<p>Either way, have a nice day! :D</p>
 		</div>
 	</div>
 {% endblock %}
