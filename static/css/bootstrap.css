@@ -5082,3 +5082,17 @@ div.row {
 hr {
   border-bottom:1px solid #B6B6B6;
 }
+
+.errorblock {
+  background:
+    url(/static/img/bg2.png);
+  border: none;
+  padding-top: 200px;
+  text-align: center;
+  height: 700px;
+}
+
+.errorblock p {
+  font-size: 28px;
+  padding: 10px 0px;
+}
