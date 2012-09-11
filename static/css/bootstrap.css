@@ -5084,8 +5084,6 @@ hr {
 }
 
 .errorblock {
-  background:
-    url(/static/img/bg2.png);
   border: none;
   padding-top: 200px;
   text-align: center;

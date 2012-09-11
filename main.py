@@ -336,7 +336,8 @@ class ServeHandler(blobstore_handlers.BlobstoreDownloadHandler):
 class NotFoundHandler(BaseHandler):
 	def get(self):
 		self.error(404)
-		self.render('404.html')
+		self.render('404.html',
+		{'blockbg':True})
 
 class ToSHandler(BaseHandler):
 	def get(self):
