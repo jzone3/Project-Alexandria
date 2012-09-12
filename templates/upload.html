@@ -15,9 +15,57 @@
 
 	<div class="container">
 		<div class="well">		
-			<center><h1>Upload a Guide</h1></center>
+			<center><h1>Submit a Study Guide</h1></center>
 			<br/>
 			<form method="post" action="{{upload_url}}" enctype="multipart/form-data">
+				<div class="row" style="margin-bottom:25px;">
+					<div class="span5 inline">
+						<h1 style="font-size:50px;">1</h1>&nbsp;&nbsp;&nbsp;<span style="font-size:17px;">Upload your document</span> <a rel="tooltip" data-placement="right" title="We currently support .pdf, .docx, .doc, .rtf, and .txt formats. Maximum file size is 2mb." class="tooltips" onclick="$('#edit_url').modal('hide')"><i class="icon-question-sign"></i></a>
+					</div>
+
+				</div>
+
+				<div class="row">
+					<div class="span2">
+						File
+					</div>
+					<div class="span4"><input name="file" type="filepicker-dragdrop" data-fp-apikey="AlMIHDT2tQ5KhESQdBkelz" data-fp-option-services="COMPUTER,DROPBOX,GOOGLE_DRIVE" data-fp-button-class="btn btn-inverse" data-fp-mimetypes ="
+application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf,text/plain,application/rtf" data-fp-drag-class="bigupload"/></div>			
+					<div class="alert alert-error span4" {% if not file_error %}style="display: none;"{% endif %}>{{file_error}}</div>
+				</div>
+
+<hr />
+				<div class="row" style="margin-bottom:25px;">
+					<div class="span5 inline">
+						<h1 style="font-size:50px;">2</h1>&nbsp;&nbsp;&nbsp;<span style="font-size:17px;">Tell us where to find the Google Doc</span>
+					</div>
+				</div>
+
+        		
+        		<div id="edit_url" class="row">
+					<div class="span2">
+						Google Doc URL
+						<a rel="tooltip" data-placement="right" title="The link to a public Google Doc. Not needed if the guide is locked." class="tooltips"><i class="icon-question-sign"></i></a>
+					</div>
+					<div class="span4"><input class="input-xlarge"type="text" name="edit_url" value="{{edit_url}}" placeholder="http://docs.google.com ..."></div>
+					<div class="alert alert-error span4" {% if not edit_url_error %}style="display: none;"{% endif %}>{{edit_url_error}}</div>
+				</div>	
+				<div class="row">
+					<div class="span2">
+						Locked
+						<a rel="tooltip" data-placement="right" title="A locked study guide is not editable by the community." class="tooltips" onclick="$('#edit_url').modal('hide')"><i class="icon-question-sign"></i></a>
+					</div>
+					<div class="span4"><input type="checkbox" name="locked" onclick="$('#edit_url').toggle('fast')"{% if locked %}checked="checked"{% endif %}></div>
+				</div>
+			
+<hr />
+
+				<div class="row" style="margin-bottom:25px;">
+					<div class="span5 inline">
+						<h1 style="font-size:50px;">3</h1>&nbsp;&nbsp;&nbsp;<span style="font-size:17px;">Describe the guide</span>
+					</div>
+				</div>
+
 	        	<div class="row">
 					<div class="span2">Title</div>
 					<div class="span4"><input class="input-xlarge" type="text" name="title" value="{{title}}" placeholder="Name of your guide"></div>
@@ -36,36 +84,14 @@
 					<div class="alert alert-error span4" {% if not teacher_error %}style="display: none;"{% endif %}>{{teacher_error}}</div>
 				</div>
 				
-	        	<div class="row">
-					<div class="span2">
-						Locked
-						<a rel="tooltip" data-placement="right" title="A locked study guide is not editable by the community." class="tooltips" onclick="$('#edit_url').modal('hide')"><i class="icon-question-sign"></i></a>
-					</div>
-					<div class="span4"><input type="checkbox" name="locked" {% if locked %}checked="checked"{% endif %}></div>
-				</div>
-				<div id="edit_url" class="row">
-					<div class="span2">
-						Google Doc URL
-						<a href="#" rel="tooltip" data-placement="right" title="The link to a public Google Doc. Not needed if the guide is locked." class="tooltips"><i class="icon-question-sign"></i></a>
-					</div>
-					<div class="span4"><input class="input-xlarge"type="text" name="edit_url" value="{{edit_url}}" placeholder="http://docs.google.com ..."></div>
-					<div class="alert alert-error span4" {% if not edit_url_error %}style="display: none;"{% endif %}>{{edit_url_error}}</div>
-				</div>				
 				<div class="row">
 					<div class="span2">
-						File
-					</div>
-					<div class="span4"><input name="file" type="filepicker-dragdrop" data-fp-apikey="AlMIHDT2tQ5KhESQdBkelz" data-fp-option-services="COMPUTER,DROPBOX,GOOGLE_DRIVE" data-fp-button-class="btn btn-inverse" data-fp-mimetypes ="
-application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf,text/plain,application/rtf"/></div>			
-					<div class="alert alert-error span4" {% if not file_error %}style="display: none;"{% endif %}>{{file_error}}</div>
-				</div>
-				<div class="row">
-					<div class="span2">
-						Tags
-						<a href="#" rel="tooltip" data-placement="right" title="Single words separated by commas." class="tooltips"><i class="icon-question-sign"></i></a>
+						Tags <em>(optional)</em>
+						<a rel="tooltip" data-placement="right" title="Single words separated by commas." class="tooltips"><i class="icon-question-sign"></i></a>
 					</div>
 					<div class="span4"><input class="input-xlarge"type="text" name="tags" value="{{tags}}" placeholder="subtraction, division, chapter, six"></div>
 				</div>
+				<br />
 				<div class="row">
 					<div class="span2">
 						<input class="btn btn-primary" type="submit" name="submit" value="Submit">

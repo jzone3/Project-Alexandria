@@ -244,7 +244,7 @@ class GuidePageHandler(BaseHandler):
 			self.render('guide_page.html', {'result':result, 'votes':votes, 'dl_link':dl_link})
 		else:
 			self.error(404)
-			self.render('guide404.html')
+			self.render('404.html', {'blockbg':True})
 
 class UserPageHandler(BaseHandler):
 	'''Handlers custom user pages: user_page.html'''
@@ -259,7 +259,7 @@ class UserPageHandler(BaseHandler):
 			self.render('user_page.html', {'result':result, 'grade':grade, 'score':score})
 		else:
 			self.error(404)
-			self.render('user404.html', {'user' : url})
+			self.render('404.html', {'blockbg':True})
 
 class UploadHandler(BaseHandler):
 	def get(self):
@@ -336,8 +336,7 @@ class ServeHandler(blobstore_handlers.BlobstoreDownloadHandler):
 class NotFoundHandler(BaseHandler):
 	def get(self):
 		self.error(404)
-		self.render('404.html',
-		{'blockbg':True})
+		self.render('404.html',{'blockbg':True})
 
 class ToSHandler(BaseHandler):
 	def get(self):
