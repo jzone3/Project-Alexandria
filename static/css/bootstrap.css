@@ -5094,3 +5094,7 @@ hr {
   font-size: 28px;
   padding: 10px 0px;
 }
+
+.bigupload {
+  width: 185px; height: 25px; text-align: center;
+}​

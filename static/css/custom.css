@@ -20,3 +20,56 @@ html, body {
 .hoverspan4:hover{
   background-color: #E8E8E8;
 }
+
+.green {
+	background-color: #00ab26;
+}
+ 
+.red {
+	background-color: #d90004;
+}
+ 
+.button {
+ 
+	/*basic styles*/
+	width: 100px;  height: 100px;  color: #fff; 
+	text-align: center;  font-size: 30px;  line-height: 50px; float: left; margin-right: 20px;
+ 
+ 
+	/*gradient styles*/
+ 
+	/*border styles*/
+	-moz-border-radius: 50px;
+	-webkit-border-radius: 50px;
+	border-radius: 50px;
+ 
+	/*shadow styles*/
+	-moz-box-shadow: 2px 3px 5px #bfbfbf;
+	-webkit-box-shadow: 2px 3px 5px #bfbfbf;
+	box-shadow: 2px 3px 5px #bfbfbf;
+}
+ 
+ 
+.button p {
+	font-size: 50px;
+	line-height: 100px;
+	font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+	font-weight: 300;
+	text-shadow: 0px 0px 3px #888;
+ 
+}
+ 
+a {
+	text-decoration: none;
+	color: fff;
+}
+ 
+.button:hover {
+	-moz-box-shadow:inset 0 0 30px #444;
+	-webkit-box-shadow:inset 0 0 30px #444;
+	box-shadow:inset 0 0 30px #444;
+}
+ 
+.button p:hover {
+	text-shadow: 0px 0px 4px #fff;
+}
