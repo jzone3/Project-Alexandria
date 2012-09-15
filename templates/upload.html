@@ -41,10 +41,10 @@ application/msword,application/vnd.openxmlformats-officedocument.wordprocessingm
 					</div>
 				</div>
 
-        		
+  		
         		<div id="edit_url" class="row">
 					<div class="span2">
-						Google Doc URL
+						Google Docs URL
 						<a rel="tooltip" data-placement="right" title="The link to a public Google Doc. Not needed if the guide is locked." class="tooltips"><i class="icon-question-sign"></i></a>
 					</div>
 					<div class="span4"><input class="input-xlarge"type="text" name="edit_url" value="{{edit_url}}" placeholder="http://docs.google.com ..."></div>
@@ -53,10 +53,11 @@ application/msword,application/vnd.openxmlformats-officedocument.wordprocessingm
 				<div class="row">
 					<div class="span2">
 						Locked
-						<a rel="tooltip" data-placement="right" title="A locked study guide is not editable by the community." class="tooltips" onclick="$('#edit_url').modal('hide')"><i class="icon-question-sign"></i></a>
+						<a rel="tooltip" data-placement="right" title="A locked study guide is not linked with Google Docs and is not editable by the community." class="tooltips" onclick="$('#edit_url').modal('hide')"><i class="icon-question-sign"></i></a>
 					</div>
 					<div class="span4"><input type="checkbox" name="locked" onclick="$('#edit_url').toggle('fast')"{% if locked %}checked="checked"{% endif %}></div>
-				</div>
+				</div>      
+
 			
 <hr />
 
