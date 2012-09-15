@@ -349,8 +349,12 @@ def save_feedback(content, origin):
 	new_feedback.put()
 
 def get_submitted(username):
-	guides = db.GqlQuery("SELECT * FROM Guides WHERE user_created = '" + username.replace("'", "&lsquo;") + "' ORDER BY date_created DESC")
-	to_return = []
-	for submission in guides:
-		to_return.append({'title' : submission.title, 'subject' : submission.subject, 'votes' : submission.votes, 'date_created' : submission.date_created})
+	to_return = memcache.get(username + '_submitted')
+	if to_return is None:
+		guides = db.GqlQuery("SELECT * FROM Guides WHERE user_created = '" + username.replace("'", "&lsquo;") + "' ORDER BY date_created DESC")
+		logging.debug('test')
+		to_return = []
+		for submission in guides:
+			to_return.append({'title' : submission.title, 'subject' : submission.subject, 'votes' : submission.votes, 'date_created' : submission.date_created})
+		memcache.set(username + '_submitted', to_return)
 	return to_return
