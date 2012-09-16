@@ -103,6 +103,8 @@ def check_login(username, password):
 		if accounts is None:
 			return [False, 'Username does not exist']
 
+		if accounts.password == None:
+			return [False, 'Please "Log In with Google"']
 		(db_password, salt) = (accounts.password).split("|")
 
 		if salted_hash(password, salt) == db_password:
