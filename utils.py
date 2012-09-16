@@ -378,3 +378,9 @@ def get_submitted(username):
 			to_return.append({'title' : submission.title, 'subject' : submission.subject, 'votes' : submission.votes, 'date_created' : submission.date_created})
 		memcache.set(username + '_submitted', to_return)
 	return to_return
+
+def get_top_guides():
+	q = Guides.all()
+	q.order('-votes')
+	results = q.run(limit=25)
+	return results

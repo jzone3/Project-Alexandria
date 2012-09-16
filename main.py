@@ -206,7 +206,8 @@ class GuidesHandler(BaseHandler):
 	def get(self):
 		if self.rget('q'):
 			self.redirect('/search?q=' + self.rget('q'))
-		self.render('guides.html')
+		top_guides = get_top_guides()
+		self.render('guides.html', {'top_guides':top_guides})
 
 class AboutHandler(BaseHandler):
 	'''Handles about: about.html'''

@@ -33,6 +33,9 @@
 			<!-- End Tabs -->
 
 			<h2>Top Guides</h2>
+			
+			
+			
 			<br />
 			<table class="table-hover">
 				<thead>
@@ -44,10 +47,10 @@
 						<th>Uploader</th>
 						<th>Teacher</th>					
 						<th>Votes</th>
-						<th>Downloads</th>
 					</tr>
 				</thead>
 				<tbody>
+					{% for guide in top_guides %}
 					<tr>
 						<td>
 							<div class="btn-group btn-group btn-group-vertical">
@@ -56,62 +59,14 @@
 							</div>
 							&nbsp;&nbsp;
 						</td>
-						<td>1</td>
-						<td><a href="#">Derivatives</a></td>
-						<td>AP Calculus BC</td>
-						<td>spez</td>
-						<td>Robinson</td>
-						<td>+1401</td>
-						<td>2516</td>
+						<td>{{ loop.index }}</td>
+						<td><a href="/guides/{{ guide.url }}">{{ guide.title }}</a></td>
+						<td>{{ guide.subject }}</td>
+						<td>{{ guide.user_created }}</td>
+						<td>{{ guide.teacher }}</td>
+						<td>{{ guide.votes }}</td>
 					</tr>
-					<tr>
-						<td>
-							<div class="btn-group btn-group btn-group-vertical">
-								<button class="btn btn-mini"><i class="icon-caret-up"></i></button>
-								<button class="btn btn-mini"><i class="icon-caret-down"></i></button>
-							</div>
-							&nbsp;&nbsp;
-						</td>
-						<td>2</td>
-						<td><a href="#">Integrals</a></td>
-						<td>AP Calculus BC</td>						
-						<td>spez</td>
-						<td>Robinson</td>
-						<td>+1401</td>
-						<td>2516</td>
-					</tr>
-					<tr>
-						<td>
-							<div class="btn-group btn-group btn-group-vertical">
-								<button class="btn btn-mini"><i class="icon-caret-up"></i></button>
-								<button class="btn btn-mini"><i class="icon-caret-down"></i></button>
-							</div>
-							&nbsp;&nbsp;
-						</td>
-						<td>3</td>
-						<td><a href="#">Taylor Series</a></td>
-						<td>AP Calculus BC</td>						
-						<td>spez</td>
-						<td>Robinson</td>
-						<td>+1401</td>
-						<td>2516</td>
-					</tr>	
-					<tr>
-						<td>
-							<div class="btn-group btn-group btn-group-vertical">
-								<button class="btn btn-mini"><i class="icon-caret-up"></i></button>
-								<button class="btn btn-mini"><i class="icon-caret-down"></i></button>
-							</div>
-							&nbsp;&nbsp;
-						</td>
-						<td>4</td>
-						<td><a href="#">Final</a></td>
-						<td>AP Calculus BC</td>
-						<td>spez</td>
-						<td>Robinson</td>
-						<td>+1401</td>
-						<td>2516</td>
-					</tr>
+					{% endfor %}
 				</tbody>
 			</table>
 		</div>
