@@ -45,17 +45,20 @@ class BaseHandler(webapp2.RequestHandler):
 				to_return += '"' + i + '",'
 		return to_return
 
-	def render(self, template, params={}):
-		# setup school list for typeahead
+	def get_schools_list():
 		schools_list = get_schools()
 		if schools_list is None:
 			schools_list = ['Bergen County Academies']
-		params['all_schools'] = self.list_to_str(schools_list)
+		return self.list_to_str(schools_list)
 
+	def render(self, template, params={}):
 		params['signed_in'] = self.logged_in()
 		if params['signed_in']:
 			params['username'] = self.get_username()
 		else:
+			# get schools list for typeahead
+			params['all_schools'] = self.get_schools_list()
+
 			# set username to blank
 			if not 'username' in params.keys():
 				params['username'] = ''
@@ -64,6 +67,9 @@ class BaseHandler(webapp2.RequestHandler):
 									 '7ec7c6561c6dba467095b91dd58778f2c60fbaf2')
 			widget_html = externals.ayah.get_publisher_html()
 			params['widget_html'] = widget_html
+
+		if template == 'prefs.html':
+			params['all_schools'] = self.get_schools_list()
 
 		template = jinja_env.get_template(template)
 		self.response.out.write(template.render(params))

@@ -22,10 +22,11 @@
 
 	<script src="/static/js/bootstrap.js"></script>
 
-	<!-- Typeahead Script -->
     <script type="text/javascript">	    
         jQuery(document).ready(function() {
-            $('#school').typeahead({source: {{ all_schools | safe }}.sort(), items:5});
+            {% if all_schools %}
+            	$('#school').typeahead({source: {{ all_schools | safe }}.sort(), items:5});
+            {% endif %}
 
             {% if modal %}
             	{% if modal == 'login' %}
@@ -55,7 +56,6 @@
 		});
 		{% endif %}
 	</script>
-	<!-- End Typeahead Script -->
 
 	<script type="text/javascript">
 	function showMe (it, box) { 

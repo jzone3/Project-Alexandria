@@ -21,8 +21,10 @@
 					<h3><em>by <a href="/user/{{ result.user_created }}">{{ result.user_created }}</a></em></h3>
 					<h6>{{ result.subject }} - {{ result.teacher }}</h6> 
 					<h5>
-						<a href="{{ result.edit_link }}" target="_blank">Edit on Google Docs</a> 
-						 |  
+						{% if not result.locked %}
+							<a href="{{ result.edit_url }}" target="_blank">Edit on Google Docs</a> 
+						 	|  
+						 {% endif %}
 						<a href="{{ dl_link }}">Download</a>
 					</h5>
 				</div>
