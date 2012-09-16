@@ -47,7 +47,10 @@ class BaseHandler(webapp2.RequestHandler):
 
 	def render(self, template, params={}):
 		# setup school list for typeahead
-		params['all_schools'] = self.list_to_str(get_schools())
+		schools_list = get_schools()
+		if len(schools_list) == 0:
+			schools_list = ['Bergen County Academies']
+		params['all_schools'] = self.list_to_str(schools_list)
 
 		params['signed_in'] = self.logged_in()
 		if params['signed_in']:

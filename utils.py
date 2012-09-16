@@ -73,6 +73,18 @@ def get_school(username):
 	else:
 		return None
 
+def unique_email(email):
+	accounts = (db.GqlQuery("SELECT * FROM Users WHERE email = '" + email.replace("'", "&lsquo;") + "'")).get()
+	if accounts is None:
+		return True
+	return False
+
+def unique_username(username):
+	accounts = (db.GqlQuery("SELECT * FROM Users WHERE username = '" + username.replace("'", "&lsquo;") + "'")).get()
+	if accounts:
+		return False
+	return True
+
 def check_login(username, password):
 	"""Checks if login info is correct
 
@@ -147,21 +159,20 @@ def signup(username='', password='', verify='', school='', year='', agree='', hu
 		to_return['human'] = "Please try the human test again."
 
 	if len(to_return) == 1:
-		same_username_db = db.GqlQuery("SELECT * FROM Users WHERE username = '" + username.replace("'", "&lsquo;") + "'")
-		logging.error("DB QUERY - signup()")
-		same_username = same_username_db.get()
-
-		if same_username:
+		if not unique_username(username):
 			to_return['username'] = "Username already exists!"
 		else:
-			salt = make_salt()
-			hashed = salted_hash(password, salt)
-			hashed_pass = hashed + '|' + salt
-			account = Users(username = username.replace("'", "&lsquo;"), password = hashed_pass, school = school, grade = int(year), score = 0, confirmed = False, email = email)
-			account.put()
-			cookie = LOGIN_COOKIE_NAME + '=%s|%s; Expires=%s Path=/' % (str(username), hash_str(username), remember_me())
-			to_return['cookie'] = cookie
-			to_return['success'] = True
+			if not unique_email(email):
+				to_return['email'] = "Email already exists!"
+			else:
+				salt = make_salt()
+				hashed = salted_hash(password, salt)
+				hashed_pass = hashed + '|' + salt
+				account = Users(username = username.replace("'", "&lsquo;"), password = hashed_pass, school = school, grade = int(year), score = 0, confirmed = False, email = email)
+				account.put()
+				cookie = LOGIN_COOKIE_NAME + '=%s|%s; Expires=%s Path=/' % (str(username), hash_str(username), remember_me())
+				to_return['cookie'] = cookie
+				to_return['success'] = True
 	return to_return
 
 def signup_ext(username='', school='', year='', agree='', email=''):
@@ -188,12 +199,10 @@ def signup_ext(username='', school='', year='', agree='', email=''):
 		to_return['agree'] = "You must agree to the Terms of Service to create an account"
 
 	if len(to_return) == 1:
-		same_username_db = db.GqlQuery("SELECT * FROM Users WHERE username = '" + username.replace("'", "&lsquo;") + "'")
-		logging.error("DB QUERY - signup()")
-		same_username = same_username_db.get()
-
-		if same_username:
+		if not unique_username(username):
 			to_return['username'] = "Username already exists!"
+		elif not unique_email(email):
+			to_return['email'] = "Email already exits!"
 		else:
 			account = Users(username = username.replace("'", "&lsquo;"), school = school, grade = int(year), score = 0, confirmed = False, email = email)
 			account.put()
