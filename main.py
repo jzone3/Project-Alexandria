@@ -46,10 +46,13 @@ class BaseHandler(webapp2.RequestHandler):
 		return to_return
 
 	def get_schools_list(self):
+		return self.list_to_str(self.get_schools_raw())
+
+	def get_schools_raw(self):
 		schools_list = get_schools()
 		if schools_list is None:
 			schools_list = ['Bergen County Academies']
-		return self.list_to_str(schools_list)
+		return schools_list
 
 	def render(self, template, params={}):
 		params['signed_in'] = self.logged_in()
@@ -95,7 +98,6 @@ class BaseHandler(webapp2.RequestHandler):
 			email_verified = params['email_verified']
 			del params['email_verified']
 		school = self.get_school_cookie()
-		logging.error(school)
 		if 'school' in params.keys():
 			del params['school']
 		new_params = {'email' : email, 'email_verified' : email_verified, 'school' : school}
@@ -132,9 +134,11 @@ class BaseHandler(webapp2.RequestHandler):
 		school = self.request.cookies.get('school', '')
 		if school:
 			school = school.replace('_', ' ')
-			return school
-		else:
-			return None
+			if school in self.get_schools_raw():
+				return school
+		school = get_school(self.get_username())
+		self.set_school_cookie(school)
+		return school
 
 
 class MainHandler(BaseHandler):
@@ -174,14 +178,12 @@ class MainHandler(BaseHandler):
 
 			username, password, verify, school, year, agree, human, email = [self.rget(x) for x in ('username', 'password', 'verify', 'school', 'year', 'agree', 'session_secret', 'email')]
 			results = signup(username=username, password=password, verify=verify, school=school, year=year, agree=agree, human=human, email=email)
-			logging.error(school)
 			if results['success']:
 				add_school(school)
 				self.set_cookie(results['cookie'])
 				self.set_school_cookie(school)
 				self.redirect('/')	
 			else:
-				logging.error(school)
 				self.render('index.html', {'username': username,
 										   'school': school,
 										   'email' : email,
