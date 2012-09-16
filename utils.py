@@ -379,7 +379,23 @@ def get_submitted(username):
 		memcache.set(username + '_submitted', to_return)
 	return to_return
 
+last_refresh = 0
+
 def get_top_guides():
+	global last_refresh
+	if time.time() > last_refresh + 3600:
+		last_refresh = time.time()
+		results = list(top_guides_from_db())
+		memcache.set('top_guides', results)
+	else:
+		results = memcache.get('top_guides')
+		if results is None:
+			results = list(top_guides_from_db())
+			memcache.set('top_guides', results)
+	return results
+
+def top_guides_from_db():
+	logging.error('DB HIT: top guides')
 	q = Guides.all()
 	q.order('-votes')
 	results = q.run(limit=25)
