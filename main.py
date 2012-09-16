@@ -323,6 +323,9 @@ class UploadHandler(BaseHandler):
 				   teacher=teacher, tags=tags, blob_key=str(blob_key), locked=locked,
 				   votes=0, edit_url=edit_url, school=school, url=url)
 			guide.put()
+
+			# add guide to user's submitted guides cache
+			add_submitted(username,str(blob_key))
 			
 			# add guide to index
 			key = str(guide.key())

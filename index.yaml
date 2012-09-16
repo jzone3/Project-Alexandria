@@ -12,6 +12,24 @@ indexes:
 
 - kind: Guides
   properties:
+  - name: blob_key
+  - name: date_created
+    direction: desc
+
+- kind: Guides
+  properties:
+  - name: blog_key
+  - name: date_created
+    direction: desc
+
+- kind: Guides
+  properties:
+  - name: key
+  - name: date_created
+    direction: desc
+
+- kind: Guides
+  properties:
   - name: user_created
   - name: date_created
     direction: desc

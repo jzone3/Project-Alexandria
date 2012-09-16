@@ -357,11 +357,22 @@ def save_feedback(content, origin):
 	new_feedback = Feedback(content = content, origin = origin)
 	new_feedback.put()
 
+def add_submitted(username, blob_key):
+	cached_items = memcache.get(username + '_submitted')
+	submission = db.GqlQuery("SELECT * FROM Guides WHERE blob_key = '" + blob_key + "'").get()
+	if not cached_items is None:
+		new_guide = [{'title' : submission.title, 'subject' : submission.subject, 'votes' : submission.votes, 'date_created' : submission.date_created}]
+		try:
+			cached_items = new_guide.append(cached_items)
+			memcache.set(username + '_submitted', cached_items)
+		except:
+			memcache.set(username + '_submitted', new_guide)
+
 def get_submitted(username):
 	to_return = memcache.get(username + '_submitted')
 	if to_return is None:
 		guides = db.GqlQuery("SELECT * FROM Guides WHERE user_created = '" + username.replace("'", "&lsquo;") + "' ORDER BY date_created DESC")
-		logging.debug('test')
+		logging.error(username + '_submitted db read')
 		to_return = []
 		for submission in guides:
 			to_return.append({'title' : submission.title, 'subject' : submission.subject, 'votes' : submission.votes, 'date_created' : submission.date_created})
