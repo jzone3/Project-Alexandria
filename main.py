@@ -45,7 +45,7 @@ class BaseHandler(webapp2.RequestHandler):
 				to_return += '"' + i + '",'
 		return to_return
 
-	def get_schools_list():
+	def get_schools_list(self):
 		schools_list = get_schools()
 		if schools_list is None:
 			schools_list = ['Bergen County Academies']
