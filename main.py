@@ -48,7 +48,7 @@ class BaseHandler(webapp2.RequestHandler):
 	def render(self, template, params={}):
 		# setup school list for typeahead
 		schools_list = get_schools()
-		if len(schools_list) == 0:
+		if schools_list is None:
 			schools_list = ['Bergen County Academies']
 		params['all_schools'] = self.list_to_str(schools_list)
 
