@@ -65,6 +65,7 @@ def str_votes(votes):
 		return str(votes)
 
 def get_school(username):
+	'''gets school from db from username'''
 	q = Users.all()
 	q.filter('username =', username)
 	results = q.get()
@@ -213,7 +214,6 @@ def signup_ext(username='', school='', year='', agree='', email=''):
 			to_return['success'] = True
 			
 	return to_return
-
 
 def get_tags(string):
 	'''Gets tags from a comma separated string'''
@@ -383,22 +383,33 @@ def get_submitted(username):
 
 last_refresh = 0
 
-def get_top_guides():
+def get_top_guides(school=None):
 	global last_refresh
 	if time.time() > last_refresh + 3600:
 		last_refresh = time.time()
-		results = list(top_guides_from_db())
+		results = list(top_guides_from_db(school))
 		memcache.set('top_guides', results)
 	else:
 		results = memcache.get('top_guides')
 		if results is None:
-			results = list(top_guides_from_db())
+			results = list(top_guides_from_db(school))
 			memcache.set('top_guides', results)
 	return results
 
-def top_guides_from_db():
-	logging.error('DB HIT: top guides')
+def top_guides_from_db(school):
 	q = Guides.all()
+	if school: # i.e. if user is logged in (school cookie)
+		q.filter('school=', school)
 	q.order('-votes')
 	results = q.run(limit=25)
+
+	# logging
+	if school:
+		logging.error('DB HIT: top guides for '+school)
+	else:
+		logging.error('DB HIT: top guides for ALL')
+
 	return results
+
+def get_all_subjects(school):
+	pass

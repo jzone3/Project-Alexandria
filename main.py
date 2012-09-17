@@ -15,6 +15,7 @@ from utils import *
 import externals.ayah
 from google.appengine.api import files
 from google.appengine.api import urlfetch
+from google.appengine.api import users
 from google.appengine.ext import blobstore
 from google.appengine.ext.webapp import blobstore_handlers
 from google.appengine.ext.webapp.util import run_wsgi_app
@@ -213,25 +214,20 @@ class LogoutHandler(BaseHandler):
 class GuidesHandler(BaseHandler):
 	'''Handles guides: guides.html'''
 	def get(self):
+		# if user is searching
 		if self.rget('q'):
 			self.redirect('/search?q=' + self.rget('q'))
-		top_guides = get_top_guides()
+
+		# check if user is logged in
+		# calculate variable top_guides
+		username = self.get_username()
+		if username:
+			school = get_school(username)
+			top_guides = get_top_guides(school)
+		else:
+			top_guides = get_top_guides()
+
 		self.render('guides.html', {'top_guides':top_guides})
-
-class AboutHandler(BaseHandler):
-	'''Handles about: about.html'''
-	def get(self):
-		self.render('about.html')
-
-class ContactHandler(BaseHandler):
-	'''Handles contact: contact.html'''
-	def get(self):
-		self.render('contact.html')
-
-class TeamHandler(BaseHandler):
-	'''Handles team: team.html'''
-	def get(self):
-		self.render('team.html')
 
 class DashboardHandler(BaseHandler):
 	'''Handlers dashboard: dashboard.html'''
@@ -247,10 +243,13 @@ class DashboardHandler(BaseHandler):
 class GuidePageHandler(BaseHandler):
 	'''Handlers custom guide pages: guide_page.html'''
 	def get(self, url):
+		# formats url
 		url = url[1:]
+		# retrieve guide from db
 		q = Guides.all()
 		q.filter('url =', url.lower())
 		result = q.get()
+		# render page
 		if result:
 			votes = str_votes(result.votes)
 			dl_link = '/serve/' + result.blob_key
@@ -366,8 +365,12 @@ class SearchHandler(BaseHandler):
 			school = 'Bergen County Academies'
 		rankings = search(school, query)
 
-		results = []
+		# if no entries for that school
+		if not rankings:
+			self.render('search.html')
+			return
 
+		results = []
 		for ranking in rankings:
 			# get guides by key
 			guide = Guides.get(ranking[0])
@@ -479,7 +482,7 @@ class DeleteAccountHandler(BaseHandler):
 		else:
 			self.redirect('/')
 
-from google.appengine.api import users
+
 
 class GoogleSignupHandler(BaseHandler):
     def get(self):
@@ -554,6 +557,24 @@ class ExternalSignUp(BaseHandler):
 			self.redirect('/google_signup')
 
 
+### static pages ###
+
+class AboutHandler(BaseHandler):
+	'''Handles about: about.html'''
+	def get(self):
+		self.render('about.html')
+
+class ContactHandler(BaseHandler):
+	'''Handles contact: contact.html'''
+	def get(self):
+		self.render('contact.html')
+
+class TeamHandler(BaseHandler):
+	'''Handles team: team.html'''
+	def get(self):
+		self.render('team.html')
+
+
 app = webapp2.WSGIApplication([('/?', MainHandler),
 							   ('/about/?', AboutHandler),
 							   ('/logout/?', LogoutHandler),
@@ -575,6 +596,5 @@ app = webapp2.WSGIApplication([('/?', MainHandler),
 							   ('/google_signup/?', GoogleSignupHandler),
 							   ('/google_login/?', GoogleLoginHandler),
 							   ('/ext_signup/?', ExternalSignUp),
-							   # ('/test', Test),
 							   ('/.*', NotFoundHandler),
 							   ], debug=True)

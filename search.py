@@ -5,16 +5,16 @@ from google.appengine.ext import db
 
 from database import Indexes
 
-db_entries = [{'tags':['freshman', 'biology', 'chapter', 'one', 'notes', 'zhang'], 'title':'bio'},
-			{'tags':['sophomore', 'french', 'vocabulary', 'vocab', 'guide', 'ballas'], 'title':'french'},
-			{'tags':['med', 'physics', 'circular', 'motion', 'notes', 'russo'], 'title':'physics'},
-			{'tags':['freshman', 'literature', 'thesis', 'statement', 'notes', 'kaplan'], 'title':'lit'},
-			{'tags':['sophomore', 'drivers', 'education', 'chapter', 'six', 'notes', 'fuentes'], 'title':'drivers ed'},
-			{'tags':['junior', 'first aid', 'chapter', 'two', 'notes', 'symons'], 'title':'first aid'},
-			{'tags':['sophomore', 'history', 'buddhism', 'notes', 'alschen'], 'title':'buddhism'},
-			{'tags':['sophomore', 'history', 'reformation', 'study', 'guide', 'kramer'], 'title':'reformation'},
-			{'tags':['sophomore', 'spanish', 'vocabulary', 'guide', 'mendelsohn'], 'title':'spanish'},
-			{'tags':['med', 'chemistry', 'thermodynamics', 'guide', 'rick'], 'title':'thermodynamics'}]
+# db_entries = [{'tags':['freshman', 'biology', 'chapter', 'one', 'notes', 'zhang'], 'title':'bio'},
+# 			{'tags':['sophomore', 'french', 'vocabulary', 'vocab', 'guide', 'ballas'], 'title':'french'},
+# 			{'tags':['med', 'physics', 'circular', 'motion', 'notes', 'russo'], 'title':'physics'},
+# 			{'tags':['freshman', 'literature', 'thesis', 'statement', 'notes', 'kaplan'], 'title':'lit'},
+# 			{'tags':['sophomore', 'drivers', 'education', 'chapter', 'six', 'notes', 'fuentes'], 'title':'drivers ed'},
+# 			{'tags':['junior', 'first aid', 'chapter', 'two', 'notes', 'symons'], 'title':'first aid'},
+# 			{'tags':['sophomore', 'history', 'buddhism', 'notes', 'alschen'], 'title':'buddhism'},
+# 			{'tags':['sophomore', 'history', 'reformation', 'study', 'guide', 'kramer'], 'title':'reformation'},
+# 			{'tags':['sophomore', 'spanish', 'vocabulary', 'guide', 'mendelsohn'], 'title':'spanish'},
+# 			{'tags':['med', 'chemistry', 'thermodynamics', 'guide', 'rick'], 'title':'thermodynamics'}]
 
 # likely errant key presses that are not part of a query
 CHARS = """'"\\`~!@#$%^&*()-_=+/|[]{};:<>.,?"""
@@ -91,6 +91,9 @@ def get_rankings(query, index):
 def search(school, query):
 	'''Returns search results'''
 	index = get_index(school)
+	if not index:
+		# if no entries for that school
+		return None
 	query = filt_query(query)
 	rankings = get_rankings(query, index)
 
