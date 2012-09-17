@@ -207,6 +207,7 @@ class LogoutHandler(BaseHandler):
 	def get(self):
 		self.delete_cookie(LOGIN_COOKIE_NAME)
 		self.delete_cookie('ACSID')
+		self.delete_cookie('school')
 		self.redirect('/')
 
 class GuidesHandler(BaseHandler):
@@ -485,6 +486,7 @@ class GoogleSignupHandler(BaseHandler):
         self.redirect(users.create_login_url("/ext_signup"))
 
 class GoogleLoginHandler(BaseHandler):
+	'''Handles google login: /google_login'''
 	def google_login(self, user):
 		q = Users.all()
 		q.filter('email =', user.email())
@@ -493,6 +495,7 @@ class GoogleLoginHandler(BaseHandler):
 			username = account.username
 			cookie = LOGIN_COOKIE_NAME + '=%s|%s; Expires=%s Path=/' % (str(username), hash_str(username), remember_me())
 			self.set_cookie(cookie)
+			self.set_school_cookie(get_school(username))
 			return True
 		else:
 			return False
@@ -513,6 +516,7 @@ class GoogleLoginHandler(BaseHandler):
 			self.redirect(users.create_login_url("/google_login"))
 
 class ExternalSignUp(BaseHandler):
+	'''Handles external signup: /ext_signup'''
 	def get(self):
 		user = users.get_current_user()
 		if not user:
@@ -531,8 +535,11 @@ class ExternalSignUp(BaseHandler):
 			result = signup_ext(username, school, year, agree, email)
 
 			if result['success']:
+				# set user cookie
 				cookie = result['cookie']
 				self.set_cookie(cookie)
+				#set school cookie
+				self.set_school_cookie(school)
 				self.redirect('/')
 			else:
 				self.render('external_signup.html', {'username_error':result.get('username'),
