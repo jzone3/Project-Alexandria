@@ -30,6 +30,14 @@ class Feedback(db.Model):
 	content      = db.TextProperty(required = True)
 	origin       = db.StringProperty(required = True)
 
+class Teachers(db.Model):
+	school        = db.StringProperty(required = True)
+	teachers_list = db.StringListProperty(required = True)
+
+class Subjects(db.Model):
+	school        = db.StringProperty(required = True)
+	subjects_list = db.StringListProperty(required = True)
+
 # stores dictionaries as JSON objects in datastore
 class JsonProperty(db.TextProperty):
 	def validate(self, value):

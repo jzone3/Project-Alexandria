@@ -227,7 +227,16 @@ class GuidesHandler(BaseHandler):
 		else:
 			top_guides = get_top_guides()
 
-		self.render('guides.html', {'top_guides':top_guides})
+		# calculate subjects and teachers
+		if school:
+			subjects = get_all_subjects(school)
+			teachers = get_all_teachers(school)
+		else:
+			subjects, teachers = None
+
+		self.render('guides.html', {'top_guides':top_guides, 
+									'subjects':subjects, 
+									'teachers':teachers})
 
 class DashboardHandler(BaseHandler):
 	'''Handlers dashboard: dashboard.html'''
@@ -332,6 +341,10 @@ class UploadHandler(BaseHandler):
 				   teacher=teacher, tags=tags, blob_key=str(blob_key), locked=locked,
 				   votes=0, edit_url=edit_url, school=school, url=url)
 			guide.put()
+
+			# add subject, teacher to db
+			add_teacher(school, teacher)
+			add_subject(school, subject)
 
 			# add guide to user's submitted guides cache
 			add_submitted(username,str(blob_key))

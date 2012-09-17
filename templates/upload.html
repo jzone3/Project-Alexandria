@@ -42,7 +42,7 @@ application/msword,application/vnd.openxmlformats-officedocument.wordprocessingm
 				</div>
 
   		
-        		<div id="edit_url" class="row">
+        		<div id="edit_url" class="row" {% if locked %}style="display:none;"{% endif %}>
 					<div class="span2">
 						Google Docs URL
 						<a rel="tooltip" data-placement="right" title="The link to a public Google Doc. Not needed if the guide is locked." class="tooltips"><i class="icon-question-sign"></i></a>

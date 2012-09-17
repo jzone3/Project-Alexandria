@@ -399,7 +399,7 @@ def get_top_guides(school=None):
 def top_guides_from_db(school):
 	q = Guides.all()
 	if school: # i.e. if user is logged in (school cookie)
-		q.filter('school=', school)
+		q.filter('school =', school)
 	q.order('-votes')
 	results = q.run(limit=25)
 
@@ -411,5 +411,59 @@ def top_guides_from_db(school):
 
 	return results
 
+def add_subject(school, subject):
+	'''adds/updates a subject to Subjects'''
+	q = Subjects.all()
+	q.filter('school =', school)
+	result = q.get()
+
+	if result:
+		# update old entry
+		subjects = result.subjects_list 
+		if subject not in subjects:
+			subjects.append(subject)
+		result.subjects_list = subjects
+	else:
+		# new entry
+		result = Subjects(school=school, subjects_list=[subject])
+	result.put()
+
+def add_teacher(school, teacher):
+	'''adds/updates a teacher to Teachers'''
+	q = Teachers.all()
+	q.filter('school =', school)
+	result = q.get()
+
+	if result:
+		# update old entry
+		logging.error('update')
+		teachers = result.teachers_list 
+		if teacher not in teachers:
+			teachers.append(teacher)
+		result.teachers_list = teachers
+	else:
+		# new entry
+		logging.error('new')
+		result = Teachers(school=school, teachers_list=[teacher])
+	result.put()
+
 def get_all_subjects(school):
-	pass
+	'''gets list of all subjects from Subjects model'''
+	q = Subjects.all()
+	q.filter('school =', school)
+	result = q.get()
+	if result:
+		return result.subjects_list
+	else:
+		return None
+
+def get_all_teachers(school):
+	'''gets list of all teachers from Teachers model'''
+	q = Teachers.all()
+	q.filter('school=', school)
+	result = q.get()
+	if result:
+		return result.teachers_list
+	else:
+		return None
+
