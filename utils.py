@@ -381,19 +381,24 @@ def get_submitted(username):
 		memcache.set(username + '_submitted', to_return)
 	return to_return
 
-last_refresh = 0
+last_refresh = {}
 
 def get_top_guides(school=None):
 	global last_refresh
-	if time.time() > last_refresh + 3600:
-		last_refresh = time.time()
-		results = list(top_guides_from_db(school))
-		memcache.set('top_guides', results)
-	else:
-		results = memcache.get('top_guides')
-		if results is None:
+	if str(school) in last_refresh.keys():
+		if time.time() > last_refresh[str(school)] + 3600:
+			last_refresh[str(school)] = time.time()
 			results = list(top_guides_from_db(school))
-			memcache.set('top_guides', results)
+			memcache.set(str(school) + '-top_guides', results)
+		else:
+			results = memcache.get(str(school) + '-top_guides')
+			if results is None:
+				results = list(top_guides_from_db(school))
+				memcache.set(str(school) + '-top_guides', results)
+	else:
+		last_refresh[str(school)] = time.time()
+		results = list(top_guides_from_db(school))
+		memcache.set(str(school) + '-top_guides', results)
 	return results
 
 def top_guides_from_db(school):
