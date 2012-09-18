@@ -33,9 +33,6 @@
 			<!-- End Tabs -->
 
 			<h2>Top Guides</h2>
-			
-			
-			
 			<br />
 			<table class="table-hover">
 				<thead>
@@ -64,7 +61,7 @@
 						<td>{{ guide.subject }}</td>
 						<td>{{ guide.user_created }}</td>
 						<td>{{ guide.teacher }}</td>
-						<td>{{ guide.votes }}</td>
+						<td>{{ guide.votes|str_votes }}</td>
 					</tr>
 					{% endfor %}
 				</tbody>

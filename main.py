@@ -19,9 +19,10 @@ from google.appengine.api import users
 from google.appengine.ext import blobstore
 from google.appengine.ext.webapp import blobstore_handlers
 from google.appengine.ext.webapp.util import run_wsgi_app
-
+		
 template_dir = os.path.join(os.path.dirname(__file__), 'templates')
 jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir), autoescape=True)
+jinja_env.filters['str_votes'] = str_votes
 
 class BaseHandler(webapp2.RequestHandler):
 	'''Parent class for all handlers, shortens functions'''
@@ -232,7 +233,7 @@ class GuidesHandler(BaseHandler):
 			subjects = get_all_subjects(school)
 			teachers = get_all_teachers(school)
 		else:
-			subjects, teachers = None
+			subjects, teachers = None, None
 
 		self.render('guides.html', {'top_guides':top_guides, 
 									'subjects':subjects, 
@@ -275,7 +276,7 @@ class UserPageHandler(BaseHandler):
 		q.filter('username =', url)
 		result = q.get()
 		if result:
-			score = int(str_votes(result.score))
+			score = str_votes(result.score)
 			grade = str_grade(result.grade)
 			self.render('user_page.html', {'result':result, 'grade':grade, 'score':score})
 		else:
