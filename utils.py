@@ -460,15 +460,15 @@ def get_all_subjects(school):
 	if result:
 		return result.subjects_list
 	else:
-		return None
+		return []
 
 def get_all_teachers(school):
 	'''gets list of all teachers from Teachers model'''
 	q = Teachers.all()
-	q.filter('school=', school)
+	q.filter('school =', school)
 	result = q.get()
 	if result:
 		return result.teachers_list
 	else:
-		return None
+		return []
 

@@ -229,11 +229,12 @@ class GuidesHandler(BaseHandler):
 			top_guides = get_top_guides()
 
 		# calculate subjects and teachers
-		if not school is None:
+		if school:
 			subjects = get_all_subjects(school)
 			teachers = get_all_teachers(school)
 		else:
-			subjects, teachers = None, None
+			self.render('guides.html', {'top_guides':top_guides})
+			return
 
 		self.render('guides.html', {'top_guides':top_guides, 
 									'subjects':subjects, 
