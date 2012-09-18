@@ -48,7 +48,7 @@ application/msword,application/vnd.openxmlformats-officedocument.wordprocessingm
 						<a rel="tooltip" data-placement="right" title="The link to a public Google Doc. Not needed if the guide is locked." class="tooltips"><i class="icon-question-sign"></i></a>
 					</div>
 					<div class="span4"><input class="input-xlarge"type="text" name="edit_url" value="{{edit_url}}" placeholder="http://docs.google.com ..."></div>
-					<div class="alert alert-error span4" {% if not edit_url_error %}style="display: none;"{% endif %}>{{edit_url_error}}</div>
+					<div class="alert alert-error span4" {% if not doc_url_error %}style="display: none;"{% endif %}>{{doc_url_error}}</div>
 				</div>	
 				<div class="row">
 					<div class="span2">
