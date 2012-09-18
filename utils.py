@@ -386,7 +386,7 @@ last_refresh = {}
 def get_top_guides(school=None):
 	global last_refresh
 	if str(school) in last_refresh.keys():
-		if time.time() > last_refresh[str(school)] + 3600:
+		if time.time() > last_refresh[str(school)] + 900:
 			last_refresh[str(school)] = time.time()
 			results = list(top_guides_from_db(school))
 			memcache.set(str(school) + '-top_guides', results)
