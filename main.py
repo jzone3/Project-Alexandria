@@ -222,14 +222,14 @@ class GuidesHandler(BaseHandler):
 		# check if user is logged in
 		# calculate variable top_guides
 		username = self.get_username()
+		school = get_school(username)
 		if username:
-			school = get_school(username)
 			top_guides = get_top_guides(school)
 		else:
 			top_guides = get_top_guides()
 
 		# calculate subjects and teachers
-		if school:
+		if not school is None:
 			subjects = get_all_subjects(school)
 			teachers = get_all_teachers(school)
 		else:
