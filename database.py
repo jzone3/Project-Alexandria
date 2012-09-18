@@ -38,6 +38,18 @@ class Subjects(db.Model):
 	school        = db.StringProperty(required = True)
 	subjects_list = db.StringListProperty(required = True)
 
+class Teacher_Subjects(db.Model):
+	'''List subjects for a teacher'''
+	school        = db.StringProperty(required = True)
+	teacher       = db.StringProperty(required = True)
+	subjects_list = db.StringListProperty(required = True)
+
+class Subject_Teachers(db.Model):
+	'''List of teachers for a subject'''
+	school        = db.StringProperty(required = True)
+	subject       = db.StringProperty(required = True)
+	teachers_list = db.StringListProperty(required = True)
+
 # stores dictionaries as JSON objects in datastore
 class JsonProperty(db.TextProperty):
 	def validate(self, value):

@@ -23,6 +23,74 @@ SCHOOL_RE= re.compile(r"^[a-zA-Z0-9 _]{1,30}$")
 PAGE_RE = r'(/(?:[a-zA-Z0-9_-]+/?)*)'
 LOGIN_COOKIE_NAME = 'uohferrvnksj'
 
+############################### misc. functions ###############################
+
+def str_votes(votes):
+	if votes > 0:
+		return '+' + str(votes)
+	else:
+		return str(votes)
+
+def str_grade(grade):
+	if grade == 9:
+		return 'Freshman'
+	elif grade == 10:
+		return 'Sophomore'
+	elif grade == 11:
+		return 'Junior'
+	elif grade == 12:
+		return 'Senior'
+	else:
+		return 'Alumnus'
+
+def get_schools():
+	lst = memcache.get('all_schools')
+	if lst is None:
+		all_users = db.GqlQuery("SELECT * FROM Users")
+		schools = []
+		for i in all_users:
+			if not i.school in schools:
+				schools.append(i.school)
+		if len(schools) == 0:
+			schools = ['Bergen County Academies']
+		memcache.set('all_schools', schools)
+	return lst
+
+def add_school(new_school):
+	# implement CAS later
+	current_schools = get_schools()
+	if not new_school in current_schools:
+		current_schools.append(new_school)
+	memcache.set('all_schools', current_schools)
+
+def save_feedback(content, origin):
+	new_feedback = Feedback(content = content, origin = origin)
+	new_feedback.put()
+
+def add_submitted(username, blob_key):
+	cached_items = memcache.get(username + '_submitted')
+	submission = db.GqlQuery("SELECT * FROM Guides WHERE blob_key = '" + blob_key + "'").get()
+	if not cached_items is None:
+		new_guide = [{'title' : submission.title, 'subject' : submission.subject, 'votes' : submission.votes, 'date_created' : submission.date_created}]
+		try:
+			cached_items = new_guide.append(cached_items)
+			memcache.set(username + '_submitted', cached_items)
+		except:
+			memcache.set(username + '_submitted', new_guide)
+
+def get_submitted(username):
+	to_return = memcache.get(username + '_submitted')
+	if to_return is None:
+		guides = db.GqlQuery("SELECT * FROM Guides WHERE user_created = '" + username.replace("'", "&lsquo;") + "' ORDER BY date_created DESC")
+		logging.error(username + '_submitted db read')
+		to_return = []
+		for submission in guides:
+			to_return.append({'title' : submission.title, 'subject' : submission.subject, 'votes' : submission.votes, 'date_created' : submission.date_created})
+		memcache.set(username + '_submitted', to_return)
+	return to_return
+
+############################### user functions ###############################
+
 def remember_me():
 	expiration = datetime.datetime.now() + datetime.timedelta(days=50)
 	return expiration.strftime("%a, %d-%b-%Y %H:%M:%S PST")
@@ -45,24 +113,6 @@ def get_error(results, error):
 def get_user(username):
 	user = (db.GqlQuery("SELECT * FROM Users WHERE username = '" + username.replace("'", "&lsquo;") + "'")).get()
 	return user
-
-def str_grade(grade):
-	if grade == 9:
-		return 'Freshman'
-	elif grade == 10:
-		return 'Sophomore'
-	elif grade == 11:
-		return 'Junior'
-	elif grade == 12:
-		return 'Senior'
-	else:
-		return 'Alumnus'
-
-def str_votes(votes):
-	if votes > 0:
-		return '+' + str(votes)
-	else:
-		return str(votes)
 
 def get_school(username):
 	'''gets school from db from username'''
@@ -214,6 +264,69 @@ def signup_ext(username='', school='', year='', agree='', email=''):
 			to_return['success'] = True
 			
 	return to_return
+		
+############################### user pref functions ###############################
+
+def change_school(school, username):
+	if school == '':
+		return [False, 'No school entered']
+	if not SCHOOL_RE.match(school):
+		return [False, "That is not a valid school name"]
+	add_school(school)
+	user = get_user(username)
+	user.school = school
+	user.put()
+	return [True]
+
+def new_email(email, username):
+	"""
+	Returns:
+		[Success_bool, error]
+	"""
+	if email == '':
+		return [False, 'No email entered']
+	if not EMAIL_RE.match(email):
+		return [False, "That's not a valid email."]
+
+	user = get_user(username)
+	user.email = email
+	user.put()
+	return [True]
+
+def change_password(old, new, verify, username):
+	if new == '':
+		return [False, {'new_password_error' : "Please enter a password"}]
+	if old == '':
+		return [False, {'new_password_error' : "Please enter your current password"}]
+	elif not PASS_RE.match(new):
+		return [False, {'new_password_error' : "That's not a valid password."}]
+	elif verify == '':
+		return [False, {'verify_new_password_error' : "Please verify your password"}]
+	elif verify != new:
+		return [False, {'verify_new_password_error' : "Your passwords didn't match."}]
+
+	user = get_user(username)
+	logging.error(old)
+	(db_password, db_salt) = (user.password).split("|")
+	if salted_hash(old, db_salt) == db_password:		
+		salt = make_salt()
+		hashed = salted_hash(new, salt)
+		hashed_pass = hashed + '|' + salt
+
+		user.password = hashed_pass
+		user.put()
+
+		cookie = LOGIN_COOKIE_NAME + '=%s|%s; Expires=%s Path=/' % (str(username), hash_str(username), remember_me())
+		return [True, cookie]
+	else:
+		return [False, {'current_password_error' : 'Incorrect current password'}]
+
+def delete_user_account(username):
+	user = db.GqlQuery("SELECT * FROM Users WHERE username = '" + username.replace("'", "&lsquo;") + "'")
+	for i in user:
+		i.delete()
+
+############################### file handling functions ###############################
 
 def get_tags(string):
 	'''Gets tags from a comma separated string'''
@@ -276,110 +389,7 @@ def upload_errors(title, subject, teacher, locked, doc_url, headers):
 			'teacher_error':teacher_error, 'doc_url_error':doc_url_error,
 			'file_error':file_error}
 
-def get_schools():
-	lst = memcache.get('all_schools')
-	if lst is None:
-		all_users = db.GqlQuery("SELECT * FROM Users")
-		schools = []
-		for i in all_users:
-			if not i.school in schools:
-				schools.append(i.school)
-		if len(schools) == 0:
-			schools = ['Bergen County Academies']
-		memcache.set('all_schools', schools)
-	return lst
-
-def add_school(new_school):
-	# implement CAS later
-	current_schools = get_schools()
-	if not new_school in current_schools:
-		current_schools.append(new_school)
-	memcache.set('all_schools', current_schools)
-
-def change_school(school, username):
-	if school == '':
-		return [False, 'No school entered']
-	if not SCHOOL_RE.match(school):
-		return [False, "That is not a valid school name"]
-	add_school(school)
-	user = get_user(username)
-	user.school = school
-	user.put()
-	return [True]
-
-def new_email(email, username):
-	"""
-	Returns:
-		[Success_bool, error]
-	"""
-	if email == '':
-		return [False, 'No email entered']
-	if not EMAIL_RE.match(email):
-		return [False, "That's not a valid email."]
-
-	user = get_user(username)
-	user.email = email
-	user.put()
-	return [True]
-
-def change_password(old, new, verify, username):
-	if new == '':
-		return [False, {'new_password_error' : "Please enter a password"}]
-	if old == '':
-		return [False, {'new_password_error' : "Please enter your current password"}]
-	elif not PASS_RE.match(new):
-		return [False, {'new_password_error' : "That's not a valid password."}]
-	elif verify == '':
-		return [False, {'verify_new_password_error' : "Please verify your password"}]
-	elif verify != new:
-		return [False, {'verify_new_password_error' : "Your passwords didn't match."}]
-
-	user = get_user(username)
-	logging.error(old)
-	(db_password, db_salt) = (user.password).split("|")
-	if salted_hash(old, db_salt) == db_password:		
-		salt = make_salt()
-		hashed = salted_hash(new, salt)
-		hashed_pass = hashed + '|' + salt
-
-		user.password = hashed_pass
-		user.put()
-
-		cookie = LOGIN_COOKIE_NAME + '=%s|%s; Expires=%s Path=/' % (str(username), hash_str(username), remember_me())
-		return [True, cookie]
-	else:
-		return [False, {'current_password_error' : 'Incorrect current password'}]
-
-def delete_user_account(username):
-	user = db.GqlQuery("SELECT * FROM Users WHERE username = '" + username.replace("'", "&lsquo;") + "'")
-	for i in user:
-		i.delete()
-
-def save_feedback(content, origin):
-	new_feedback = Feedback(content = content, origin = origin)
-	new_feedback.put()
-
-def add_submitted(username, blob_key):
-	cached_items = memcache.get(username + '_submitted')
-	submission = db.GqlQuery("SELECT * FROM Guides WHERE blob_key = '" + blob_key + "'").get()
-	if not cached_items is None:
-		new_guide = [{'title' : submission.title, 'subject' : submission.subject, 'votes' : submission.votes, 'date_created' : submission.date_created}]
-		try:
-			cached_items = new_guide.append(cached_items)
-			memcache.set(username + '_submitted', cached_items)
-		except:
-			memcache.set(username + '_submitted', new_guide)
-
-def get_submitted(username):
-	to_return = memcache.get(username + '_submitted')
-	if to_return is None:
-		guides = db.GqlQuery("SELECT * FROM Guides WHERE user_created = '" + username.replace("'", "&lsquo;") + "' ORDER BY date_created DESC")
-		logging.error(username + '_submitted db read')
-		to_return = []
-		for submission in guides:
-			to_return.append({'title' : submission.title, 'subject' : submission.subject, 'votes' : submission.votes, 'date_created' : submission.date_created})
-		memcache.set(username + '_submitted', to_return)
-	return to_return
+############################### db functions ###############################
 
 last_refresh = {}
 
@@ -472,3 +482,55 @@ def get_all_teachers(school):
 	else:
 		return []
 
+def get_subjects_for_teacher(school, teacher):
+	'''gets all subjects taught by one teacher'''
+	q = Teacher_Subjects.all()
+	q.filter('school =', school)
+	q.filter('teacher =', teacher)
+	result = q.get()
+	if result:
+		return result.subjects_list
+	else:
+		return []
+
+def get_teachers_for_subject(school, subject):
+	'''gets all teachers for one subject'''
+	q = Subject_Teachers.all()
+	q.filter('school =', school)
+	q.filter('subject =', subject)
+	result = q.get()
+	if result:
+		return result.teachers_list
+	else:
+		return []
+
+def add_subject_to_teacher(school, teacher, subject):
+	'''add a subject to a teacher'''
+	q = Teacher_Subjects.all()
+	q.filter('school =', school)
+	q.filter('teacher =', teacher)
+	result = q.get()
+	if result:
+		subjects = result.subjects_list
+		if subject not in subjects:
+			subjects.append(subject)
+		result.subject_list = subjects
+	else:
+		result = Teacher_Subjects(school=school, teacher=teacher, subjects_list=[subject])
+	result.put()
+
+
+def add_teacher_to_subject(school, teacher, subject):
+	'''add a teacher to a subject'''
+	q = Subject_Teachers.all()
+	q.filter('school =', school)
+	q.filter('subject =', subject)
+	result = q.get()
+	if result: 
+		teachers = result.teachers_list
+		if teacher not in teachers:
+			teachers.append(teacher)
+		result.teachers_list = teachers
+	else:
+		result = Subject_Teachers(school=school, subject=subject, teachers_list=[teacher])
+	result.put()

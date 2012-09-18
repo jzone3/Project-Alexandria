@@ -347,6 +347,8 @@ class UploadHandler(BaseHandler):
 			# add subject, teacher to db
 			add_teacher(school, teacher)
 			add_subject(school, subject)
+			add_subject_to_teacher(school, teacher, subject)
+			add_teacher_to_subject(school, teacher, subject)
 
 			# add guide to user's submitted guides cache
 			add_submitted(username,str(blob_key))
