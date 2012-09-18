@@ -347,8 +347,8 @@ class UploadHandler(BaseHandler):
 			# add subject, teacher to db
 			add_teacher(school, teacher)
 			add_subject(school, subject)
-			add_subject_to_teacher(school, teacher, subject)
-			add_teacher_to_subject(school, teacher, subject)
+			add_subjects_to_teacher(school, teacher, subject)
+			add_teachers_to_subject(school, teacher, subject)
 
 			# add guide to user's submitted guides cache
 			add_submitted(username,str(blob_key))
@@ -400,20 +400,6 @@ class SearchHandler(BaseHandler):
 			self.render('search.html', {'results':results})
 		else:
 			self.render('search.html')
-
-# class Test(BaseHandler):
-# 	def get(self):
-# 		externals.ayah.configure('9ee379aab47a91907b9f9b505204b16494367d56', '7ec7c6561c6dba467095b91dd58778f2c60fbaf2')
-# 		html = externals.ayah.get_publisher_html()
-# 		self.write('<form method="post"><input type="text">'+html+'<button type="submit"></button></form>')
-
-# 	def post(self):
-# 		secret = self.rget('session_secret')
-# 		externals.ayah.configure('9ee379aab47a91907b9f9b505204b16494367d56', '7ec7c6561c6dba467095b91dd58778f2c60fbaf2')
-# 		if externals.ayah.score_result(secret):
-# 			self.write(secret)
-# 		else:
-# 			self.write('no')
 
 class PreferencesHandler(BaseHandler):
 	def get(self):
@@ -573,6 +559,23 @@ class ExternalSignUp(BaseHandler):
 		else:
 			self.redirect('/google_signup')
 
+class TeachersHandler(BaseHandler):
+	pass
+
+class SubjectsHandler(BaseHandler):
+	def post(self):
+		subject = self.rget('subject')
+		school = self.get_school_cookie()
+		teachers = get_teachers_for_subject(school, subject)
+
+		# construct return HTML
+		html = '<ul>'
+		for teacher in teachers:
+			html += '<li><a href="#">' + teacher + '</a></li>'
+
+		# send this html back to jquery/ajax	
+		self.write(html+'</ul>')
+
 
 ### static pages ###
 
@@ -613,5 +616,7 @@ app = webapp2.WSGIApplication([('/?', MainHandler),
 							   ('/google_signup/?', GoogleSignupHandler),
 							   ('/google_login/?', GoogleLoginHandler),
 							   ('/ext_signup/?', ExternalSignUp),
+							   ('/teachers/?', TeachersHandler),
+							   ('/subjects/?', SubjectsHandler),
 							   ('/.*', NotFoundHandler),
 							   ], debug=True)
