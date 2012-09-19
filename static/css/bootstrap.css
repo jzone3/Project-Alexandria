@@ -5042,10 +5042,11 @@ h4 {
 #navwelcome{
   padding-right: 0px;
   padding-left: 0px;
+  color: lightGrey;
 }
 
 #navwelcome:hover{
-  color: #999;
+  color: lightGrey;
 }
 
 #navuser{
