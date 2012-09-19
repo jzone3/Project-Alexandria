@@ -85,7 +85,13 @@ background-repeat: no-repeat no-repeat;">
 							{% block nav_links %}{% endblock %}
 						</ul>
 						<ul class="nav pull-right">
-							{% if signed_in %}							
+							{% if signed_in %}	
+								<li>
+									<a href="#" id="target" title="Target" style="padding:0px;margin-top:5px;">
+    									<img src="../static/img/spotbw.png" alt="" class="indicator" id="indicator" />
+    									<span id="pulse" style="display:none;"></span>
+									</a>
+								<li>					
 								<li><a id="navwelcome">Welcome,</a></li>
 			                    <li id="fat-menu" class="dropdown">
 			                      	<a href="#" id="navuser" role="button" class="dropdown-toggle" data-toggle="dropdown">{{ username }}</a>
@@ -106,6 +112,7 @@ background-repeat: no-repeat no-repeat;">
 				</div>
 			</div>
 		</div>
+
 		<!-- End Nav Bar -->
 
 		{% if not signed_in %}
@@ -274,6 +281,21 @@ background-repeat: no-repeat no-repeat;">
 
 		<div class="push"></div>
 	</div>
+
+	<!-- Pulse Toggle -->
+	<script type="text/javascript">
+		$('#target').click(function (e) {
+			if ($("#pulse").is(':hidden')){
+				$('#pulse').show()
+	      		$("#indicator").attr('src',"../static/img/spot.png");
+			} else {
+				$('#pulse').hide()
+	      		$("#indicator").attr('src',"../static/img/spotbw.png");
+			}		
+	      	e.preventDefault();
+		})
+	</script>
+	<!-- End Pulse Toggle -->
 
 	<!-- Footer -->
 	<div class="sticky-footer" style="color: gray;">
