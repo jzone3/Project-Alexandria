@@ -3043,7 +3043,10 @@ input[type="submit"].btn.btn-mini {
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ff222222', endColorstr='#ff111111', GradientType=0);
   border-color: #252525;
 }
-.navbar-inverse .brand,
+.navbar-inverse .brand{
+  color: #DBDBDB;
+  text-shadow: 0 0;
+}
 .navbar-inverse .nav > li > a {
   color: #999999;
   text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
@@ -3157,7 +3160,7 @@ input[type="submit"].btn.btn-mini {
   padding: 8px 15px;
   margin: 0 0 20px;
   list-style: none;
-  background-color: #f5f5f5;
+  background-color: #E4E4E4;
   -webkit-border-radius: 4px;
   -moz-border-radius: 4px;
   border-radius: 4px;
@@ -3172,10 +3175,10 @@ input[type="submit"].btn.btn-mini {
 }
 .breadcrumb .divider {
   padding: 0 5px;
-  color: #ccc;
+  color: #4E4E4E;
 }
 .breadcrumb .active {
-  color: #999999;
+  color: #9C9C9C;
 }
 .pagination {
   height: 40px;
@@ -5041,9 +5044,14 @@ h4 {
   padding-left: 0px;
 }
 
+#navwelcome:hover{
+  color: #999;
+}
+
 #navuser{
-  color: #08C;
+  color: #17B2FF;
   padding:10px 5px;
+  text-shadow: 0px 0px;
 }
 
 h4{
@@ -5099,3 +5107,7 @@ hr {
 .bigupload {
   width: 185px; height: 25px; text-align: center;
 }​
+
+#logor{
+  color: white;
+}

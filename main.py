@@ -563,19 +563,94 @@ class TeachersHandler(BaseHandler):
 	pass
 
 class SubjectsHandler(BaseHandler):
+	'''receives AJAX request for the second page on guides->subject'''
 	def post(self):
 		subject = self.rget('subject')
 		school = self.get_school_cookie()
 		teachers = get_teachers_for_subject(school, subject)
 
 		# construct return HTML
-		html = '<ul>'
+		html = """
+		<ul class="breadcrumb">
+		  <li><a href="#" onclick="subtoggle1()">Subjects</a> <span class="divider">/</span></li>
+		  <li class="active">%s</li>		  
+		</ul>"""%subject
+
+		# script must be initialized AFTER the html is in place, so we send it through AJAX
+		script = """
+		<script>
+		$('.subjects2').click(function (e) {
+      		teacher = this.id;
+      		$('#'+teacher+'load2').show()
+      		e.preventDefault();
+      		$.ajax({
+	            type:'POST', 
+	            url:'/subjects2', 
+	            data:'teacher=' + teacher + '&subject=%s', 
+	            success: function(response) {
+	            	$('#'+teacher+'load2').hide()
+	            	$('#subjectlist2').hide();
+	            	$('#subjectlist3').html(response);
+	            	$('#subjectlist3').show();                
+	            }
+        	});
+      	})
+
+		</script>
+		"""%subject
+
 		for teacher in teachers:
-			html += '<li><a href="#">' + teacher + '</a></li>'
+			html += '<p><a href="#" class="subjects2" id="%s">'%teacher + teacher + '</a>&nbsp;&nbsp;<img src="../static/img/ajax-loader.gif" id="%sload2" style="display:none;"/></p><br />'%teacher
 
+		# send this html back to jquery/ajax
+		self.write(html+script)
+
+class SubjectsHandler2(BaseHandler):
+	'''receives AJAX request for the third page on guides->subject'''
+	def post(self):
+		teacher = self.rget('teacher')
+		subject = self.rget('subject')
+
+		school = self.get_school_cookie()
+		results = find_guides_ts(school, teacher, subject)
+
+		# construct return HTML
+		html = """
+		<ul class="breadcrumb">
+		  <li><a href="#" onclick="subtoggle2()">Subjects</a> <span class="divider">/</span></li>
+		  <li><a href="#" onclick="subtoggle3()">%s</a> <span class="divider">/</span></li>
+		  <li class="active">%s</li>		  
+		</ul>
+		<table class="table-hover">
+			<thead>
+				<tr>
+					<th>&nbsp;</th>
+					<th>Title</th>
+					<th>Subject</th>
+					<th>Teacher</th>
+					<th>Votes</th>
+				</tr>
+			</thead>
+			<tbody>
+			"""% (subject, teacher)
+
+		for result in results:
+			html += """<tr>
+					<td>
+						<div class="btn-group btn-group btn-group-vertical">
+							<button class="btn btn-mini"><i class="icon-caret-up"></i></button>
+							<button class="btn btn-mini"><i class="icon-caret-down"></i></button>
+						</div></td>"""
+
+			html += """<td><a href="/guides/%s">%s</a></td>"""%(result.url, result.title)
+			html += """<td>%s</td>"""%result.subject
+			html += """<td>%s</td>"""%result.teacher
+			html += """<td>%s</td>"""%result.votes
+			html += """</tr>"""
+
+		html += """</tbody></table>"""
 		# send this html back to jquery/ajax	
-		self.write(html+'</ul>')
-
+		self.write(html)
 
 ### static pages ###
 
@@ -618,5 +693,6 @@ app = webapp2.WSGIApplication([('/?', MainHandler),
 							   ('/ext_signup/?', ExternalSignUp),
 							   ('/teachers/?', TeachersHandler),
 							   ('/subjects/?', SubjectsHandler),
+							   ('/subjects2/?', SubjectsHandler2),
 							   ('/.*', NotFoundHandler),
 							   ], debug=True)

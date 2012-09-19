@@ -31,6 +31,14 @@ indexes:
 - kind: Guides
   properties:
   - name: school
+  - name: subject
+  - name: teacher
+  - name: votes
+    direction: desc
+
+- kind: Guides
+  properties:
+  - name: school
   - name: votes
     direction: desc
 

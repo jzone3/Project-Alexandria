@@ -534,3 +534,13 @@ def add_teacher_to_subject(school, teacher, subject):
 	else:
 		result = Subject_Teachers(school=school, subject=subject, teachers_list=[teacher])
 	result.put()
+
+def find_guides_ts(school, teacher, subject):
+	'''retrieves a list of guides based on school, teacher, and subject'''
+	q = Guides.all()
+	q.filter('school =', school)
+	q.filter('teacher =', teacher)
+	q.filter('subject =', subject)
+	q.order('-votes')
+	results = q.run(limit=1000)
+	return results

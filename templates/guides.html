@@ -73,15 +73,24 @@
 
 				<!-- Subject Tab Content -->
 				<div class="tab-pane fade" id="subject">
-					<h2>Subjects</h2>
-					<br />
-					{% for subject in subjects %}
-					<div>
-						<a href="#{{subject}}" class="subjects" id="{{subject}}">{{ subject }}</a>
-						&nbsp;&nbsp;<img src="../static/img/ajax-loader.gif" id="{{subject}}load" style="display:none;"/>
+					<div id="subjectlist">
+						<ul class="breadcrumb">
+							<li class="active">Subjects <span class="divider">/</span></li>
+						</ul>
+						{% for subject in subjects %}
+						<div>
+							<a href="#{{subject}}" class="subjects" id="{{subject}}">{{ subject }}</a>
+							&nbsp;&nbsp;<img src="../static/img/ajax-loader.gif" id="{{subject}}load" style="display:none;"/>
+						</div>
+						<div id="{{subject}}success"></div>
+						{% endfor %}
 					</div>
-					<div id="{{subject}}success"></div>
-					{% endfor %}
+					<div id="subjectlist2" style="display:none;">
+						
+					</div>
+					<div id="subjectlist3" style="display:none;">
+						
+					</div>
 				</div>
 				
 				<!-- End Subject Tab Content -->
@@ -112,10 +121,26 @@
             data:'subject=' + subject, 
             success: function(response) {
             	$('#'+subject+'load').hide();
-                $('#'+subject+'success').html(response);
+            	$('#subjectlist').hide();
+            	$('#subjectlist2').html(response);
+            	$('#subjectlist2').show();
+                
             }
         });
       })
-  </script>
+      function subtoggle1(){
+      	$('#subjectlist2').hide();
+	    $('#subjectlist').show();   
+      }
+      function subtoggle2(){
+      	$('#subjectlist3').hide();
+	    $('#subjectlist').show();   
+      }
+      function subtoggle3(){
+      	$('#subjectlist3').hide();
+	    $('#subjectlist2').show();   
+      }
+
+</script>
 
 {% endblock %}
