@@ -16,7 +16,7 @@
 {% if blockbg %}
 	{% block blockbg %}{% endblock %}
 {% else %}
-	<body style="background-image: url(../static/img/i11.jpg);
+	<body style="background-image: url(../static/img/wood.jpg);
 background-position: 50% 0px;">
 {% endif %}
 <!-- End If Custom Background -->
@@ -77,7 +77,7 @@ background-position: 50% 0px;">
 						<span class="icon-bar"></span>
 					</a>
 					<!-- End Compress Nav Bar Info -->
-					<a class="brand logo" href="/">&nbsp;Project Alexandria</a>
+					<a class="brand logo" href="/" style="font-weight:900;background:black;padding-left: 14px;padding-right: 19px;margin-right: 4px;">&nbsp;Project Alexandria</a>
 					<div class="nav-collapse collapse">
 						<ul class="nav">
 							{% block nav_links %}{% endblock %}
@@ -102,8 +102,8 @@ background-position: 50% 0px;">
 				                    </ul>
 				                </li>			                      
 							{% else %}
-								<a href="#signup" role="button" class="btn" data-toggle="modal">Sign Up</a>
-								<a href="#login" role="button" class="btn btn-primary" data-toggle="modal">Log In</a>
+								<a href="#signup" role="button" class="btn" data-toggle="modal" style="margin-bottom:5px;">Sign Up</a>
+								<a href="#login" role="button" class="btn btn-primary" data-toggle="modal" style="margin-bottom:5px;">Log In</a>
 							{% endif %}
 						</ul>
 					</div>

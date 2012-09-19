@@ -3064,7 +3064,7 @@ input[type="submit"].btn.btn-mini {
 .navbar-inverse .nav .active > a:hover,
 .navbar-inverse .nav .active > a:focus {
   color: #ffffff;
-  background-color: #111111;
+  background-color: inherit;
 }
 .navbar-inverse .navbar-link {
   color: #999999;
@@ -5108,7 +5108,3 @@ hr {
 .bigupload {
   width: 185px; height: 25px; text-align: center;
 }​
-
-#logor{
-  color: white;
-}
