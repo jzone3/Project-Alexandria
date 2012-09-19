@@ -600,7 +600,7 @@ class SubjectsHandler(BaseHandler):
 		"""%subject
 
 		for teacher in teachers:
-			html += '<p><a href="#" class="subjects2" id="%s">'%teacher + teacher + '</a>&nbsp;&nbsp;<img src="../static/img/ajax-loader.gif" id="%sload2" style="display:none;"/></p><br />'%teacher
+			html += '<div><a href="#" class="subjects2" id="%s">'%teacher + teacher + '</a>&nbsp;&nbsp;<img src="../static/img/ajax-loader.gif" id="%sload2" style="display:none;"/></div><br />'%teacher
 
 		# send this html back to jquery/ajax
 		self.write(html+script)
