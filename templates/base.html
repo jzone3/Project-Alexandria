@@ -85,11 +85,12 @@ background-position: 50% 0px;">
 						<ul class="nav pull-right">
 							{% if signed_in %}	
 								<li>
-									<a href="#" id="target" title="Target" style="padding:0px;margin-top:5px;">
-    									<img src="/static/img/spotbw.png" alt="" class="indicator" id="indicator" />
-    									<span id="pulse" style="display:none;"></span>
+									<a href="#" id="target" title="Notifications" style="padding:0px;margin-top:5px;" rel="popover" data-content="New comment on <a href='#'>Integrals</a><br>New message from <a href='#'>jzone3</a>" data-original-title="Notifications" data-placement="bottom">
+    									<img src="/static/img/spot.png" alt="" class="indicator" id="indicator" />
+    									<span id="pulse"></span>
 									</a>
-								<li>					
+								<li>			
+					<script>$("a[rel=popover]").popover();</script>		
 								<li><a id="navwelcome">Welcome,</a></li>
 			                    <li id="fat-menu" class="dropdown">
 			                      	<a href="#" id="navuser" role="button" class="dropdown-toggle" data-toggle="dropdown">{{ username }}</a>
@@ -280,21 +281,6 @@ background-position: 50% 0px;">
 		<div class="push"></div>
 	</div>
 
-	<!-- Pulse Toggle -->
-	<script type="text/javascript">
-		$('#target').click(function (e) {
-			if ($("#pulse").is(':hidden')){
-				$('#pulse').show()
-	      		$("#indicator").attr('src',"/static/img/spot.png");
-			} else {
-				$('#pulse').hide()
-	      		$("#indicator").attr('src',"/static/img/spotbw.png");
-			}		
-	      	e.preventDefault();
-		})
-	</script>
-	<!-- End Pulse Toggle -->
-
 	<!-- Footer -->
 	<div class="sticky-footer" style="color: gray;">
 		Copyright 2012 All Rights Reserved | 
@@ -318,8 +304,7 @@ background-position: 50% 0px;">
 				<button type="button" data-toggle="button" class="btn btn-primary">Question</button>
 				<button type="button" data-toggle="button" class="btn btn-primary">Problem</button>
 				<button type="button" data-toggle="button" class="btn btn-primary">Praise</button>
-        	
-	        </div>
+        	</div>
 	        <div class="modal-footer">
 	        	<input class="btn btn-warning" type="submit" value="Thank you!"> 
 	        </div>	   			
@@ -327,5 +312,22 @@ background-position: 50% 0px;">
 		</form>
 	</div>
 
+	<script type="text/javascript">
+		$('#target').click(function (e) {
+			if ($('#indicator').attr('src') == '/static/img/spot.png'){
+				$("#indicator").attr('src',"/static/img/spotbw.png");
+				$("#pulse").hide();		      		
+			} else {
+				$("#indicator").attr('src',"/static/img/spot.png");
+				$("#pulse").show();			      		
+			}		
+		})
+	</script>
+
+	<script type="text/javascript">
+	jQuery("#target").click(function(){ return false; });
+	jQuery(document).one("click", function() { jQuery("#target").popover('hide'); });
+
+	</script>
 </body>
 </html>

@@ -5135,3 +5135,7 @@ div.sticky-footer a:hover{
   left:0px;
 }
 
+.popover.bottom{
+  margin-top:6px;
+  z-index: 5001;
+}
