@@ -142,7 +142,12 @@ background-position: 50% 0px;">
 						</div>
 						<div class="alert alert-error" {% if not username_error %}style="display: none;"{% endif %}>{{username_error}}</div>
 						<div class="row">
-							<div class="span2">Email <i>(optional)</i></div>
+							<div class="span2">
+								Email 
+								<a rel="tooltip" data-placement="right" title="A Bergen email is required to join BCA" class="tooltips" onclick="$('#edit_url').modal('hide')">
+									<i class="icon-question-sign"></i>
+								</a>
+							</div>
 							<div class="span3"><input type="text" name="email" type="text" value="{{email}}"></div>
 						</div>
 						<div class="alert alert-error" {% if not email_error %}style="display: none;"{% endif %}>{{email_error}}</div>
@@ -331,5 +336,6 @@ background-position: 50% 0px;">
 	jQuery("#target").click(function(){ return false; });
 	jQuery(document).one("click", function() { jQuery("#target").popover('hide'); });
 	</script>
+	<script> $('.tooltips').tooltip() </script>
 </body>
 </html>
