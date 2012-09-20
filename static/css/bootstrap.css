@@ -5118,7 +5118,7 @@ div.sticky-footer a:hover{
 }
 
 
-#feedback{ 
+#feedbackbar{ 
   left:-3px;
   top:30%;
   margin:0;
@@ -5131,7 +5131,7 @@ div.sticky-footer a:hover{
   background-repeat:no-repeat;
 }
 
-#feedback:hover{
+#feedbackbar:hover{
   left:0px;
 }
 

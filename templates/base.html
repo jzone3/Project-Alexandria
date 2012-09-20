@@ -303,19 +303,29 @@ background-position: 50% 0px;">
 	</div>
 	<!-- End Footer -->
 
-	<a href="#feedback" id="feedback"></a>
+	<a href="#feedback" id="feedbackbar" data-toggle="modal"></a>
 
-	<script type="text/javascript">
-		$('#target').click(function (e) {
-			if ($("#pulse").is(':hidden')){
-				$('#pulse').show()
-	      		$("#indicator").attr('src',"/static/img/spot.png");
-			} else {
-				$('#pulse').hide()
-	      		$("#indicator").attr('src',"/static/img/spotbw.png");
-			}		
-	      	e.preventDefault();
-		})
-	</script>
+	<div id="feedback" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+		<form method="post" action="/">
+	        <div class="modal-header">
+	              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+	              <h3 id="myModalLabel">Tell us anything!</h3>
+	        </div>
+	        <div class="modal-body">
+	        	<textarea style="width:510px;" placeholder="Write your message here.."></textarea>
+	        	<h5>Is is your feedback:</h5>
+				<button type="button" data-toggle="button" class="btn btn-primary">Idea</button>
+				<button type="button" data-toggle="button" class="btn btn-primary">Question</button>
+				<button type="button" data-toggle="button" class="btn btn-primary">Problem</button>
+				<button type="button" data-toggle="button" class="btn btn-primary">Praise</button>
+        	
+	        </div>
+	        <div class="modal-footer">
+	        	<input class="btn btn-warning" type="submit" value="Thank you!"> 
+	        </div>	   			
+			<input type="hidden" name="formname" value="feedback">
+		</form>
+	</div>
+
 </body>
 </html>
