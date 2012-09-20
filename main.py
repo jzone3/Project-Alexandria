@@ -679,12 +679,7 @@ class VoteHandler(BaseHandler):
 		vote_type = self.rget('type')
 		username = self.rget('username')
 		# IMPLEMENT: only allow user to vote once
-		if vote_type == 'up':
-			# vote_up(blob_key = blob_key, vote_type = vote_type, username = username)
-			pass
-		else:
-			# vote_down(blob_key = blob_key, vote_type = vote_type, username = username)
-			pass
+		response = vote(blob_key, vote_type, username)
 
 
 app = webapp2.WSGIApplication([('/?', MainHandler),

@@ -544,3 +544,35 @@ def find_guides_ts(school, teacher, subject):
 	q.order('-votes')
 	results = q.run(limit=1000)
 	return results
+
+############################### voting functions ###############################
+
+def vote(blob_key, vote_type, username):
+	submission = db.GqlQuery("SELECT * FROM Guides WHERE blob_key = '" + blob_key.replace("'", "&lsquo;") + "'").get()
+	if submission.users_voted:
+		voted_json = simplejson.loads(str(submission.users_voted))
+	else:
+		voted_json = {}
+
+	if vote_type == 'up':
+		if username in voted_json.keys():
+			already_voted = voted_json[username]
+			if already_voted == 'down':
+				submission.votes += 2
+				voted_json[username] = 'up'
+		else:
+			voted_json[username] = 'up'
+			submission.votes += 1
+	elif vote_type == 'down':
+		if username in voted_json.keys():
+			already_voted = voted_json[username]
+			if already_voted == 'up':
+				submission.votes -= 2
+				voted_json[username] = 'down'
+		else:
+			voted_json[username] = 'down'
+			submission.votes += 1
+	else:
+		return False
+	submission.users_voted = simplejson.dumps(voted_json)
+	submission.put()
