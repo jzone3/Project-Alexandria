@@ -5108,3 +5108,29 @@ hr {
 .bigupload {
   width: 185px; height: 25px; text-align: center;
 }​
+
+div.sticky-footer a{
+  color:gray;
+}
+
+div.sticky-footer a:hover{
+  color:white;
+}
+
+
+#feedback{ 
+  left:1px;
+  top:30%;
+  height:117px;
+  width:50px;
+  margin:0;
+  padding:0;
+  position:fixed;
+  z-index:5000;
+}
+#feedback a{
+  display:block;
+ width:100%;
+ height:100%;
+}
+

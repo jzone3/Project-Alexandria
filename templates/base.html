@@ -16,7 +16,7 @@
 {% if blockbg %}
 	{% block blockbg %}{% endblock %}
 {% else %}
-	<body style="background-image: url(../static/img/wood.jpg);
+	<body style="background-image: url(/static/img/wood.jpg);
 background-position: 50% 0px;">
 {% endif %}
 <!-- End If Custom Background -->
@@ -86,7 +86,7 @@ background-position: 50% 0px;">
 							{% if signed_in %}	
 								<li>
 									<a href="#" id="target" title="Target" style="padding:0px;margin-top:5px;">
-    									<img src="../static/img/spotbw.png" alt="" class="indicator" id="indicator" />
+    									<img src="/static/img/spotbw.png" alt="" class="indicator" id="indicator" />
     									<span id="pulse" style="display:none;"></span>
 									</a>
 								<li>					
@@ -285,10 +285,10 @@ background-position: 50% 0px;">
 		$('#target').click(function (e) {
 			if ($("#pulse").is(':hidden')){
 				$('#pulse').show()
-	      		$("#indicator").attr('src',"../static/img/spot.png");
+	      		$("#indicator").attr('src',"/static/img/spot.png");
 			} else {
 				$('#pulse').hide()
-	      		$("#indicator").attr('src',"../static/img/spotbw.png");
+	      		$("#indicator").attr('src',"/static/img/spotbw.png");
 			}		
 	      	e.preventDefault();
 		})
@@ -297,9 +297,12 @@ background-position: 50% 0px;">
 
 	<!-- Footer -->
 	<div class="sticky-footer" style="color: gray;">
-		Copyright 2012 All Rights Reserved
+		Copyright 2012 All Rights Reserved | 
+		<a href="/tos" class="footerlinks" style="color:gray;">Terms of Service</a> | 
+		<a href="/team" class="footerlinks" style="color:gray;">Team</a>
 	</div>
 	<!-- End Footer -->
 
+	<p id="feedback">Feedback</p>
 </body>
 </html>
