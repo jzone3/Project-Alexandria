@@ -289,6 +289,7 @@ background-position: 50% 0px;">
 	</div>
 	<!-- End Footer -->
 
+	{% if signed_in %}
 	<a href="#feedback" id="feedbackbar" data-toggle="modal"></a>
 
 	<div id="feedback" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
@@ -311,6 +312,7 @@ background-position: 50% 0px;">
 			<input type="hidden" name="formname" value="feedback">
 		</form>
 	</div>
+	{% endif %}
 
 	<script type="text/javascript">
 		$('#target').click(function (e) {
@@ -324,10 +326,10 @@ background-position: 50% 0px;">
 		})
 	</script>
 
+	<!-- Notificaiton close script -->
 	<script type="text/javascript">
 	jQuery("#target").click(function(){ return false; });
 	jQuery(document).one("click", function() { jQuery("#target").popover('hide'); });
-
 	</script>
 </body>
 </html>
