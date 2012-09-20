@@ -575,4 +575,6 @@ def vote(blob_key, vote_type, username):
 	else:
 		return False
 	submission.users_voted = simplejson.dumps(voted_json)
+	last_refresh[str(submission.school)] = 0
+	last_refresh['None'] = 0
 	submission.put()
