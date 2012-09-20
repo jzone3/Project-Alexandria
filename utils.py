@@ -79,6 +79,22 @@ def add_submitted(username, blob_key):
 			memcache.set(username + '_submitted', new_guide)
 
 def get_submitted(username):
+	from_cache = memcache.get(username + '_submitted')
+	to_return = []
+	if from_cache is None:
+		guides = db.GqlQuery("SELECT * FROM Guides WHERE user_created = '" + username.replace("'", "&lsquo;") + "' ORDER BY date_created DESC").get()
+		logging.error(username + '_submitted db read')
+		for submission in guides:
+			to_return.append({'title' : submission.title, 'subject' : submission.subject, 'votes' : submission.votes, 'date_created' : submission.date_created, 'blob_key' : submission.blob_key})
+		memcache.set(username + '_submitted', [x['blob_key'] for x in to_return])
+	else:
+		for submission in from_cache:
+			guide = db.GqlQuery("SELECT * FROM Guides WHERE blob_key = '" + submission.replace("'", "&lsquo;") + "' LIMIT 1").get()
+			to_return.append({'title' : guide.title, 'subject' : guide.subject, 'votes' : guide.votes, 'date_created' : guide.date_created, 'blob_key' : submission})
+
+	return to_return
+
+def get_submitted_guide_names(username):
 	to_return = memcache.get(username + '_submitted')
 	if to_return is None:
 		guides = db.GqlQuery("SELECT * FROM Guides WHERE user_created = '" + username.replace("'", "&lsquo;") + "' ORDER BY date_created DESC")
