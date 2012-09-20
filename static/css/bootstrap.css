@@ -5119,7 +5119,7 @@ div.sticky-footer a:hover{
 
 
 #feedback{ 
-  left:1px;
+  left:-3px;
   top:30%;
   margin:0;
   padding:0;
@@ -5132,6 +5132,6 @@ div.sticky-footer a:hover{
 }
 
 #feedback:hover{
-  background-image:url(/static/img/feedbackhover.png);
+  left:0px;
 }
 
