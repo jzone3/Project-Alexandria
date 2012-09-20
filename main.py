@@ -669,6 +669,23 @@ class TeamHandler(BaseHandler):
 	def get(self):
 		self.render('team.html')
 
+class VoteHandler(BaseHandler):
+	def get(self):
+		self.error(404)
+		self.render('404.html',{'blockbg':True})
+
+	def post(self):
+		blob_key = self.rget('id')
+		vote_type = self.rget('type')
+		username = self.rget('username')
+		# IMPLEMENT: only allow user to vote once
+		if vote_type == 'up':
+			# vote_up(blob_key = blob_key, vote_type = vote_type, username = username)
+			pass
+		else:
+			# vote_down(blob_key = blob_key, vote_type = vote_type, username = username)
+			pass
+
 
 app = webapp2.WSGIApplication([('/?', MainHandler),
 							   ('/about/?', AboutHandler),
@@ -694,5 +711,6 @@ app = webapp2.WSGIApplication([('/?', MainHandler),
 							   ('/teachers/?', TeachersHandler),
 							   ('/subjects/?', SubjectsHandler),
 							   ('/subjects2/?', SubjectsHandler2),
+							   ('/vote/?', VoteHandler),
 							   ('/.*', NotFoundHandler),
 							   ], debug=True)
