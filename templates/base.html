@@ -303,6 +303,19 @@ background-position: 50% 0px;">
 	</div>
 	<!-- End Footer -->
 
-	<p id="feedback">Feedback</p>
+	<a href="#feedback" id="feedback"></a>
+
+	<script type="text/javascript">
+		$('#target').click(function (e) {
+			if ($("#pulse").is(':hidden')){
+				$('#pulse').show()
+	      		$("#indicator").attr('src',"/static/img/spot.png");
+			} else {
+				$('#pulse').hide()
+	      		$("#indicator").attr('src',"/static/img/spotbw.png");
+			}		
+	      	e.preventDefault();
+		})
+	</script>
 </body>
 </html>
