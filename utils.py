@@ -569,6 +569,9 @@ def find_guides_ts(school, teacher, subject):
 ############################### voting functions ###############################
 
 def vote(blob_key, vote_type, username):
+	if username == "":
+		return False
+
 	submission = db.GqlQuery("SELECT * FROM Guides WHERE blob_key = '" + blob_key.replace("'", "&lsquo;") + "'").get()
 	if submission.users_voted:
 		voted_json = simplejson.loads(str(submission.users_voted))
