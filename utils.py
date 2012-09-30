@@ -79,6 +79,27 @@ def add_submitted(username, blob_key):
 			memcache.set(username + '_submitted', new_guide)
 
 def get_submitted(username):
+	from_cache = memcache.get(username + '_submitted')
+	to_return = []
+	if from_cache is None:
+		guides = db.GqlQuery("SELECT * FROM Guides WHERE user_created = '" + username.replace("'", "&lsquo;") + "' ORDER BY date_created DESC").get()
+		logging.error(username + '_submitted db read')
+		if guides is None:
+			return []
+		elif isinstance(guides, Guides):
+			to_return.append({'title' : guides.title, 'subject' : guides.subject, 'votes' : guides.votes, 'date_created' : guides.date_created, 'blob_key' : guides.blob_key})
+		else:
+			for submission in guides:
+				to_return.append({'title' : submission.title, 'subject' : submission.subject, 'votes' : submission.votes, 'date_created' : submission.date_created, 'blob_key' : submission.blob_key})
+		memcache.set(username + '_submitted', [x['blob_key'] for x in to_return])
+	else:
+		for submission in from_cache:
+			guide = db.GqlQuery("SELECT * FROM Guides WHERE blob_key = '" + submission.replace("'", "&lsquo;") + "' LIMIT 1").get()
+			to_return.append({'title' : guide.title, 'subject' : guide.subject, 'votes' : guide.votes, 'date_created' : guide.date_created, 'blob_key' : submission})
+
+	return to_return
+
+def get_submitted_guide_names(username):
 	to_return = memcache.get(username + '_submitted')
 	if to_return is None:
 		guides = db.GqlQuery("SELECT * FROM Guides WHERE user_created = '" + username.replace("'", "&lsquo;") + "' ORDER BY date_created DESC")
@@ -548,6 +569,9 @@ def find_guides_ts(school, teacher, subject):
 ############################### voting functions ###############################
 
 def vote(blob_key, vote_type, username):
+	if username == "":
+		return False
+
 	submission = db.GqlQuery("SELECT * FROM Guides WHERE blob_key = '" + blob_key.replace("'", "&lsquo;") + "'").get()
 	if submission.users_voted:
 		voted_json = simplejson.loads(str(submission.users_voted))
