@@ -1,3 +1,4 @@
+## import python modules
 import hashlib
 import hmac
 import jinja2
@@ -8,11 +9,17 @@ import urllib
 import urllib2
 import webapp2
 
+## import application modules
 import secret
 from search import *
 from utils import *
 
+## import external modules
 import externals.ayah
+import gdata.gauth
+import gdata.docs.client
+
+## import GAE modules
 from google.appengine.api import files
 from google.appengine.api import urlfetch
 from google.appengine.api import users
