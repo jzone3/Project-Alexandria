@@ -17,7 +17,8 @@ from utils import *
 ## import external modules
 import externals.ayah
 import gdata.gauth
-import gdata.docs.client
+import gdata.docs.service
+import gdata.docs.data
 
 ## import GAE modules
 from google.appengine.api import files
@@ -343,6 +344,14 @@ class UploadHandler(BaseHandler):
 				data.write(result.content)
 			files.finalize(f)
 			blob_key = files.blobstore.get_blob_key(f)
+
+			# write file to google docs
+			client = gdata.docs.service.DocsService()
+			client.ClientLogin(secret.G_USERNAME, secret.G_PASSWORD, 'test')
+			ms = gdata.MediaSource(file_handle=result.content, 
+				                   content_type=gdata.docs.service.SUPPORTED_FILETYPES['DOC'], 
+				                   content_length=int(headers['content-length']))
+			entry = client.Upload(ms, "test")
 
 			# construct url for guide page
 			url = get_url(filename, username)
