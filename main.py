@@ -363,7 +363,6 @@ class UploadHandler(BaseHandler):
 			# add guide to index
 			key = str(guide.key())
 			add_to_index(school, key, tags)
-
 			self.redirect('/guides/' + url)
 
 class ServeHandler(blobstore_handlers.BlobstoreDownloadHandler):
@@ -658,6 +657,7 @@ class SubjectsHandler2(BaseHandler):
 		html += """</tbody></table>"""
 		# send this html back to jquery/ajax	
 		self.write(html)
+
 
 ### static pages ###
 
