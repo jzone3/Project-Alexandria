@@ -1295,7 +1295,7 @@ class GDataService(atom.service.AtomService):
       extra_headers['MIME-version'] = '1.0'
       extra_headers['Content-Length'] = str(len(multipart[0]) +
           len(multipart[1]) + len(multipart[2]) +
-          len(data_str) + media_source.content_length)
+          len(data_str) + int(media_source.content_length))
 
       extra_headers['Content-Type'] = 'multipart/related; boundary=END_OF_PART'
       server_response = self.request(verb, uri, 
