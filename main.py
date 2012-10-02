@@ -378,6 +378,11 @@ class UploadHandler(BaseHandler):
 
 class AddBookmarkHandler(BaseHandler):
 	def get(self):
+		if self.logged_in():
+			blob_key = "AMIfv97WqLOaqvjBBJ5sqEZxsQSz_og13qyLOOfBH-7wdEj5JVnty6vCKVIlWvWOKO_1T5IgaVEHvrzejt-HxbI1Sskg48XsAdCgcPdsgSeU8sKZqTUnW-pJ3jB2JilmUfHGkuJPru1tq3-7-S77jed5pOABRzqRyw" #self.rget('blob_key')
+			guide = db.GqlQuery("SELECT * FROM Guides WHERE blob_key = '" + blob_key.replace("'", "&lsquo;") + "'").get()
+			temp_bookmark = Bookmarks(user=get_user(get_username()), guide=guide)
+			temp_bookmark.put()
 		self.error(404)
 		self.render('404.html', {'blockbg':True})
 		
