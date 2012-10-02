@@ -254,6 +254,8 @@ class DashboardHandler(BaseHandler):
 			self.redirect('/search?q=' + self.rget('q'))
 
 		if self.logged_in():
+			user = get_user(get_username())
+			bookmark_list = user.bookmarks_set
 			self.render('dashboard.html')
 		else:
 			self.redirect('/')
