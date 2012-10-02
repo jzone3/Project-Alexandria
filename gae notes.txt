@@ -52,5 +52,3 @@ loads() turns JSON string into text
 
 {{ content | safe }}
 turns off autoescape for one field
-
-testing
