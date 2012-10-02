@@ -392,7 +392,8 @@ class AddBookmarkHandler(BaseHandler):
 			guide = db.GqlQuery("SELECT * FROM Guides WHERE blob_key = '" + blob_key.replace("'", "&lsquo;") + "'").get()
 			temp_bookmark = Bookmarks(user=get_user(get_username()), guide=guide)
 			temp_bookmark.put()
-		self.redirect('/')
+		self.error(404)
+		self.render('404.html', {'blockgb':True})
 		
 class ServeHandler(blobstore_handlers.BlobstoreDownloadHandler):
 	def get(self, resource):
