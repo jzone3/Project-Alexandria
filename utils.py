@@ -377,7 +377,7 @@ def get_url(filename, user):
 	filename = filename[:filename.rfind('_')]
 	return user + '/' + filename
 
-def upload_errors(title, subject, teacher, locked, doc_url, headers):
+def upload_errors(title, subject, teacher, editable, headers):
 	title_error, subject_error, teacher_error, doc_url_error = '', '', '', ''
 	if not title:
 		title_error = 'Please provide a title.'
@@ -385,12 +385,6 @@ def upload_errors(title, subject, teacher, locked, doc_url, headers):
 		subject_error = 'Please provide a subject.'
 	if not teacher:
 		teacher_error = 'Please provide a teacher.'
-	if not locked and not doc_url:
-		doc_url_error = 'Please provide a Google Docs URL. '
-	if not locked and 'docs.google' not in doc_url:
-		doc_url_error = 'Please provide a Google Docs URL. '
-	if not locked and doc_url[0:4] != 'http':
-		doc_url_error += 'Please include http:// or https:// before the URL.'
 
 	file_error = ''
 	size = int(headers['content-length'])
@@ -406,9 +400,18 @@ def upload_errors(title, subject, teacher, locked, doc_url, headers):
 		mime_type != 'application/rtf'):
 		file_error += 'Wrong file format.'
 
-	return {'title_error':title_error, 'subject_error':subject_error, 
-			'teacher_error':teacher_error, 'doc_url_error':doc_url_error,
-			'file_error':file_error}
+	if not editable:		
+		_editable = False
+	elif (mime_type == 'application/msword' or
+		mime_type == 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' or
+		mime_type == 'text/plain' or
+		mime_type == 'application/rtf'):
+		_editable = True
+	else:
+		_editable = False
+
+	return _editable, {'title_error':title_error, 'subject_error':subject_error, 
+			'teacher_error':teacher_error, 'file_error':file_error}
 
 ############################### db functions ###############################
 

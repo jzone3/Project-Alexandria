@@ -305,8 +305,7 @@ class UploadHandler(BaseHandler):
 		title = self.rget('title')
 		subject = self.rget('subject')
 		teacher = self.rget('teacher')
-		locked = self.rget('locked')
-		edit_url = self.rget('edit_url')
+		editable = self.rget('editable')
 		tags = self.rget('tags')
 		file_url = self.rget('file')
 
@@ -317,15 +316,15 @@ class UploadHandler(BaseHandler):
 			if result.status_code != 200:
 				self.write("Connection Error.")
 				return
-			errors = upload_errors(title, subject, teacher, locked, edit_url, headers)
+			_editable, errors = upload_errors(title, subject, teacher, editable, headers)
 		else:
-			errors = upload_errors(title, subject, teacher, locked, edit_url, 
+			_editable, errors = upload_errors(title, subject, teacher, editable, 
 								   {'content-type':'text/plain', 'content-length':'0'})
 			errors['file_error'] = 'Please upload a file.'
 
 		if any(errors.values()):
 			fields = {'title':title, 'subject':subject, 'teacher':teacher, 
-					  'locked':locked, 'edit_url':edit_url, 'tags':tags}
+					  'editable':editable, 'tags':tags}
 			errors.update(fields)
 			self.render('/upload.html', errors)
 		else:
@@ -333,10 +332,7 @@ class UploadHandler(BaseHandler):
 			username = self.get_username()
 			filename = get_filename(title, username)
 			school = get_school(username)
-			if locked: 
-				locked = True
-			else: 
-				locked = False
+			edit_url = None
 
 			# write file to blobstore
 			f = files.blobstore.create(mime_type=headers['content-type'], _blobinfo_uploaded_filename=filename)
@@ -346,19 +342,22 @@ class UploadHandler(BaseHandler):
 			blob_key = files.blobstore.get_blob_key(f)
 
 			# write file to google docs
-			client = gdata.docs.service.DocsService()
-			client.ClientLogin(secret.G_USERNAME, secret.G_PASSWORD, 'test')
-			ms = gdata.MediaSource(file_handle=result.content, 
-				                   content_type=gdata.docs.service.SUPPORTED_FILETYPES['DOC'], 
-				                   content_length=int(headers['content-length']))
-			entry = client.Upload(ms, "test")
+			if _editable:
+				google_doc_name = school + ': ' + filename 
+				client = gdata.docs.service.DocsService()
+				client.ClientLogin(secret.G_USERNAME, secret.G_PASSWORD)
+				ms = gdata.MediaSource(file_handle=result.content, 
+					                   content_type=headers['content-type'], 
+					                   content_length=int(headers['content-length']))
+				entry = client.Upload(ms, google_doc_name, folder_or_uri=secret.G_FOLDER_URI)
+				edit_url = entry.GetAlternateLink().href
 
 			# construct url for guide page
 			url = get_url(filename, username)
 
 			# add guide to db
 			guide = Guides(user_created=username, title=title, subject=subject,
-				   teacher=teacher, tags=tags, blob_key=str(blob_key), locked=locked,
+				   teacher=teacher, tags=tags, blob_key=str(blob_key),
 				   votes=0, edit_url=edit_url, school=school, url=url)
 			guide.put()
 

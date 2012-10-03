@@ -38,11 +38,11 @@ class Guides(db.Model):
 	teacher      = db.StringProperty(required = True)
 	tags         = db.StringListProperty(required = True)
 	blob_key     = db.StringProperty(required = True)
-	locked       = db.BooleanProperty(required = True)
+	locked       = db.BooleanProperty(required = False) #! delete this before final deploy
 	votes        = db.IntegerProperty(required = True) 
-	edit_url     = db.StringProperty(required = False)
+	edit_url     = db.StringProperty(required = False) #! change to true before final deploy
 	school       = db.StringProperty(required = True)
-	url          = db.StringProperty(required = True)
+	url          = db.StringProperty(required = True) #! change to dl_url
 	date_created = db.DateTimeProperty(auto_now_add = True)
 	users_voted  = JsonProperty()
 
