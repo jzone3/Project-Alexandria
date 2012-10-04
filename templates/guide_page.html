@@ -21,7 +21,7 @@
 					<h3><em>by <a href="/user/{{ result.user_created }}">{{ result.user_created }}</a></em></h3>
 					<h6>{{ result.subject }} - {{ result.teacher }}</h6> 
 					<h5>					
-					    <a href="/addbookmark" id="bookmarkbtn" style="margin-left:-1px;"><i class="icon-bookmark"></i> Bookmark</a>	
+					    <a href="#" class="bookmarkbtn" id="{{ result.blob_key }}" style="margin-left:-1px;"><i class="icon-bookmark"></i> Bookmark</a>	
 					    <span> | </span>					    
 					    <a href="{{ dl_link }}"><i class="icon-download-alt"></i> Download</a>  	
 					    <span> | </span>
@@ -79,6 +79,11 @@
 		$('#report').button('loading');	
 	      e.preventDefault();
 	})
+	
+	$('a.bookmarkbtn').click(function() {
+		var id = $(this).attr('id');
+		$.post("/addbookmark", {id: id});
+	});
 
 	$('div.answer button.vote').click(function() {
         var id = $(this).parents('div.answer').attr('id');
