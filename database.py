@@ -47,12 +47,9 @@ class Guides(db.Model):
 	users_voted  = JsonProperty()
 
 class Bookmarks(db.Model):
-	user         = db.ReferenceProperty(Users)
+	user         = db.ReferenceProperty(Users, collection_name='bookmarks_set')
 	guide        = db.ReferenceProperty(Guides)
 
-class Testing(db.Model):
-	number       = db.IntegerProperty(required = True)
-	str          = db.StringProperty(required = True)
 
 class Feedback(db.Model):
 	content      = db.TextProperty(required = True)

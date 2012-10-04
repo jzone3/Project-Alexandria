@@ -40,9 +40,9 @@
 								<span style="float:left;"><img src="/static/img/math.png" style="width:100px;"></span>
 								<span style="text-align:right;">
 									<h4><a href="#">{{ bookmark.guide.title }}</a></h4>
-									<div>AP Calculus BC</div>
-									<div>Robinson</div>
-									<div><em>+1401 Votes</em></div>
+									<div>{{ bookmark.guide.subject }}</div>
+									<div>{{ bookmark.guide.teacher }}</div>
+									<div><em>{{ bookmark.guide.votes }} Votes</em></div>
 								</span>
 							</div>
 						{% endfor %}

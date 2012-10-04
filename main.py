@@ -13,6 +13,7 @@ import webapp2
 import secret
 from search import *
 from utils import *
+from database import *
 
 ## import external modules
 import externals.ayah
@@ -27,6 +28,8 @@ from google.appengine.api import users
 from google.appengine.ext import blobstore
 from google.appengine.ext.webapp import blobstore_handlers
 from google.appengine.ext.webapp.util import run_wsgi_app
+from google.appengine.ext import db
+from google.appengine.api import memcache
 		
 template_dir = os.path.join(os.path.dirname(__file__), 'templates')
 jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir), autoescape=True)
@@ -160,7 +163,8 @@ class MainHandler(BaseHandler):
 			self.redirect('/search?q=' + self.rget('q'))
 
 		if logged_in:
-			self.render('dashboard.html', {'submitted' : get_submitted(self.get_username())})			
+			self.redirect('/dashboard/')
+			#self.render('dashboard.html', {'submitted' : get_submitted(self.get_username())})			
 		else:
 			self.render('index.html', {'blockbg':True})
 
@@ -255,9 +259,9 @@ class DashboardHandler(BaseHandler):
 			self.redirect('/search?q=' + self.rget('q'))
 
 		if self.logged_in():
-			user = get_user(get_username())
-			bookmark_list = user.bookmarks_set
-			self.render('dashboard.html')
+			user = get_user(self.get_username())
+			bookmark_list=list(user.bookmarks_set)
+			self.render('dashboard.html', {'bookmark_list':bookmark_list})
 		else:
 			self.redirect('/')
 
@@ -378,22 +382,21 @@ class UploadHandler(BaseHandler):
 class AddBookmarkHandler(BaseHandler):
 	def get(self):
 		if self.logged_in():
-			#blob_key = "AMIfv97WqLOaqvjBBJ5sqEZxsQSz_og13qyLOOfBH-7wdEj5JVnty6vCKVIlWvWOKO_1T5IgaVEHvrzejt-HxbI1Sskg48XsAdCgcPdsgSeU8sKZqTUnW-pJ3jB2JilmUfHGkuJPru1tq3-7-S77jed5pOABRzqRyw" #self.rget('blob_key')
-			#guide = db.GqlQuery("SELECT * FROM Guides WHERE blob_key = '" + blob_key.replace("'", "&lsquo;") + "'").get()
-			#temp_bookmark = Bookmarks(user=get_user(get_username()), guide=guide)
-			#temp_bookmark.put()
-			Testing(4, "testing123").put()
-		self.error(404)
-		self.render('404.html', {'blockbg':True})
+			blob_key = "AMIfv97WqLOaqvjBBJ5sqEZxsQSz_og13qyLOOfBH-7wdEj5JVnty6vCKVIlWvWOKO_1T5IgaVEHvrzejt-HxbI1Sskg48XsAdCgcPdsgSeU8sKZqTUnW-pJ3jB2JilmUfHGkuJPru1tq3-7-S77jed5pOABRzqRyw" #self.rget('blob_key')
+			guide = db.GqlQuery("SELECT * FROM Guides WHERE blob_key = '" + blob_key.replace("'", "&lsquo;") + "'").get()
+			temp_bookmark = Bookmarks(user=get_user(self.get_username()), guide=guide)
+			temp_bookmark.put()
+			
+		self.redirect('/guides')
 		
 	def post(self):
 		if self.logged_in():
-			#blob_key = "AMIfv97WqLOaqvjBBJ5sqEZxsQSz_og13qyLOOfBH-7wdEj5JVnty6vCKVIlWvWOKO_1T5IgaVEHvrzejt-HxbI1Sskg48XsAdCgcPdsgSeU8sKZqTUnW-pJ3jB2JilmUfHGkuJPru1tq3-7-S77jed5pOABRzqRyw" #self.rget('blob_key')
-			#temp_guide = db.GqlQuery("SELECT * FROM Guides WHERE blob_key = '" + blob_key.replace("'", "&lsquo;") + "'").get()
-			#temp_bookmark = Bookmarks(user=get_user(get_username()), guide=temp_guide)
-			#temp_bookmark.put()
-		self.error(404)
-		self.render('404.html', {'blockgb':True})
+			
+			blob_key = "AMIfv97WqLOaqvjBBJ5sqEZxsQSz_og13qyLOOfBH-7wdEj5JVnty6vCKVIlWvWOKO_1T5IgaVEHvrzejt-HxbI1Sskg48XsAdCgcPdsgSeU8sKZqTUnW-pJ3jB2JilmUfHGkuJPru1tq3-7-S77jed5pOABRzqRyw" #self.rget('blob_key')
+			temp_guide = (db.GqlQuery("SELECT * FROM Guides WHERE blob_key = '" + blob_key.replace("'", "&lsquo;") + "'")).get()
+			temp_bookmark = Bookmarks(user=get_user(self.get_username()), guide=temp_guide)
+			temp_bookmark.put()
+		self.redirect('/guides')
 		
 class ServeHandler(blobstore_handlers.BlobstoreDownloadHandler):
 	def get(self, resource):
@@ -744,5 +747,6 @@ app = webapp2.WSGIApplication([('/?', MainHandler),
 							   ('/subjects/?', SubjectsHandler),
 							   ('/subjects2/?', SubjectsHandler2),
 							   ('/vote/?', VoteHandler),
+							   ('/addbookmark/?', AddBookmarkHandler),
 							   ('/.*', NotFoundHandler),
 							   ], debug=True)
