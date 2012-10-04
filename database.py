@@ -50,6 +50,10 @@ class Bookmarks(db.Model):
 	user         = db.ReferenceProperty(Users)
 	guide        = db.ReferenceProperty(Guides)
 
+class Testing(db.Model):
+	number       = db.IntegerProperty(required = True)
+	str          = db.StringProperty(required = True)
+
 class Feedback(db.Model):
 	content      = db.TextProperty(required = True)
 	origin       = db.StringProperty(required = True)
