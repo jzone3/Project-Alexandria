@@ -11,7 +11,7 @@
 
 {% block page_content %}
 	<script type="text/javascript" src="/static/js/filepicker.js"></script>
-
+	<script src="/static/js/jquery.toggle.buttons.js"></script>
 
 
 	<div class="container">
@@ -21,48 +21,51 @@
 			<form method="post" action="{{upload_url}}" enctype="multipart/form-data">
 				<div class="row" style="margin-bottom:25px;">
 					<div class="span5 inline">
-						<h1 style="font-size:50px;">1</h1>&nbsp;&nbsp;&nbsp;<span style="font-size:17px;">Upload your document</span> <a rel="tooltip" data-placement="right" title="We currently support .pdf, .docx, .doc, .rtf, and .txt formats. Maximum file size is 2mb." class="tooltips" onclick="$('#edit_url').modal('hide')"><i class="icon-question-sign"></i></a>
-
+						<h1 style="font-size:50px;">1</h1>&nbsp;&nbsp;&nbsp;<span style="font-size:17px;">Upload your document</span> 
 					</div>
-
-
 				</div>
 
 				<div class="row">
 					<div class="span2">
 						File
+						<a rel="tooltip" data-placement="right" title="We currently support .pdf, .docx, .doc, .rtf, and .txt formats. Maximum file size is 2mb." class="tooltips"><i class="icon-question-sign"></i></a>
 					</div>
-					<div class="span4"><input name="file" type="filepicker-dragdrop" data-fp-apikey="AlMIHDT2tQ5KhESQdBkelz" data-fp-option-services="COMPUTER,DROPBOX,GOOGLE_DRIVE" data-fp-button-class="btn btn-inverse" data-fp-mimetypes ="
-application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf,text/plain,application/rtf" data-fp-drag-class="bigupload"/></div>			
-					<div class="alert alert-error span4" {% if not file_error %}style="display: none;"{% endif %}>{{file_error}}</div>
+					<div class="span4"><input name="file" type="filepicker-dragdrop" data-fp-apikey="AlMIHDT2tQ5KhESQdBkelz" data-fp-option-services="COMPUTER,DROPBOX,GOOGLE_DRIVE" data-fp-mimetypes ="
+application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf,text/plain,application/rtf" data-fp-button-class="btn btn-inverse"  data-fp-drag-class="bigupload"/></div>						<div class="alert alert-error span4" {% if not file_error %}style="display: none;"{% endif %}>{{file_error}}</div>
 				</div>
 
-<hr />
+				<hr />
+
 				<div class="row" style="margin-bottom:25px;">
 					<div class="span5 inline">
-						<h1 style="font-size:50px;">2</h1>&nbsp;&nbsp;&nbsp;<span style="font-size:17px;">Tell us where to find the Google Doc</span>
+						<h1 style="font-size:50px;">2</h1>&nbsp;&nbsp;&nbsp;<span style="font-size:17px;">We'll upload it to Google Docs</span>
 					</div>
 				</div>
 
-  		
-        		<div id="edit_url" class="row" {% if locked %}style="display:none;"{% endif %}>
-					<div class="span2">
-						Google Docs URL
-						<a rel="tooltip" data-placement="right" title="The link to a public Google Doc. Not needed if the guide is locked." class="tooltips"><i class="icon-question-sign"></i></a>
-					</div>
-					<div class="span4"><input class="input-xlarge"type="text" name="edit_url" value="{{edit_url}}" placeholder="http://docs.google.com ..."></div>
-					<div class="alert alert-error span4" {% if not doc_url_error %}style="display: none;"{% endif %}>{{doc_url_error}}</div>
-				</div>	
 				<div class="row">
 					<div class="span2">
-						Locked
-						<a rel="tooltip" data-placement="right" title="A locked study guide is not linked with Google Docs and is not editable by the community." class="tooltips" onclick="$('#edit_url').modal('hide')"><i class="icon-question-sign"></i></a>
+						Editable Guide
+						<a rel="tooltip" data-placement="right" title="An editable study guide is automatically uploaded to Google Docs and can be edited by the community." class="tooltips">
+							<i class="icon-question-sign"></i>
+						</a>
 					</div>
-					<div class="span4"><input type="checkbox" name="locked" onclick="$('#edit_url').toggle('fast')"{% if locked %}checked="checked"{% endif %}></div>
-				</div>      
+					<div class="span4">
+						<div id="info-toggle-button">
+						    <input name="editable" type="checkbox" checked="checked">
+						</div>
+					</div>
+					<script type="text/javascript">
+						$('#info-toggle-button').toggleButtons({
+							width: 120,
+							label: {
+							 	enabled: "Yes",
+							 	disabled: "No"
+							}
+						});
+					</script>  
+				</div>
 
-			
-<hr />
+				<hr />
 
 				<div class="row" style="margin-bottom:25px;">
 					<div class="span5 inline">
@@ -91,7 +94,7 @@ application/msword,application/vnd.openxmlformats-officedocument.wordprocessingm
 				<div class="row">
 					<div class="span2">
 						Tags <em>(optional)</em>
-						<a rel="tooltip" data-placement="right" title="Single words separated by commas." class="tooltips"><i class="icon-question-sign"></i></a>
+						<a rel="tooltip" data-placement="right" title="Help people search for your guide! List single words separated by commas." class="tooltips"><i class="icon-question-sign"></i></a>
 					</div>
 					<div class="span4"><input class="input-xlarge"type="text" name="tags" value="{{tags}}" placeholder="subtraction, division, chapter, six"></div>
 				</div>

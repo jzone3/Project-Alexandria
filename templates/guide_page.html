@@ -26,7 +26,7 @@
 					    <a href="{{ dl_link }}"><i class="icon-download-alt"></i> Download</a>  	
 					    <span> | </span>
 
-						{% if not result.locked %}
+						{% if result.edit_url %}
 						<a href="{{ result.edit_url }}" target="_blank">
 							<i class="icon-cloud"></i> Edit on Google Docs
 						</a>

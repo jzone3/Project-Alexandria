@@ -5120,7 +5120,7 @@ div.sticky-footer a:hover{
 
 #feedbackbar{ 
   left:-3px;
-  top:30%;
+  bottom:10%;
   margin:0;
   padding:0;
   height:102px;
