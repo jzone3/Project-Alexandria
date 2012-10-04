@@ -37,6 +37,7 @@
 					<div class="row-fluid">
 						{% for bookmark in bookmark_list %}
 							<div class="span4 hoverspan4">
+								<span style="float:left;"><a class="removebtn" href="#" id="{{ bookmark.guide.blob_key }}"><img src="/static/img/remove.png"></a></span> <!-- THIS ICON IS UGLY PLEASE CHANGE IT KTHXBYE -->
 								<span style="float:left;"><img src="/static/img/math.png" style="width:100px;"></span>
 								<span style="text-align:right;">
 									<h4><a href="../guides/{{ bookmark.guide.url }}">{{ bookmark.guide.title }}</a></h4>
@@ -112,4 +113,14 @@
 			<!-- End Tab Contents -->
 		</div>
 	</div>
+	
+	<script>
+	
+	$('a.removebtn').click(function() {
+		var id = $(this).attr('id');
+		$.post("/removebookmark", {id: id}, function(data) { 
+			if (data != "") location.reload(true);});
+	});
+	
+	</script>
 {% endblock %}

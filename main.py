@@ -398,6 +398,23 @@ class AddBookmarkHandler(BaseHandler):
 				temp_bookmark.put()
 		#self.redirect('/guides')
 		
+class RemoveBookmarkHandler(BaseHandler):
+	def get(self):
+		self.redirect('/')
+		
+	def post(self):
+		if self.logged_in():
+			blob_key = self.rget('id')
+			current_user = get_user(self.get_username())
+			# check to make sure user has bookmark
+			bookmarks = Bookmarks.all();
+			bookmarks.filter('user =', current_user)
+			temp_guide = (db.GqlQuery("SELECT * FROM Guides WHERE blob_key = '" + blob_key.replace("'", "&lsquo;") + "'")).get()
+			bookmarks.filter('guide =', temp_guide)
+			if bookmarks.count() != 0:
+				bookmarks.get().delete()
+			self.response.out.write("done")
+		
 class ServeHandler(blobstore_handlers.BlobstoreDownloadHandler):
 	def get(self, resource):
 		resource = str(urllib.unquote(resource))
@@ -748,5 +765,6 @@ app = webapp2.WSGIApplication([('/?', MainHandler),
 							   ('/subjects2/?', SubjectsHandler2),
 							   ('/vote/?', VoteHandler),
 							   ('/addbookmark/?', AddBookmarkHandler),
+							   ('/removebookmark/?', RemoveBookmarkHandler),
 							   ('/.*', NotFoundHandler),
 							   ], debug=True)
