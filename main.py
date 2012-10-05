@@ -276,7 +276,8 @@ class GuidePageHandler(BaseHandler):
 		result = q.get()
 		bookmarked = False
 		if self.logged_in():
-			user = get_user(self.get_username())
+			username = self.get_username()
+			user = get_user(username)
 			for bookmark in user.bookmarks_set:
 				if bookmark.guide.blob_key == result.blob_key:
 					bookmarked = True
@@ -285,7 +286,9 @@ class GuidePageHandler(BaseHandler):
 		if result:
 			votes = str_votes(result.votes)
 			dl_link = '/serve/' + result.blob_key
-			self.render('guide_page.html', {'result':result, 'votes':votes, 'dl_link':dl_link, 'bookmarked':bookmarked, 'logged_in':self.logged_in()})
+			reported = (username in result.report_users)
+			self.render('guide_page.html', {'result':result, 'votes':votes, 'dl_link':dl_link, 'bookmarked':bookmarked, 
+											'logged_in':self.logged_in(), 'reported':reported})
 		else:
 			self.error(404)
 			self.render('404.html', {'blockbg':True})
@@ -372,7 +375,7 @@ class UploadHandler(BaseHandler):
 			# add guide to db
 			guide = Guides(user_created=username, title=title, subject=subject,
 				   teacher=teacher, tags=tags, blob_key=str(blob_key),
-				   votes=0, edit_url=edit_url, school=school, url=url)
+				   votes=0, edit_url=edit_url, school=school, url=url, locked=False, report_users=[])
 			guide.put()
 
 			# add subject, teacher to db
@@ -550,8 +553,6 @@ class DeleteAccountHandler(BaseHandler):
 				self.render('/delete_account')
 		else:
 			self.redirect('/')
-
-
 
 class GoogleSignupHandler(BaseHandler):
     def get(self):
@@ -807,6 +808,34 @@ class SubjectsHandler2(BaseHandler):
 		# send this html back to jquery/ajax	
 		self.write(html)
 
+class ReportHandler(BaseHandler):
+	''' Handles users reporting guides '''
+	def post(self):
+		blob_key = self.rget('blob_key')
+		username = self.get_username()
+		if get_user(username):
+			q = Guides.all()
+			q.filter('blob_key =', blob_key)
+			guide = q.get()
+
+			report_users = guide.report_users
+			if report_users and username not in report_users:
+				report_users.append(username)
+			else:
+				report_users = [username]
+			guide.report_users = report_users
+
+			if report_users >= 3:
+				guide.locked = True
+
+			guide.put()
+
+		else:
+			self.write('An error occured.')
+			return
+
+		self.write('Reported. Thank you!')
+
 
 ### static pages ###
 
@@ -867,5 +896,6 @@ app = webapp2.WSGIApplication([('/?', MainHandler),
 							   ('/vote/?', VoteHandler),
 							   ('/addbookmark/?', AddBookmarkHandler),
 							   ('/removebookmark/?', RemoveBookmarkHandler),
+							   ('/report/?', ReportHandler),
 							   ('/.*', NotFoundHandler),
 							   ], debug=True)

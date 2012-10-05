@@ -38,13 +38,14 @@ class Guides(db.Model):
 	teacher      = db.StringProperty(required = True)
 	tags         = db.StringListProperty(required = True)
 	blob_key     = db.StringProperty(required = True)
-	locked       = db.BooleanProperty(required = False) #! delete this before final deploy
 	votes        = db.IntegerProperty(required = True) 
-	edit_url     = db.StringProperty(required = False) #! change to true before final deploy
+	edit_url     = db.StringProperty(required = False)
 	school       = db.StringProperty(required = True)
-	url          = db.StringProperty(required = True) #! change to dl_url
+	url          = db.StringProperty(required = True)
 	date_created = db.DateTimeProperty(auto_now_add = True)
 	users_voted  = JsonProperty()
+	locked       = db.BooleanProperty(required = True)
+	report_users = db.StringListProperty(required = True)
 
 class Bookmarks(db.Model):
 	user         = db.ReferenceProperty(Users, collection_name='bookmarks_set')

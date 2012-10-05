@@ -23,7 +23,7 @@
 					<h5>
 					    <a href="#" class="bookmarkbtn" id="{{ result.blob_key }}" style="margin-left:-1px;"><i class="icon-bookmark"></i> Bookmark</a>	
 						<span> | </span>					    
-					    <a href="{{ dl_link }}"><i class="icon-download-alt"></i> Download</a>  	
+					    <a href="{{ dl_link }}"><i class="icon-download-alt"></i> Download</a>
 					    <span> | </span>
 
 						{% if result.edit_url %}
@@ -43,9 +43,15 @@
 					  <button class="btn btn-large vote down"><i class="icon-caret-down"></i></button>
 					</div>
 					<div style="position:relative;top:90px;left:40px;text-align:right;"><h6 class="score" id="{{votes}}">{{ votes }} Votes</h6></div>
-					<button type="button" class="btn btn-danger btn-small" data-loading-text="Reported" style="position:relative;float:right;left:40px;top:85px;" id="report">
+					<button type="button" class="btn btn-danger btn-small" data-loading-text="Reporting..." style="position:relative;float:right;left:40px;top:85px;" id="report">
 						Report Guide <i class="icon-exclamation-sign"></i>
 					</button>
+					{% if reported %}
+					<script type="text/javascript">
+						$('#report').button('loading');
+						$('#report').html('Reported. Thank you!')
+					</script>
+					{% endif %}
 				</div>
 			</div>
 			<hr>
@@ -101,11 +107,7 @@
 		}
 	});
 	
-	$('#report').click(function (e) {
-		$('#report').button('loading');	
-	      e.preventDefault();
-	})
-	
+
 	$('a.bookmarkbtn').click(function() {
 		if ("{{ logged_in }}" != "True") return;
 		var id = $(this).attr('id');
@@ -134,5 +136,18 @@
         	})             
         }
     });
+
+    $('#report').click(function() {
+    	$('#report').button('loading');
+    	$.ajax({
+    		type:'POST',
+    		url:'/report',
+    		data:'blob_key=' + '{{ result.blob_key }}',
+    		success: function(response) {
+    			$('#report').html(response)
+    		}
+    	});
+    });
+
 	</script>
 {% endblock %}
