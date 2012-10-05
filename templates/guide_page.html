@@ -79,7 +79,7 @@
 	function toggleBookmark() {
 		$('a.bookmarkbtn').toggleClass('bmd');
 		if ( $('a.bookmarkbtn').hasClass('bmd') ) {
-			$('a.bookmarkbtn').html('Remove Bookmark');
+			$('a.bookmarkbtn').html('<i class="icon-bookmark-empty"></i> Remove Bookmark');
 		}
 		else {
 			$('a.bookmarkbtn').html("<i class='icon-bookmark'></i> Bookmark" );
@@ -89,7 +89,7 @@
 	$(document).ready(function() {
 		if ( "{{ bookmarked }}" == "True" ) {
 			$('a.bookmarkbtn').addClass('bmd');
-			$('a.bookmarkbtn').html("Remove Bookmark");
+			$('a.bookmarkbtn').html('<i class="icon-bookmark-empty"></i> Remove Bookmark');
 		}
 	});
 	

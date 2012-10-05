@@ -182,7 +182,6 @@ a:hover {
 }
 [class*="span"] {
   float: left;
-  margin-left: 20px;
 }
 .container,
 .navbar-static-top .container,
@@ -283,8 +282,6 @@ a:hover {
   -moz-box-sizing: border-box;
   box-sizing: border-box;
   float: left;
-  margin-left: 2.127659574468085%;
-  *margin-left: 2.074468085106383%;
 }
 .row-fluid [class*="span"]:first-child {
   margin-left: 0;
@@ -4450,8 +4447,6 @@ button.close {
     -moz-box-sizing: border-box;
     box-sizing: border-box;
     float: left;
-    margin-left: 2.7624309392265194%;
-    *margin-left: 2.709239449864817%;
   }
   .row-fluid [class*="span"]:first-child {
     margin-left: 0;
@@ -4661,7 +4656,6 @@ button.close {
   }
   [class*="span"] {
     float: left;
-    margin-left: 30px;
   }
   .container,
   .navbar-static-top .container,
@@ -4762,8 +4756,7 @@ button.close {
     -moz-box-sizing: border-box;
     box-sizing: border-box;
     float: left;
-    margin-left: 2.564102564102564%;
-    *margin-left: 2.5109110747408616%;
+
   }
   .row-fluid [class*="span"]:first-child {
     margin-left: 0;
@@ -5138,4 +5131,20 @@ div.sticky-footer a:hover{
 .popover.bottom{
   margin-top:6px;
   z-index: 5001;
+}
+
+.dashboardxspan{
+  float: left;
+  margin-top: -6px;
+  margin-bottom: -20px;
+}
+
+.dashboardx{
+  color: #BEBEBE;
+  font-size: 20px;
+}
+
+.dashboardx:hover{
+  color:gray;
+  text-decoration:none;
 }
