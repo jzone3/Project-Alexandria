@@ -274,11 +274,18 @@ class GuidePageHandler(BaseHandler):
 		q = Guides.all()
 		q.filter('url =', url.lower())
 		result = q.get()
+		bookmarked = False
+		if self.logged_in():
+			user = get_user(self.get_username())
+			for bookmark in user.bookmarks_set:
+				if bookmark.guide.user_created == result.user_created:
+					bookmarked = True
+		
 		# render page
 		if result:
 			votes = str_votes(result.votes)
 			dl_link = '/serve/' + result.blob_key
-			self.render('guide_page.html', {'result':result, 'votes':votes, 'dl_link':dl_link})
+			self.render('guide_page.html', {'result':result, 'votes':votes, 'dl_link':dl_link, 'bookmarked':bookmarked, 'logged_in':self.logged_in()})
 		else:
 			self.error(404)
 			self.render('404.html', {'blockbg':True})

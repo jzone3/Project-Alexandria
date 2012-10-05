@@ -20,9 +20,9 @@
 					<h1>{{ result.title }}</h1>
 					<h3><em>by <a href="/user/{{ result.user_created }}">{{ result.user_created }}</a></em></h3>
 					<h6>{{ result.subject }} - {{ result.teacher }}</h6> 
-					<h5>					
+					<h5>
 					    <a href="#" class="bookmarkbtn" id="{{ result.blob_key }}" style="margin-left:-1px;"><i class="icon-bookmark"></i> Bookmark</a>	
-					    <span> | </span>					    
+						<span> | </span>					    
 					    <a href="{{ dl_link }}"><i class="icon-download-alt"></i> Download</a>  	
 					    <span> | </span>
 
@@ -75,15 +75,42 @@
 
 
 	<script type="text/javascript">
+	
+	function toggleBookmark() {
+		$('a.bookmarkbtn').toggleClass('bmd');
+		if ( $('a.bookmarkbtn').hasClass('bmd') ) {
+			$('a.bookmarkbtn').html('Remove Bookmark');
+		}
+		else {
+			$('a.bookmarkbtn').html("<i class='icon-bookmark'></i> Bookmark" );
+		}
+	}
+	
+	$(document).ready(function() {
+		if ( "{{ bookmarked }}" == "True" ) {
+			$('a.bookmarkbtn').addClass('bmd');
+			$('a.bookmarkbtn').html("Remove Bookmark");
+		}
+	});
+	
 	$('#report').click(function (e) {
 		$('#report').button('loading');	
 	      e.preventDefault();
 	})
 	
 	$('a.bookmarkbtn').click(function() {
+		if ("{{ logged_in }}" != "True") return;
 		var id = $(this).attr('id');
-		$.post("/addbookmark", {id: id});
+		
+		if ( $('a.bookmarkbtn').hasClass('bmd') ) {
+			$.post('/removebookmark', {id: id});
+		}
+		else {
+			$.post('/addbookmark', {id: id});
+		}
+		toggleBookmark();
 	});
+	
 
 	$('div.answer button.vote').click(function() {
         var id = $(this).parents('div.answer').attr('id');
