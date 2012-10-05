@@ -492,7 +492,7 @@ def get_all_subjects(school):
 	q.filter('school =', school)
 	result = q.get()
 	if result:
-		return result.subjects_list
+		return sorted(result.subjects_list)
 	else:
 		return []
 
@@ -502,7 +502,7 @@ def get_all_teachers(school):
 	q.filter('school =', school)
 	result = q.get()
 	if result:
-		return result.teachers_list
+		return sorted(result.teachers_list)
 	else:
 		return []
 
@@ -511,9 +511,10 @@ def get_subjects_for_teacher(school, teacher):
 	q = Teacher_Subjects.all()
 	q.filter('school =', school)
 	q.filter('teacher =', teacher)
+
 	result = q.get()
 	if result:
-		return result.subjects_list
+		return sorted(result.subjects_list)
 	else:
 		return []
 
@@ -524,7 +525,7 @@ def get_teachers_for_subject(school, subject):
 	q.filter('subject =', subject)
 	result = q.get()
 	if result:
-		return result.teachers_list
+		return sorted(result.teachers_list)
 	else:
 		return []
 
