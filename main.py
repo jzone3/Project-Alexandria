@@ -297,10 +297,13 @@ class UserPageHandler(BaseHandler):
 		q = Users.all()
 		q.filter('username =', url)
 		result = q.get()
+
 		if result:
+			guides = db.GqlQuery("SELECT * FROM Guides WHERE user_created = '" + result.username + "'")
+			count = guides.count()
 			score = str_votes(result.score)
 			grade = str_grade(result.grade)
-			self.render('user_page.html', {'result':result, 'grade':grade, 'score':score})
+			self.render('user_page.html', {'result':result, 'grade':grade, 'score':score, 'count':count, 'guides':guides})
 		else:
 			self.error(404)
 			self.render('404.html', {'blockbg':True})

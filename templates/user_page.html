@@ -38,35 +38,19 @@
 			</div>
 			<br/>
 			<hr>
-			<center><h3>Uploaded Guides (3)</h3></center>
+			<center><h3>Uploaded Guides ({{ count }})</h3></center>
 			<div class="row-fluid">
-				<div class="span4 hoverspan4">
-					<span style="float:left;"><img src="/static/img/math.png" style="width:100px;"></span>
-					<span style="text-align:right;">
-						<h4><a href="#">Integrals</a></h4>
-						<div>AP Calculus BC</div>
-						<div>Robinson</div>
-						<div><em>+1401 Votes</em></div>
-					</span>
-				</div>
-				<div class="span4 hoverspan4">							
-					<span style="float:left;"><img src="/static/img/science.png" style="width:100px;"></span>
-					<span style="text-align:right;">
-						<h4><a href="#">USA Biology Olympiad</a></h4>
-						<div>USABO</div>
-						<div>Zhang</div>
-						<div><em>+3 Votes</em></div>
-					</span>
-				</div>
-				<div class="span4 hoverspan4">
-					<span style="float:left;"><img src="/static/img/literature.png" style="width:100px;"></span>
-					<span style="text-align:right;">
-						<h4><a href="#">The Great Gatsby</a></h4>
-						<div>American Literature II</div>
-						<div>Halligan</div>
-						<div><em>+1 Votes</em></div>
-					</span>
-				</div>
+				{% for guide in guides %}
+					<div class="span4 hoverspan4">
+						<span style="float:left;"><img src="/static/img/math.png" style="width:100px;"></span>
+						<span style="text-align:right;">
+							<h4><a href="/guides/{{ guide.url }}">{{ guide.title }}</a></h4>
+							<div>{{ guide.subject }}</div>
+							<div>{{ guide.teacher }}</div>
+							<div><em>{{ guide.votes }} Votes</em></div>
+						</span>
+					</div>
+				{% endfor %}
 			</div>
 		</div> 
 	</div>
