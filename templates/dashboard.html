@@ -118,8 +118,8 @@
 	
 	$('a.removebtn').click(function() {
 		var id = $(this).attr('id');
-		$.post("/removebookmark", {id: id}, function(data) { 
-			if (data != "") $(this).parent().hide(); });
+		$.post("/removebookmark", {id: id} );
+		$(this).parent().parent().hide();
 	});
 	
 	</script>
