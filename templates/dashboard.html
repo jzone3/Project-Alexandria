@@ -119,7 +119,7 @@
 	$('a.removebtn').click(function() {
 		var id = $(this).attr('id');
 		$.post("/removebookmark", {id: id}, function(data) { 
-			if (data != "") location.reload(true);});
+			if (data != "") $(this).parent().hide(); });
 	});
 	
 	</script>
