@@ -5133,18 +5133,18 @@ div.sticky-footer a:hover{
   z-index: 5001;
 }
 
-.dashboardxspan{
+.removebtnspn{
   float: left;
   margin-top: -6px;
   margin-bottom: -20px;
 }
 
-.dashboardx{
+.removebtn{
   color: #BEBEBE;
   font-size: 20px;
 }
 
-.dashboardx:hover{
+.removebtn:hover{
   color:gray;
   text-decoration:none;
 }
