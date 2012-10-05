@@ -119,7 +119,7 @@
 	$('a.removebtn').click(function() {
 		var id = $(this).attr('id');
 		$.post("/removebookmark", {id: id} );
-		$(this).parent().parent().hide();
+		$(this).parent().parent().fadeOut(500);
 	});
 	
 	</script>
