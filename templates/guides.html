@@ -32,6 +32,7 @@
 			<!-- End Tabs -->
 
 			<div class="tab-content">
+
 				<!-- Top Tab Content -->
 				<div class="tab-pane fade active in" id="top">
 					<h2>Top Guides</h2>
@@ -77,31 +78,37 @@
 						<ul class="breadcrumb">
 							<li class="active">Subjects <span class="divider">/</span></li>
 						</ul>
-						{% for subject in subjects %}
-						<div>
-							<a href="#{{subject}}" class="subjects" id="{{subject}}">{{ subject }}</a>
-							&nbsp;&nbsp;<img src="../static/img/ajax-loader.gif" id="{{subject}}load" style="display:none;"/>
-						</div>
-						<div id="{{subject}}success"></div>
-						{% endfor %}
+						<ul>
+							{% for subject in subjects %}
+							<li>
+								<a href="#{{subject}}" class="subjects" id="{{subject}}">{{ subject }}</a>
+								&nbsp;&nbsp;<img src="../static/img/ajax-loader.gif" id="s_{{subject}}load" style="display:none;"/>
+							</li>
+							{% endfor %}
+						</ul>
 					</div>
-					<div id="subjectlist2" style="display:none;">
-						
-					</div>
-					<div id="subjectlist3" style="display:none;">
-						
-					</div>
-				</div>
-				
+					<div id="subjectlist2" style="display:none;"></div>
+					<div id="subjectlist3" style="display:none;"></div>
+				</div>				
 				<!-- End Subject Tab Content -->
 
 				<!-- Teacher Tab Content -->
 				<div class="tab-pane fade" id="teacher">
-					<h2>Teachers</h2>
-					<br />
-					{% for teacher in teachers %}
-					<div><a href="#{{teacher}}">{{ teacher }}</a></div>
-					{% endfor %}
+					<div id="teacherlist">
+						<ul class="breadcrumb">
+							<li class="active">Teachers <span class="divider">/</span></li>
+						</ul>
+						<ul>
+							{% for teacher in teachers %}
+							<li>
+								<a href="#{{teacher}}" class="teachers" id="{{teacher}}">{{ teacher }}</a>
+								&nbsp;&nbsp;<img src="../static/img/ajax-loader.gif" id="t_{{teacher}}load" style="display:none;"/>
+							</li>
+							{% endfor %}
+						</ul>
+					</div>
+					<div id="teacherlist2" style="display:none;"></div>
+					<div id="teacherlist3" style="display:none;"></div>
 				</div>
 				<!-- End Teacher Tab Content -->
 
@@ -112,7 +119,7 @@
   <script>
       $('.subjects').click(function (e) {
       	subject = this.id;
-      	$('#'+subject+'load').show();
+      	$('#s_'+subject+'load').show();
 
 		e.preventDefault();
 		$.ajax({
@@ -120,7 +127,7 @@
             url:'/subjects', 
             data:'subject=' + subject, 
             success: function(response) {
-            	$('#'+subject+'load').hide();
+            	$('#s_'+subject+'load').hide();
             	$('#subjectlist').hide();
             	$('#subjectlist2').html(response);
             	$('#subjectlist2').show();
@@ -156,6 +163,38 @@
         }
     });
 
+</script>
+<script>
+	  $('.teachers').click(function (e) {
+	  	teacher = this.id;
+	  	$('#t_'+teacher+'load').show();
+
+		e.preventDefault();
+		$.ajax({
+	        type:'POST', 
+	        url:'/teachers', 
+	        data:'teacher=' + teacher, 
+	        success: function(response) {
+	        	$('#t_'+teacher+'load').hide();
+	        	$('#teacherlist').hide();
+	        	$('#teacherlist2').html(response);
+	        	$('#teacherlist2').show();
+	            
+	        }
+	    });
+	  })
+	  function teachtoggle1(){
+	  	$('#teacherlist2').hide();
+	    $('#teacherlist').show();   
+	  }
+	  function teachtoggle2(){
+	  	$('#teacherlist3').hide();
+	    $('#teacherlist').show();   
+	  }
+	  function teachtoggle3(){
+	  	$('#teacherlist3').hide();
+	    $('#teacherlist2').show();   
+	  }
 </script>
 
 {% endblock %}

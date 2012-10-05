@@ -616,7 +616,48 @@ class ExternalSignUp(BaseHandler):
 			self.redirect('/google_signup')
 
 class TeachersHandler(BaseHandler):
-	pass
+	'''receives AJAX request for the second page on guides->teacher'''
+	def post(self):
+		teacher = self.rget('teacher')
+		school = self.get_school_cookie()
+		subjects = get_subjects_for_teacher(school, teacher)
+
+		# construct return HTML
+		html = """
+		<ul class="breadcrumb">
+		  <li><a href="#" onclick="teachtoggle1()">Teachers</a> <span class="divider">/</span></li>
+		  <li class="active">%s</li>		  
+		</ul>
+		<ul>"""%teacher
+
+		# script must be initialized AFTER the html is in place, so we send it through AJAX
+		script = """
+		<script>
+		$('.teachers2').click(function (e) {
+      		subject = this.id;
+      		$('#'+subject+'load2').show()
+      		e.preventDefault();
+      		$.ajax({
+	            type:'POST', 
+	            url:'/teachers2', 
+	            data:'subject=' + subject + '&teacher=%s', 
+	            success: function(response) {
+	            	$('#'+teacher+'load2').hide()
+	            	$('#teacherlist2').hide();
+	            	$('#teacherlist3').html(response);
+	            	$('#teacherlist3').show();                
+	            }
+        	});
+      	})
+
+		</script>
+		"""%teacher
+
+		for subject in subjects:
+			html += '<li><a href="#" class="teachers2" id="%s">'%subject + subject + '</a>&nbsp;&nbsp;<img src="../static/img/ajax-loader.gif" id="%sload2" style="display:none;"/></li>'%subject
+
+		# send this html back to jquery/ajax
+		self.write(html+'</li>'+script)
 
 class SubjectsHandler(BaseHandler):
 	'''receives AJAX request for the second page on guides->subject'''
@@ -630,7 +671,8 @@ class SubjectsHandler(BaseHandler):
 		<ul class="breadcrumb">
 		  <li><a href="#" onclick="subtoggle1()">Subjects</a> <span class="divider">/</span></li>
 		  <li class="active">%s</li>		  
-		</ul>"""%subject
+		</ul>
+		<ul>"""%subject
 
 		# script must be initialized AFTER the html is in place, so we send it through AJAX
 		script = """
@@ -656,10 +698,57 @@ class SubjectsHandler(BaseHandler):
 		"""%subject
 
 		for teacher in teachers:
-			html += '<div><a href="#" class="subjects2" id="%s">'%teacher + teacher + '</a>&nbsp;&nbsp;<img src="../static/img/ajax-loader.gif" id="%sload2" style="display:none;"/></div><br />'%teacher
+			html += '<li><a href="#" class="subjects2" id="%s">'%teacher + teacher + '</a>&nbsp;&nbsp;<img src="../static/img/ajax-loader.gif" id="%sload2" style="display:none;"/></li>'%teacher
 
 		# send this html back to jquery/ajax
-		self.write(html+script)
+		self.write(html+'</li>'+script)
+
+class TeachersHandler2(BaseHandler):
+	'''receives AJAX request for the third page on guides->teacher'''
+	def post(self):
+		teacher = self.rget('teacher')
+		subject = self.rget('subject')
+
+		school = self.get_school_cookie()
+		results = find_guides_ts(school, teacher, subject)
+
+		# construct return HTML
+		html = """
+		<ul class="breadcrumb">
+		  <li><a href="#" onclick="teachtoggle2()">Teachers</a> <span class="divider">/</span></li>
+		  <li><a href="#" onclick="teachtoggle3()">%s</a> <span class="divider">/</span></li>
+		  <li class="active">%s</li>		  
+		</ul>
+		<table class="table-hover">
+			<thead>
+				<tr>
+					<th>&nbsp;</th>
+					<th>Title</th>
+					<th>Subject</th>
+					<th>Teacher</th>
+					<th>Votes</th>
+				</tr>
+			</thead>
+			<tbody>
+			"""% (teacher, subject)
+
+		for result in results:
+			html += """<tr>
+					<td>
+						<div class="btn-group btn-group btn-group-vertical">
+							<button class="btn btn-mini"><i class="icon-caret-up"></i></button>
+							<button class="btn btn-mini"><i class="icon-caret-down"></i></button>
+						</div></td>"""
+
+			html += """<td><a href="/guides/%s">%s</a></td>"""%(result.url, result.title)
+			html += """<td>%s</td>"""%result.subject
+			html += """<td>%s</td>"""%result.teacher
+			html += """<td>%s</td>"""%result.votes
+			html += """</tr>"""
+
+		html += """</tbody></table>"""
+		# send this html back to jquery/ajax	
+		self.write(html)
 
 class SubjectsHandler2(BaseHandler):
 	'''receives AJAX request for the third page on guides->subject'''
@@ -763,6 +852,8 @@ app = webapp2.WSGIApplication([('/?', MainHandler),
 							   ('/teachers/?', TeachersHandler),
 							   ('/subjects/?', SubjectsHandler),
 							   ('/subjects2/?', SubjectsHandler2),
+							   ('/teachers/?', TeachersHandler),
+							   ('/teachers2/?', TeachersHandler2),
 							   ('/vote/?', VoteHandler),
 							   ('/addbookmark/?', AddBookmarkHandler),
 							   ('/removebookmark/?', RemoveBookmarkHandler),
