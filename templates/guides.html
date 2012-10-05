@@ -62,7 +62,7 @@
 									<td>{{ loop.index }}</td>
 									<td><a href="/guides/{{ guide.url }}">{{ guide.title }}</a></td>
 									<td>{{ guide.subject }}</td>
-									<td>{{ guide.user_created }}</td>
+									<td><a href="/user/{{ guide.user_created }}">{{ guide.user_created }}</a></td>
 									<td>{{ guide.teacher }}</td>
 									<td class="score_{{ guide.blob_key }}" id="{{ guide.votes|str_votes }}">{{ guide.votes|str_votes }}</td>
 								</tr>

@@ -4317,6 +4317,14 @@ button.close {
 }
 
 /* Responsive Bootstrap */
+@media (min-width: 0px) and (max-width: 979px) {
+  .navbar-static-top .container,    
+  .navbar-fixed-top .container,
+  .navbar-fixed-bottom .container {    
+  width: 870px;    
+  }
+}
+
 @media (min-width: 1200px) {
   .row {
     margin-left: -30px;

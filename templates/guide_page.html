@@ -79,10 +79,18 @@
 	function toggleBookmark() {
 		$('a.bookmarkbtn').toggleClass('bmd');
 		if ( $('a.bookmarkbtn').hasClass('bmd') ) {
-			$('a.bookmarkbtn').html('<i class="icon-bookmark-empty"></i> Remove Bookmark');
+			$('a.bookmarkbtn').fadeOut(300, function() {
+				$('a.bookmarkbtn').html('<i class="icon-bookmark-empty"></i> Remove Bookmark');
+				$('a.bookmarkbtn').fadeIn(270);
+			});
+			
 		}
 		else {
-			$('a.bookmarkbtn').html("<i class='icon-bookmark'></i> Bookmark" );
+			$('a.bookmarkbtn').fadeOut(300, function() {
+				$('a.bookmarkbtn').html("<i class='icon-bookmark'></i> Bookmark" );
+				$('a.bookmarkbtn').fadeIn(270);
+			});
+			
 		}
 	}
 	
