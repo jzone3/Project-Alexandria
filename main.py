@@ -278,7 +278,7 @@ class GuidePageHandler(BaseHandler):
 		if self.logged_in():
 			user = get_user(self.get_username())
 			for bookmark in user.bookmarks_set:
-				if bookmark.guide.user_created == result.user_created:
+				if bookmark.guide.blob_key == result.blob_key:
 					bookmarked = True
 		
 		# render page
