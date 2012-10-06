@@ -444,9 +444,7 @@ class NotFoundHandler(BaseHandler):
 		self.error(404)
 		self.render('404.html',{'blockbg':True})
 
-class ToSHandler(BaseHandler):
-	def get(self):
-		self.render('tos.html')
+
 
 class SearchHandler(BaseHandler):
 	def get(self):
@@ -454,26 +452,18 @@ class SearchHandler(BaseHandler):
 		school = self.get_school_cookie()
 		if not school:
 			school = 'Bergen County Academies'
-		rankings = search(school, query)
+		results = search(school, query)
 
 		# if no entries for that school
-		if not rankings:
+		if not results:
 			self.render('search.html')
 			return
 
-		results = []
-		for ranking in rankings:
-			# get guides by key
-			guide = Guides.get(ranking[0])
-			# format results
-			result = {'url':guide.url, 'title':guide.title, 'subject':guide.subject,
-					  'teacher':guide.teacher, 'votes':str_votes(guide.votes)}
-			results.append(result)
-
+		guides = [result[0] for result in results]
 		if results:
-			self.render('search.html', {'results':results})
+			self.render('search.html', {'guides':guides, 'query':query})
 		else:
-			self.render('search.html')
+			self.render('search.html', {'query', query})
 
 class PreferencesHandler(BaseHandler):
 	def get(self):
@@ -832,6 +822,7 @@ class ReportHandler(BaseHandler):
 
 			if len(report_users) >= 3:
 				guide.locked = True
+				### Jared, put a notification here ###
 
 			guide.put()
 
@@ -841,6 +832,18 @@ class ReportHandler(BaseHandler):
 
 		self.write('Reported. Thank you!')
 
+
+class VoteHandler(BaseHandler):
+	def get(self):
+		self.error(404)
+		self.render('404.html',{'blockbg':True})
+
+	def post(self):
+		blob_key = self.rget('id')
+		vote_type = self.rget('type')
+		username = self.rget('username')
+		# IMPLEMENT: only allow user to vote once
+		response = vote(blob_key, vote_type, username)
 
 ### static pages ###
 
@@ -859,17 +862,10 @@ class TeamHandler(BaseHandler):
 	def get(self):
 		self.render('team.html')
 
-class VoteHandler(BaseHandler):
+class ToSHandler(BaseHandler):
 	def get(self):
-		self.error(404)
-		self.render('404.html',{'blockbg':True})
+		self.render('tos.html')
 
-	def post(self):
-		blob_key = self.rget('id')
-		vote_type = self.rget('type')
-		username = self.rget('username')
-		# IMPLEMENT: only allow user to vote once
-		response = vote(blob_key, vote_type, username)
 
 
 app = webapp2.WSGIApplication([('/?', MainHandler),

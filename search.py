@@ -3,44 +3,49 @@ from django.utils import simplejson
 
 from google.appengine.ext import db
 
-from database import Indexes
-
-# db_entries = [{'tags':['freshman', 'biology', 'chapter', 'one', 'notes', 'zhang'], 'title':'bio'},
-# 			{'tags':['sophomore', 'french', 'vocabulary', 'vocab', 'guide', 'ballas'], 'title':'french'},
-# 			{'tags':['med', 'physics', 'circular', 'motion', 'notes', 'russo'], 'title':'physics'},
-# 			{'tags':['freshman', 'literature', 'thesis', 'statement', 'notes', 'kaplan'], 'title':'lit'},
-# 			{'tags':['sophomore', 'drivers', 'education', 'chapter', 'six', 'notes', 'fuentes'], 'title':'drivers ed'},
-# 			{'tags':['junior', 'first aid', 'chapter', 'two', 'notes', 'symons'], 'title':'first aid'},
-# 			{'tags':['sophomore', 'history', 'buddhism', 'notes', 'alschen'], 'title':'buddhism'},
-# 			{'tags':['sophomore', 'history', 'reformation', 'study', 'guide', 'kramer'], 'title':'reformation'},
-# 			{'tags':['sophomore', 'spanish', 'vocabulary', 'guide', 'mendelsohn'], 'title':'spanish'},
-# 			{'tags':['med', 'chemistry', 'thermodynamics', 'guide', 'rick'], 'title':'thermodynamics'}]
+from database import Indexes, Guides
 
 # likely errant key presses that are not part of a query
-CHARS = """'"\\`~!@#$%^&*()-_=+/|[]{};:<>.,?"""
+ERROR_CHARS = """'"\\`~!@#$%^&*()-_=+/|[]{};:<>.,?"""
 
-# spaces are important!
-WORD_MAPPING = {'bio ':'biology ', 'chem ':'chemistry ', 'calc ':'calculus ', 'vocab ':'vocabulary ',
-				'lit ':'literature '} # etcetc, add more if you can think of any
-NUM_MAPPING = {'1':'one', '2':'two', '3':'three', '4':'four'} # etcetc...we need a better way to do this
+ABBREVIATIONS = {'bio':'biology', 'chem':'chemistry', 'calc':'calculus', 'vocab':'vocabulary',
+				'lit':'literature', 'econ':'economics', 'stat':'statistics', 'stats':'statistics',
+				'tech':'technology'}
+
+NUM_MAPPING = {'1':'one', '2':'two', '3':'three', '4':'four', '5':'five', '6':'six', '7':'seven', 
+			   '8':'eight', '9':'nine', '10':'ten', '11':'eleven', '12':'twelve', '13':'thirteen',
+			   '14':'fourteen', '15':'fifteen', '16':'sixteen', '17':'seventeen', '18':'eighteen',
+			   '19':'nineteen', '20':'twenty', '30':'thirty', '40':'forty', '50':'fifty',
+			   '60':'sixty', '70':'seventy', '80':'eighteen', '90':'ninety'}
+
+COMMON_WORDS = {'the', 'a', 'or', 'and', 'to', 'that', 'of', 'is', 'it', 'for', 'from', 'but', 'an'}
 
 # divide votes by this for ranking (will implement later)
-# VOTES_DIVISOR = 1000000
+VOTES_DIVISOR = 10.0**6
 
 def filt_query(query):
 	"""Returns a filtered query with assumptions, i.e. remove CHARS from string, lowercaseify"""
 	query = query.lower()
-	for char in CHARS: 
+
+	for char in ERROR_CHARS: 
 		query = query.replace(char, '')
-		
-	for word in WORD_MAPPING:
-		if word in query:
-			query = query.replace('bio ', 'biology ')
+	
+	# split into list for word analysis
+	query = query.split()
 
-	# number mapping
-	### to be implemented ###
+	# replace words in query
+	for i in range(len(query)):
+		word = query[i]
+		if word in ABBREVIATIONS:
+			query[i] = ABBREVIATIONS[word]
+		elif word in COMMON_WORDS:
+			query[i] = ''
+		elif word in NUM_MAPPING:
+			query[i] = NUM_MAPPING[word]
 
-	return query 
+	query = filter(lambda x: x, set(query))
+
+	return ' '.join(query)
 
 def create_tags(title, subject, teacher):
 	"""Returns a list of tags given the inputs."""
@@ -91,16 +96,25 @@ def get_rankings(query, index):
 def search(school, query):
 	'''Returns search results'''
 	index = get_index(school)
-	if not index:
-		# if no entries for that school
+	if not index: # if no entries for that school
 		return None
 	query = filt_query(query)
 	rankings = get_rankings(query, index)
 
-	# sort rankings, convert to list of tuples
-	rankings = sorted(rankings.iteritems(), key=operator.itemgetter(1), reverse=True)
-
 	# remove all 0 scores
-	rankings = filter(lambda x: x[1] != 0, rankings)
+	# {key1:rank1, key2:rank2, ...}
+	rankings = {key: rankings[key] for key in rankings if rankings[key] != 0}
 
-	return rankings
+	# list all keys, retrieve guides
+	keys = rankings.keys()
+	guides = Guides.get(keys)
+
+	# adjust scores for votes, save in results list
+	# [(guide1, adj_rank1), (guide2, adj_rank2), ...]
+	results = []
+	for i in range(len(guides)):
+		guide = guides[i]
+		adj_score = rankings[str(guide.key())] + (guide.votes / VOTES_DIVISOR)
+		results.append((guide, adj_score))
+	
+	return sorted(results, key=lambda x: x[1], reverse=True)

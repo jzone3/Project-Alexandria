@@ -51,7 +51,6 @@ class Bookmarks(db.Model):
 	user         = db.ReferenceProperty(Users, collection_name='bookmarks_set')
 	guide        = db.ReferenceProperty(Guides)
 
-
 class Feedback(db.Model):
 	content      = db.TextProperty(required = True)
 	origin       = db.StringProperty(required = True)

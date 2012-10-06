@@ -15,10 +15,14 @@
 <div class="container">
 	<div class="well">
 		<center>
-			<h1>Search Results</h1>
-		</center>
+		<h2 style="margin-bottom:18px;"> Search Results </h2>
+		<form method="get" class="form-search">
+			<input type="text" name ="q" class="input-xlarge search-query" value="{{query}}">
+			<button type="submit" class="btn">Search</button>
+		</form>
 		<hr/>
-		{% if results %}
+		</center>
+		{% if guides %}
 		<table class="table-hover">
 			<thead>
 				<tr>
@@ -30,7 +34,7 @@
 				</tr>
 			</thead>
 			<tbody>
-			{% for result in results %}
+			{% for guide in guides %}
 				<tr>
 					<td>
 						<div class="btn-group btn-group btn-group-vertical">
@@ -38,10 +42,10 @@
 							<button class="btn btn-mini"><i class="icon-caret-down"></i></button>
 						</div>
 					</td>
-					<td><a href="/guides/{{ result.url }}">{{ result.title }}</a></td>
-					<td>{{ result.subject }}</td>
-					<td>{{ result.teacher }}</td>
-					<td>{{ result.votes }}</td>
+					<td><a href="/guides/{{ guide.url }}">{{ guide.title }}</a></td>
+					<td>{{ guide.subject }}</td>
+					<td>{{ guide.teacher }}</td>
+					<td>{{ guide.votes }}</td>
 				</tr>
 			{% endfor %}
 			</tbody>
