@@ -317,7 +317,12 @@ class UserPageHandler(BaseHandler):
 class UploadHandler(BaseHandler):
 	def get(self):
 		if self.logged_in():
-			self.render('upload.html')
+			school = get_school(self.get_username())
+			q = Subjects.all().filter('school =', school).get()
+			subjects = map(lambda x: x.encode('ascii', 'ignore'), q.subjects_list)
+			q = Teachers.all().filter('school =', school).get()
+			teachers = map(lambda x: x.encode('ascii', 'ignore'), q.teachers_list)
+			self.render('upload.html', {'subjects':subjects, 'teachers':teachers})
 		else:
 			self.redirect('/')
 
@@ -523,6 +528,19 @@ class ChangePasswordHandler(BaseHandler):
 				self.render_prefs({'username' : username, 'password_success' : True})
 			else:
 				self.render_prefs(results[1])
+		else:
+			self.redirect('/')
+
+class EmailVerificationHandler(BaseHandler):
+	def get(self):
+		self.redirect('/preferences')
+
+	def post(self):
+		if self.logged_in():
+			username = self.get_username()
+			email = self.rget('email')
+			email_verification(username, email)
+			self.render_prefs({'verification_success' : True})
 		else:
 			self.redirect('/')
 
@@ -885,6 +903,7 @@ app = webapp2.WSGIApplication([('/?', MainHandler),
 							   ('/change_email/?', ChangeEmailHandler),
 							   ('/change_school/?', ChangeSchoolHandler),
 							   ('/change_password/?', ChangePasswordHandler),
+							   ('/resend_email/?', EmailVerificationHandler),
 							   ('/delete_account/?', DeleteAccountHandler),
 							   ('/google_signup/?', GoogleSignupHandler),
 							   ('/google_login/?', GoogleLoginHandler),
