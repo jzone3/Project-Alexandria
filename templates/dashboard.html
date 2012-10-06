@@ -20,8 +20,12 @@
 
 			<!-- Tabs -->
 			<ul class="nav nav-tabs" id="dashboard_tabs">
-				<li class="active"><a href="#bookmarks" data-toggle="tab"><i class="icon-bookmark"></i> Bookmarks</a></li>
-				<li><a href="#submitted" data-toggle="tab"><i class="icon-upload-alt"></i> Submitted</a></li>
+				{% if bookmark_list != [] %}
+					<li class="active"><a href="#bookmarks" data-toggle="tab"><i class="icon-bookmark"></i> Bookmarks</a></li>
+					<li><a href="#submitted" data-toggle="tab"><i class="icon-upload-alt"></i> Submitted</a></li>
+				{% else %}
+					<li class="active"><a href="#submitted" data-toggle="tab"><i class="icon-upload-alt"></i> Submitted</a></li>
+				{% endif %}
 				<!-- <li><a href="#inbox" data-toggle="tab"><i class="icon-envelope-alt"></i> Inbox</a></li> -->
 				<form method="get" class="form-search" style="float:right;">
 					<input type="text" name ="q" class="input-xlarge search-query" placeholder="Search All Materials">
@@ -32,6 +36,8 @@
 
 			<!-- Tab Contents -->
 			<div class="tab-content">
+				
+				{% if bookmark_list != [] %}
 				<!-- Tab Bookmarks -->
 				<div class="tab-pane fade active in" id="bookmarks">
 					<div class="row-fluid">
@@ -56,9 +62,14 @@
 					</div>
 				</div>
 				<!-- End Tab Bookmarks -->
+				{% endif %}
 
 				<!-- Tab Submitted -->
-				<div class="tab-pane fade" id="submitted">
+				{% if bookmark_list == [] %}
+					<div class="tab-pane fade active in" id="submitted">
+				{% else %}
+					<div class="tab-pane fade" id="submitted">
+				{% endif %}
 					{% if submitted %}
 						<form class="form-inline" style="float:right;">
 								Sort by:
