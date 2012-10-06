@@ -43,7 +43,8 @@
 				{% if not email_verified %}
 					<h3>Your email (<a href="mailto:{{email}}">{{email}}</a>) is not yet verified!</h3>
 					<form action="/resend_email" method="post">
-						<input type="hidden" name="type" value="resend_email_verification">
+						<!-- <input type="hidden" name="type" value="resend_email_verification"> -->
+						<input type="hidden" name="email" value="{{ email }}">
 						<input type="submit" class="btn btn-primary" value="Resend Verification">
 					</form>
 				{% endif %}
