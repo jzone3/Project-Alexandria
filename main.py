@@ -286,7 +286,10 @@ class GuidePageHandler(BaseHandler):
 		if result:
 			votes = str_votes(result.votes)
 			dl_link = '/serve/' + result.blob_key
-			reported = (username in result.report_users)
+			if username:
+				reported = (username in result.report_users)
+			else:
+				reported = False
 			self.render('guide_page.html', {'result':result, 'votes':votes, 'dl_link':dl_link, 'bookmarked':bookmarked, 
 											'logged_in':self.logged_in(), 'reported':reported})
 		else:
@@ -825,7 +828,7 @@ class ReportHandler(BaseHandler):
 				report_users = [username]
 			guide.report_users = report_users
 
-			if report_users >= 3:
+			if len(report_users) >= 3:
 				guide.locked = True
 
 			guide.put()
