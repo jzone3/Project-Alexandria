@@ -299,7 +299,7 @@ class UserPageHandler(BaseHandler):
 		result = q.get()
 
 		if result:
-			guides = db.GqlQuery("SELECT * FROM Guides WHERE user_created = '" + result.username + "'")
+			guides = Guides.all().filter('user_created =', result.username)
 			count = guides.count()
 			score = str_votes(result.score)
 			grade = str_grade(result.grade)
@@ -401,7 +401,8 @@ class AddBookmarkHandler(BaseHandler):
 			#check to make sure user doesnt have a duplicate bookmark
 			bookmarks = Bookmarks.all();
 			bookmarks.filter('user =', current_user)
-			temp_guide = (db.GqlQuery("SELECT * FROM Guides WHERE blob_key = '" + blob_key.replace("'", "&lsquo;") + "'")).get()
+			temp_guide = Guides.all().filter('blob_key =', blob_key).get()
+			
 			bookmarks.filter('guide =', temp_guide)
 			if bookmarks.count() == 0:
 				temp_bookmark = Bookmarks(user=current_user, guide=temp_guide)
@@ -419,7 +420,8 @@ class RemoveBookmarkHandler(BaseHandler):
 			# check to make sure user has bookmark
 			bookmarks = Bookmarks.all();
 			bookmarks.filter('user =', current_user)
-			temp_guide = (db.GqlQuery("SELECT * FROM Guides WHERE blob_key = '" + blob_key.replace("'", "&lsquo;") + "'")).get()
+			temp_guide = Guides.all().filter('blob_key =', blob_key).get()
+	
 			bookmarks.filter('guide =', temp_guide)
 			if bookmarks.count() != 0:
 				bookmarks.get().delete()
