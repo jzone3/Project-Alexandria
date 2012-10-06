@@ -541,6 +541,19 @@ class ChangePasswordHandler(BaseHandler):
 		else:
 			self.redirect('/')
 
+class EmailVerificationHandler(BaseHandler):
+	def get(self):
+		self.redirect('/preferences')
+
+	def post(self):
+		if self.logged_in():
+			username = self.get_username()
+			email = self.rget('email')
+			email_verification(username, email)
+			self.render_prefs({'verification_success' : True})
+		else:
+			self.redirect('/')
+
 class DeleteAccountHandler(BaseHandler):
 	def get(self):
 		if self.logged_in():
@@ -894,6 +907,7 @@ app = webapp2.WSGIApplication([('/?', MainHandler),
 							   ('/change_email/?', ChangeEmailHandler),
 							   ('/change_school/?', ChangeSchoolHandler),
 							   ('/change_password/?', ChangePasswordHandler),
+							   ('/resend_email/?', EmailVerificationHandler),
 							   ('/delete_account/?', DeleteAccountHandler),
 							   ('/google_signup/?', GoogleSignupHandler),
 							   ('/google_login/?', GoogleLoginHandler),

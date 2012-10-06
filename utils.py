@@ -12,6 +12,7 @@ import externals.ayah
 from google.appengine.ext import db
 from google.appengine.ext import blobstore
 from google.appengine.api import memcache
+from google.appengine.api import mail
 
 import secret
 from database import *
@@ -247,6 +248,7 @@ def signup(username='', password='', verify='', school='', year='', agree='', hu
 				cookie = LOGIN_COOKIE_NAME + '=%s|%s; Expires=%s Path=/' % (str(username), hash_str(username), remember_me())
 				to_return['cookie'] = cookie
 				to_return['success'] = True
+				email_verification(username, email)
 	return to_return
 
 def signup_ext(username='', school='', year='', agree='', email=''):
@@ -346,6 +348,23 @@ def delete_user_account(username):
 	user = db.GqlQuery("SELECT * FROM Users WHERE username = '" + username.replace("'", "&lsquo;") + "'")
 	for i in user:
 		i.delete()
+
+def email_verification(username, email):
+	body = """
+	%s,
+
+	To verify your email please click this link (or copy and paste it into your browser): %s
+	If you did not make an account on Project Alexandria click this link: %s
+
+	NOTE: Links expire in 2 hours
+	""" % (username, 'http://google.com', 'http://google.com')
+	# body_html = body
+	mail.send_mail(sender="Project Alexandria <info@projectalexa.com>",
+						to="%s <%s>" % (username, email),
+						subject="Email Verification",
+						body=body,
+						# html=body_html
+						)
 
 ############################### file handling functions ###############################
 
