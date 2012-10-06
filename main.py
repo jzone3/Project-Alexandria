@@ -317,7 +317,12 @@ class UserPageHandler(BaseHandler):
 class UploadHandler(BaseHandler):
 	def get(self):
 		if self.logged_in():
-			self.render('upload.html')
+			school = get_school(self.get_username())
+			q = Subjects.all().filter('school =', school).get()
+			subjects = map(lambda x: x.encode('ascii', 'ignore'), q.subjects_list)
+			q = Teachers.all().filter('school =', school).get()
+			teachers = map(lambda x: x.encode('ascii', 'ignore'), q.teachers_list)
+			self.render('upload.html', {'subjects':subjects, 'teachers':teachers})
 		else:
 			self.redirect('/')
 

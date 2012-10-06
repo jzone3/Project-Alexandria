@@ -81,13 +81,13 @@ application/msword,application/vnd.openxmlformats-officedocument.wordprocessingm
 				
 	        	<div class="row">
 					<div class="span2">Subject</div>
-					<div class="span4"><input class="input-xlarge" type="text" name="subject" value="{{subject}}" placeholder="e.g. AP Calculus BC"></div>
+					<div class="span4"><input id="subject_box" class="input-xlarge" type="text" name="subject" data-provide="typeahead" value="{{subject}}" placeholder="e.g. AP Calculus BC"></div>
 					<div class="alert alert-error span4" {% if not subject_error %}style="display: none;"{% endif %}>{{subject_error}}</div>
 				</div>
 				
 	        	<div class="row">
 					<div class="span2">Teacher</div>
-					<div class="span4"><input class="input-xlarge" type="text" name="teacher" value="{{teacher}}" placeholder="Just the last name"></div>
+					<div class="span4"><input id="teacher_box" class="input-xlarge" type="text" name="teacher" data-provide="typeahead" value="{{teacher}}" placeholder="Just the last name"></div>
 					<div class="alert alert-error span4" {% if not teacher_error %}style="display: none;"{% endif %}>{{teacher_error}}</div>
 				</div>
 				
@@ -105,7 +105,34 @@ application/msword,application/vnd.openxmlformats-officedocument.wordprocessingm
 					</div>
 				</div>
 			</form>
-			<script> $('.tooltips').tooltip() </script>
+			<script>
+			
+				checkFunction = function(item) {
+					alert('hi');
+					/*
+					return true;
+					var itemAr = item.split(" ");
+					var i;
+					for (i = 0; i < itemAr.length; i++) {
+						if (itemAr[i].indexOf(this.query) == 0) return true;
+					}
+					return false;
+					*/
+					return true;
+				}
+				
+			
+				$('.tooltips').tooltip();
+				subject_array = [];
+				teacher_array = [];
+				{% for i in subjects %} subject_array.push('"{{ i }}"'); {% endfor %}
+				{% for i in teachers %} teacher_array.push('"{{ i }}"'); {% endfor %}
+				alert(subject_array+"");
+				$('#subject_box').attr('data-source', "[" + subject_array + "]");
+				//$('#subject_box').attr('data-matcher', checkFunction);
+				$('#teacher_box').attr('data-source', "[" + teacher_array + "]");
+				//$('#teacher_box').attr('data-matcher', checkFunction);
+			</script>
 		</div> 
 	</div>
 {% endblock %}
