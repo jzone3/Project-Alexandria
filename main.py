@@ -122,7 +122,7 @@ class BaseHandler(webapp2.RequestHandler):
 		school = self.get_school_cookie()
 		if 'school' in params.keys():
 			del params['school']
-		new_params = {'email' : email, 'email_verified' : email_verified, 'school' : school}
+		new_params = {'email':email, 'email_verified':email_verified, 'school':school}
 		all_params = dict(new_params)
 		all_params.update(params)
 		self.render('prefs.html', all_params)
@@ -205,7 +205,7 @@ class MainHandler(BaseHandler):
 				add_school(school)
 				self.set_cookie(results['cookie'])
 				self.set_school_cookie(school)
-				self.redirect('/dashboard')
+				self.redirect('/dashboard?tour=True')
 			else:
 				self.render('index.html', {'username': username,
 										   'school': school,
@@ -231,6 +231,7 @@ class LogoutHandler(BaseHandler):
 		self.delete_cookie(LOGIN_COOKIE_NAME)
 		self.delete_cookie('ACSID')
 		self.delete_cookie('school')
+		self.set_cookie('tour_current_step=0')
 		self.redirect('/')
 
 class GuidesHandler(BaseHandler):
@@ -269,8 +270,9 @@ class DashboardHandler(BaseHandler):
 
 		# first log in tour
 		tour = False
-		if 'signup' in self.request.headers['referer']:
+		if self.rget('tour') == 'True':
 			tour = True
+
 
 		if self.logged_in():
 			user = get_user(self.get_username())
@@ -345,7 +347,6 @@ class UploadHandler(BaseHandler):
 				params['teachers'] = map(lambda x: x.encode('ascii', 'ignore'), q.teachers_list)
 				
 			self.render('upload.html', params)
-
 		else:
 			self.redirect('/')
 
@@ -647,7 +648,7 @@ class ExternalSignUp(BaseHandler):
 				self.set_cookie(cookie)
 				#set school cookie
 				self.set_school_cookie(school)
-				self.redirect('/dashboard')
+				self.redirect('/dashboard?tour=True')
 			else:
 				self.render('external_signup.html', {'username_error':result.get('username'),
 													 'school_error':result.get('school'),

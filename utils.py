@@ -243,10 +243,23 @@ def signup(username='', password='', verify='', school='', year='', agree='', hu
 				salt = make_salt()
 				hashed = salted_hash(password, salt)
 				hashed_pass = hashed + '|' + salt
+
 				account = Users(username = username.replace("'", "&lsquo;"), password = hashed_pass, school = school, grade = int(year), score = 0, confirmed = False, email = email)
 				account.put()
+				#put welcome notification
 				notification = Notification(username=username, is_new=True, name="welcome")
 				notification.put()
+
+				# make initial bookmarks
+				top_guides = get_top_guides(school)
+				counter = 0
+				if top_guides:
+					for guide in top_guides:
+						if counter == 3: break
+						bookmark = Bookmarks(user=account.key(), guide=guide.key())
+						bookmark.put()
+						counter += 1
+
 				cookie = LOGIN_COOKIE_NAME + '=%s|%s; Expires=%s Path=/' % (str(username), hash_str(username), remember_me())
 				to_return['cookie'] = cookie
 				to_return['success'] = True
@@ -284,8 +297,21 @@ def signup_ext(username='', school='', year='', agree='', email=''):
 		else:
 			account = Users(username = username.replace("'", "&lsquo;"), school = school, grade = int(year), score = 0, confirmed = False, email = email)
 			account.put()
+
+			#put welcome notification
 			notification = Notification(username=username, is_new=True, name="welcome")
 			notification.put()
+
+			# make initial bookmarks
+			top_guides = get_top_guides(school)
+			counter = 0
+			if top_guides:
+				for guide in top_guides:
+					if counter == 3: break
+					bookmark = Bookmark(user=account.key(), guide=guide.key())
+					bookmark.put()
+					counter += 1
+
 			cookie = LOGIN_COOKIE_NAME + '=%s|%s; Expires=%s Path=/' % (str(username), hash_str(username), remember_me())
 			to_return['cookie'] = cookie
 			to_return['success'] = True
