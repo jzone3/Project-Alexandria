@@ -4,7 +4,7 @@
 	<li class="active"><a href="#">Home</a></li>
 	<li><a href="/guides">Guides</a></li>
 	{% if signed_in %}
-		<li><a href="/upload">Upload</a></li>
+		<li><a id="uploadlink" href="/upload">Upload</a></li>
 	{% endif %}
 	<li><a href="/about">About</a></li>
 	<li><a href="/contact">Contact</a></li>
@@ -14,32 +14,31 @@
 	<div class="container">
 		<div class="well">
 			<center>
-				<h1>Dashboard</h1>
+				<h1 id="dashboard">Dashboard</h1>
 			</center>
 			<br/>
-
 			<!-- Tabs -->
 			<ul class="nav nav-tabs" id="dashboard_tabs">
-				{% if bookmark_list != [] %}
-					<li class="active"><a href="#bookmarks" data-toggle="tab"><i class="icon-bookmark"></i> Bookmarks</a></li>
-					<li><a href="#submitted" data-toggle="tab"><i class="icon-upload-alt"></i> Submitted</a></li>
-				{% else %}
-					<li class="active"><a href="#submitted" data-toggle="tab"><i class="icon-upload-alt"></i> Submitted</a></li>
-				{% endif %}
+					<li class="active" id="bookmarktab"><a href="#bookmarks" id="bookmarklink" data-toggle="tab"><i class="icon-bookmark"></i> Bookmarks</a></li>
+					<li id="submittedtab"><a href="#submitted" id="submittedlink" data-toggle="tab"><i class="icon-upload-alt"></i> Submitted</a></li>
 				<!-- <li><a href="#inbox" data-toggle="tab"><i class="icon-envelope-alt"></i> Inbox</a></li> -->
 				<form method="get" class="form-search" style="float:right;">
-					<input type="text" name ="q" class="input-xlarge search-query" placeholder="Search All Materials">
+					<input type="text" id="search" name ="q" class="input-xlarge search-query" placeholder="Search All Materials">
 					<button type="submit" class="btn">Search</button>
 				</form>
 			</ul>
 			<!-- End Tabs -->
 
 			<!-- Tab Contents -->
-			<div class="tab-content">
-				
-				{% if bookmark_list != [] %}
+			<div class="tab-content">				
 				<!-- Tab Bookmarks -->
 				<div class="tab-pane fade active in" id="bookmarks">
+					{% if not bookmark_list %}
+					<center>
+						<h2> You have no bookmarked guides! </h2>
+						<h3> <a href="#search" onclick="$('#search').focus()">Search</a> for one or check out our <a href="/guides">guides</a> page </h3>
+					</center>
+					{% endif %}
 					<div class="row-fluid">
 						{% for bookmark in bookmark_list %}
 							<!-- Start a new row every 3 span4's -->
@@ -57,19 +56,13 @@
 									<div><em>{{ bookmark.guide.votes }} Votes</em></div>
 								</span>
 							</div>
-
 						{% endfor %}
 					</div>
 				</div>
 				<!-- End Tab Bookmarks -->
-				{% endif %}
 
 				<!-- Tab Submitted -->
-				{% if bookmark_list == [] %}
-					<div class="tab-pane fade active in" id="submitted">
-				{% else %}
-					<div class="tab-pane fade" id="submitted">
-				{% endif %}
+				<div class="tab-pane fade" id="submitted">
 					{% if submitted %}
 						<form class="form-inline" style="float:right;">
 								Sort by:
@@ -140,4 +133,60 @@
 	});
 	
 	</script>
+	
+	{% if tour %}
+		<script src="/static/js/jquery.cookie.js"></script>
+		<script src="/static/js/bootstrap-tour.js"></script>
+		<script type="text/javascript">
+		jQuery(function($) {
+			var tour = new Tour();
+			tour.addStep({
+			  element: "#navbarlogo", /* html element next to which the step popover should be shown */
+			  title: "<h5 style=\"font-size:17px;margin:3px;\">Welcome to Project Alexandria!</h5>", /* title of the popover */
+			  content: "<span style=\"font-size:13px;\">We'll show you around! If you'd like to skip the tour, just click \"End Tour\" whenever.</span><hr style=\"margin-top: 1px;margin-bottom: -15px;border-top:0;border-bottom:0;\">", /* content of the popover */
+			  placement: "bottom"
+			});
+			tour.addStep({
+			  element: "#dashboard", /* html element next to which the step popover should be shown */
+			  title: "<h5 style=\"font-size:17px;margin:3px;\">This is your dashboard.</h5>", /* title of the popover */
+			  content: "<span style=\"font-size:13px;\">You'll see this page when you log in. From here, you can quickly find your bookmarks and keep track of your submitted guides.</span><hr style=\"margin-top: 1px;margin-bottom: -15px;border-top:0;border-bottom:0;\">", /* content of the popover */
+			  placement: "bottom"
+			});
+			tour.addStep({
+			  element: "#bookmarktab", /* html element next to which the step popover should be shown */
+			  onShow: function (tour) {$('#bookmarklink').click()},
+			  title: "<h5 style=\"font-size:17px;margin:3px;\"><i class=\"icon-bookmark\"></i> These are your bookmarks </h5>", /* title of the popover */
+			  content: "<span style=\"font-size:13px;\">To easily keep track of a study guide, just bookmark it and it'll show up here. We've added some of our top guides automatically for you! Click the &times; to delete it.</span><hr style=\"margin-top: 1px;margin-bottom: -15px;border-top:0;border-bottom:0;\">", /* content of the popover */
+			  placement: "bottom"
+			});
+			tour.addStep({
+			  element: "#submittedtab", /* html element next to which the step popover should be shown */
+			  onShow: function (tour) {$('#submittedlink').click()},
+			  title: "<h5 style=\"font-size:17px;margin:3px;\"><i class=\"icon-upload-alt\"></i> These are your submissions </h5>", /* title of the popover */
+			  content: "<span style=\"font-size:13px;\">Once you upload a guide, we'll add it to the Submitted tab. You can easily keep track of how many upvotes or downloads you have here.</span><hr style=\"margin-top: 1px;margin-bottom: -15px;border-top:0;border-bottom:0;\">", /* content of the popover */
+			  placement: "bottom"
+			});
+			tour.addStep({
+			  element: "#indicator", /* html element next to which the step popover should be shown */
+			  title: "<h5 style=\"font-size:17px;margin:3px;\"> Notifications </h5>", /* title of the popover */
+			  content: "<span style=\"font-size:13px;\">See this blue glowing dot? This means you have a new notification. Click it later to check what's new!</span><hr style=\"margin-top: 1px;margin-bottom: -15px;border-top:0;border-bottom:0;\">", /* content of the popover */
+			  placement: "bottom",
+			});
+			tour.addStep({
+			  element: "#uploadlink", /* html element next to which the step popover should be shown */
+			  title: "<h5 style=\"font-size:17px;margin:3px;\"> Upload a guide </h5>", /* title of the popover */
+			  content: "<span style=\"font-size:13px;\">Click here to upload a guide. You can directly upload from Dropbox, Google Docs, Evernote, and your computer.</span><hr style=\"margin-top: 1px;margin-bottom: -15px;border-top:0;border-bottom:0;\">", /* content of the popover */
+			  placement: "bottom"
+			});
+			tour.addStep({
+			  element: "#navuser", /* html element next to which the step popover should be shown */
+			  title: "<h5 style=\"font-size:17px;margin:3px;\"> We're done, {{username}}! </h5>", /* title of the popover */
+			  content: "<span style=\"font-size:13px;\">This is the end of the tour! Check out the <a href=\"about\">FAQ</a> if you have more questions.</span><hr style=\"margin-top: 1px;margin-bottom: -15px;border-top:0;border-bottom:0;\">", /* content of the popover */
+			  placement: "bottom"
+			});
+			tour.start(true);
+		});
+
+		</script>
+	{% endif %}
 {% endblock %}

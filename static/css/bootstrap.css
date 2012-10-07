@@ -3680,7 +3680,7 @@ a.thumbnail:hover {
   left: 0;
   z-index: 1010;
   display: none;
-  width: 236px;
+  width: 300px;
   padding: 1px;
   background-color: #ffffff;
   -webkit-background-clip: padding-box;
@@ -4840,4 +4840,23 @@ div.sticky-footer a:hover{
 .removebtn:hover{
   color:gray;
   text-decoration:none;
+}
+.next{
+  position:relative;
+  font-size:11px;
+}
+
+.prev{
+  position:relative;
+  font-size:11px;
+}
+
+.end{
+  position: relative;
+  font-size: 11px;
+}
+
+.popover-title{
+  font-weight: 800;
+  text-align: center;
 }

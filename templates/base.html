@@ -72,27 +72,30 @@ background-position: 50% 0px;">
 		<div class="navbar navbar-inverse navbar-fixed-top">
 			<div class="navbar-inner">
 				<div class="container">
-					<!-- Compress Nav Bar Info -->
-					<a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-						<span class="icon-bar"></span>
-						<span class="icon-bar"></span>
-						<span class="icon-bar"></span>
-					</a>
-					<!-- End Compress Nav Bar Info -->
-					<a class="brand logo" href="/" style="font-weight:900;background:black;padding-left: 14px;padding-right: 19px;margin-right: 4px;">&nbsp;Project Alexandria</a>
+					<a class="brand logo" id="navbarlogo" href="/" style="font-weight:900;background:black;padding-left: 14px;padding-right: 19px;margin-right: 4px;">&nbsp;Project Alexandria</a>
 					<div class="nav-collapse collapse">
 						<ul class="nav">
 							{% block nav_links %}{% endblock %}
 						</ul>
 						<ul class="nav pull-right">
-							{% if signed_in %}	
+							{% if signed_in %}
+								{% if notification %}
 								<li>
-									<a href="#" id="target" title="Notifications" style="padding:0px;margin-top:5px;" rel="popover" data-content="New comment on <a href='#'>Integrals</a><br>New message from <a href='#'>jzone3</a>" data-original-title="Notifications" data-placement="bottom">
+									<a href="#" id="target" title="Notifications" style="padding:0px;margin-top:5px;" rel="popover" data-content="<span style='font-family:Junge;'>Hey {{username}}!<br><br> We hope you love using Project Alexandria as much as we loved building it. This is a community-based site so make sure to upload or help edit study guides! Feel free to <a href='\contact'>contact us</a> if you have any questions.<br><br>-The PA Team</span>" data-original-title="Notifications" data-placement="bottom">
     									<img src="/static/img/spot.png" alt="" class="indicator" id="indicator" />
+    									<!--[if !IE]><!-->
     									<span id="pulse"></span>
+    									<!--<![endif]-->
 									</a>
-								<li>			
-					<script>$("a[rel=popover]").popover();</script>		
+								<li>
+								{% else %}
+								<li>
+									<a href="#" id="target" title="Notifications" style="padding:0px;margin-top:5px;" rel="popover" data-content="<span style='font-family:Junge;'>Hey {{username}}!<br><br> We hope you love using Project Alexandria as much as we loved building it. This is a community-based site so make sure to upload or help edit study guides! Feel free to <a href='\contact'>contact us</a> if you have any questions.<br><br>-The PA Team</span>" data-original-title="Notifications" data-placement="bottom">
+    									<img src="/static/img/spotbw.png" alt="" class="indicator" id="indicator" />
+									</a>
+								<li>		
+								{% endif %}	
+								<script>$("a[rel=popover]").popover();</script>		
 								<li><a id="navwelcome">Welcome,</a></li>
 			                    <li id="fat-menu" class="dropdown">
 			                      	<a href="#" id="navuser" role="button" class="dropdown-toggle" data-toggle="dropdown">{{ username }}</a>
@@ -325,18 +328,20 @@ background-position: 50% 0px;">
 		$('#target').click(function (e) {
 			if ($('#indicator').attr('src') == '/static/img/spot.png'){
 				$("#indicator").attr('src',"/static/img/spotbw.png");
-				$("#pulse").hide();		      		
-			} else {
-				$("#indicator").attr('src',"/static/img/spot.png");
-				$("#pulse").show();			      		
-			}		
-		})
+				$("#pulse").hide();				
+				$.ajax({
+					type:'POST',
+		    		url:'/notifications',
+		    		data:'username=' + '{{ username }}',
+    			});	      		
+			}
+	});
 	</script>
 
 	<!-- Notificaiton close script -->
 	<script type="text/javascript">
-	jQuery("#target").click(function(){ return false; });
-	jQuery(document).one("click", function() { jQuery("#target").popover('hide'); });
+		jQuery("#target").click(function(){ return false; });
+		jQuery(document).one("click", function() { jQuery("#target").popover('hide'); });
 	</script>
 	<script> $('.tooltips').tooltip() </script>
 </body>

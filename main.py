@@ -71,6 +71,15 @@ class BaseHandler(webapp2.RequestHandler):
 		params['signed_in'] = self.logged_in()
 		if params['signed_in']:
 			params['username'] = self.get_username()
+
+			# check for notifications
+			q = Notification.all()
+			q.filter('username =', params['username'])
+			q.filter('is_new =', True)
+			notification = q.get()
+			if notification:
+				params['notification'] = notification
+
 		else:
 			# get schools list for typeahead
 			params['all_schools'] = self.get_schools_list()
@@ -196,7 +205,7 @@ class MainHandler(BaseHandler):
 				add_school(school)
 				self.set_cookie(results['cookie'])
 				self.set_school_cookie(school)
-				self.redirect('/')	
+				self.redirect('/dashboard')
 			else:
 				self.render('index.html', {'username': username,
 										   'school': school,
@@ -258,10 +267,17 @@ class DashboardHandler(BaseHandler):
 		if self.rget('q'):
 			self.redirect('/search?q=' + self.rget('q'))
 
+		# first log in tour
+		tour = False
+		if 'signup' in self.request.headers['referer']:
+			tour = True
+
 		if self.logged_in():
 			user = get_user(self.get_username())
 			bookmark_list=list(user.bookmarks_set)
-			self.render('dashboard.html', {'bookmark_list' : bookmark_list, 'submitted' : get_submitted(self.get_username())})
+			self.render('dashboard.html', {'bookmark_list':bookmark_list, 
+										   'submitted':get_submitted(self.get_username()), 
+										   'tour':tour})
 		else:
 			self.redirect('/')
 
@@ -318,11 +334,18 @@ class UploadHandler(BaseHandler):
 	def get(self):
 		if self.logged_in():
 			school = get_school(self.get_username())
+			params = dict()
+
 			q = Subjects.all().filter('school =', school).get()
-			subjects = map(lambda x: x.encode('ascii', 'ignore'), q.subjects_list)
+			if q:
+				params['subjects'] = map(lambda x: x.encode('ascii', 'ignore'), q.subjects_list)
+
 			q = Teachers.all().filter('school =', school).get()
-			teachers = map(lambda x: x.encode('ascii', 'ignore'), q.teachers_list)
-			self.render('upload.html', {'subjects':subjects, 'teachers':teachers})
+			if q:
+				params['teachers'] = map(lambda x: x.encode('ascii', 'ignore'), q.teachers_list)
+				
+			self.render('upload.html', params)
+
 		else:
 			self.redirect('/')
 
@@ -448,8 +471,6 @@ class NotFoundHandler(BaseHandler):
 	def get(self):
 		self.error(404)
 		self.render('404.html',{'blockbg':True})
-
-
 
 class SearchHandler(BaseHandler):
 	def get(self):
@@ -626,7 +647,7 @@ class ExternalSignUp(BaseHandler):
 				self.set_cookie(cookie)
 				#set school cookie
 				self.set_school_cookie(school)
-				self.redirect('/')
+				self.redirect('/dashboard')
 			else:
 				self.render('external_signup.html', {'username_error':result.get('username'),
 													 'school_error':result.get('school'),
@@ -863,6 +884,17 @@ class VoteHandler(BaseHandler):
 		# IMPLEMENT: only allow user to vote once
 		response = vote(blob_key, vote_type, username)
 
+class NotificationHandler(BaseHandler):
+	def post(self):
+		username = self.rget('username')
+		q = Notification.all()
+		q.filter('username =', username)
+		q.filter('is_new =', True)
+		notif = q.get()
+		if notif:
+			notif.is_new = False
+			notif.put()
+
 ### static pages ###
 
 class AboutHandler(BaseHandler):
@@ -917,5 +949,6 @@ app = webapp2.WSGIApplication([('/?', MainHandler),
 							   ('/addbookmark/?', AddBookmarkHandler),
 							   ('/removebookmark/?', RemoveBookmarkHandler),
 							   ('/report/?', ReportHandler),
+							   ('/notifications/?', NotificationHandler),
 							   ('/.*', NotFoundHandler),
 							   ], debug=True)

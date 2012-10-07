@@ -245,6 +245,8 @@ def signup(username='', password='', verify='', school='', year='', agree='', hu
 				hashed_pass = hashed + '|' + salt
 				account = Users(username = username.replace("'", "&lsquo;"), password = hashed_pass, school = school, grade = int(year), score = 0, confirmed = False, email = email)
 				account.put()
+				notification = Notification(username=username, is_new=True, name="welcome")
+				notification.put()
 				cookie = LOGIN_COOKIE_NAME + '=%s|%s; Expires=%s Path=/' % (str(username), hash_str(username), remember_me())
 				to_return['cookie'] = cookie
 				to_return['success'] = True
@@ -282,6 +284,8 @@ def signup_ext(username='', school='', year='', agree='', email=''):
 		else:
 			account = Users(username = username.replace("'", "&lsquo;"), school = school, grade = int(year), score = 0, confirmed = False, email = email)
 			account.put()
+			notification = Notification(username=username, is_new=True, name="welcome")
+			notification.put()
 			cookie = LOGIN_COOKIE_NAME + '=%s|%s; Expires=%s Path=/' % (str(username), hash_str(username), remember_me())
 			to_return['cookie'] = cookie
 			to_return['success'] = True

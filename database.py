@@ -78,3 +78,9 @@ class Subject_Teachers(db.Model):
 class Indexes(db.Model):
 	school = db.StringProperty(required = True)
 	index  = JsonProperty()
+
+class Notification(db.Model):
+	username     = db.StringProperty(required = True)
+	is_new       = db.BooleanProperty(required = True)
+	name         = db.StringProperty(required = False)
+	notification = db.StringProperty(required = False)
