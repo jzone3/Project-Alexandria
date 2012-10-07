@@ -293,6 +293,7 @@ class GuidePageHandler(BaseHandler):
 		q.filter('url =', url.lower())
 		result = q.get()
 		bookmarked = False
+		username = ''
 		if self.logged_in():
 			username = self.get_username()
 			user = get_user(username)
