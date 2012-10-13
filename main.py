@@ -276,7 +276,7 @@ class DashboardHandler(BaseHandler):
 
 		if self.logged_in():
 			user = get_user(self.get_username())
-			bookmark_list=list(user.bookmarks_set)
+			bookmark_list=list(user.bookmarks_list)
 			self.render('dashboard.html', {'bookmark_list':bookmark_list, 
 										   'submitted':get_submitted(self.get_username()), 
 										   'tour':tour})
@@ -296,7 +296,7 @@ class GuidePageHandler(BaseHandler):
 		if self.logged_in():
 			username = self.get_username()
 			user = get_user(username)
-			for bookmark in user.bookmarks_set:
+			for bookmark in user.bookmarks_list:
 				if bookmark.guide.blob_key == result.blob_key:
 					bookmarked = True
 		
