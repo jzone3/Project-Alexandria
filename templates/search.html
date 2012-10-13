@@ -47,9 +47,26 @@
 					<td>{{ guide.teacher }}</td>
 					<td>{{ guide.votes }}</td>
 				</tr>
+				{% if loop.index is divisibleby 4 %}
+					</tdbody>
+					</table>
+					<!-- <tr>
+						<td> -->
+							<br/><br/>
+							<img src="http://placedog.com/1100/150">
+							<br/><br/>
+						<!-- </td>
+					</tr> -->
+					<table class="table-hover">
+					<tdbody>
+				{% endif %}
 			{% endfor %}
 			</tbody>
 		</table>
+			{% if guides|length < 4 %}
+				<br/><br/>
+				<img src="http://placedog.com/1100/150">
+			{% endif %}
 		{% else %}
 		<center><h3>No results found.</h3></center>
 		{% endif %}
