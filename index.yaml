@@ -44,6 +44,12 @@ indexes:
 
 - kind: Guides
   properties:
+  - name: teacher
+  - name: date_created
+    direction: desc
+
+- kind: Guides
+  properties:
   - name: user_created
   - name: date_created
     direction: desc

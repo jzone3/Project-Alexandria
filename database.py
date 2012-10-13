@@ -43,6 +43,7 @@ class Guides(db.Model):
 	school       = db.StringProperty(required = True)
 	url          = db.StringProperty(required = True)
 	date_created = db.DateTimeProperty(auto_now_add = True)
+	icon         = db.StringProperty(required = True)
 	users_voted  = JsonProperty()
 	locked       = db.BooleanProperty(required = True)
 	report_users = db.StringListProperty(required = True)
@@ -84,3 +85,7 @@ class Notification(db.Model):
 	is_new       = db.BooleanProperty(required = True)
 	name         = db.StringProperty(required = False)
 	notification = db.StringProperty(required = False)
+
+class SubjectIcons(db.Model):
+	subject = db.StringProperty(required = True)
+	icon    = db.StringProperty(required = True)
