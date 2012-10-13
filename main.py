@@ -273,7 +273,6 @@ class DashboardHandler(BaseHandler):
 		if self.rget('tour') == 'True':
 			tour = True
 
-
 		if self.logged_in():
 			user = get_user(self.get_username())
 			bookmark_list=list(user.bookmarks_set)
@@ -405,10 +404,22 @@ class UploadHandler(BaseHandler):
 			# construct url for guide page
 			url = get_url(filename, username)
 
+			# setting icon for guide
+			icon = memcache.get('icon-'+subject)
+			if not icon: # if icon not in memcache
+				q = SubjectIcons.all()
+				q.filter('subject =', subject)
+				si = q.get()
+				if not si: # if icon not in db
+					icon = 'backpack' ##! change to default icon later
+				else:
+					icon = si.icon
+
 			# add guide to db
 			guide = Guides(user_created=username, title=title, subject=subject,
-				   teacher=teacher, tags=tags, blob_key=str(blob_key),
-				   votes=0, edit_url=edit_url, school=school, url=url, locked=False, report_users=[])
+				   		   teacher=teacher, tags=tags, blob_key=str(blob_key),
+				   		   votes=0, edit_url=edit_url, school=school, url=url, 
+				   		   locked=False, report_users=[], icon=icon)
 			guide.put()
 
 			# add subject, teacher to db
