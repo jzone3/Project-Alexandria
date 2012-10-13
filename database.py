@@ -49,7 +49,7 @@ class Guides(db.Model):
 	report_users = db.StringListProperty(required = True)
 
 class Bookmarks(db.Model):
-	user         = db.ReferenceProperty(Users, collection_name='bookmarks_list')
+	user         = db.ReferenceProperty(Users, collection_name='bookmark_list')
 	guide        = db.ReferenceProperty(Guides)
 
 class Feedback(db.Model):
