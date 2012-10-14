@@ -25,6 +25,9 @@ SCHOOL_RE= re.compile(r"^[a-zA-Z0-9 _]{1,30}$")
 PAGE_RE = r'(/(?:[a-zA-Z0-9_-]+/?)*)'
 LOGIN_COOKIE_NAME = 'uohferrvnksj'
 
+GET_USER = db.GqlQuery("SELECT * FROM Users WHERE username = :username LIMIT 1")
+GET_USER_GUIDES = db.GqlQuery("SELECT * FROM Guides WHERE user_created = :username ORDER BY date_created DESC")
+
 ############################### misc. functions ###############################
 
 def str_votes(votes):
@@ -71,7 +74,7 @@ def save_feedback(content, origin):
 
 def add_submitted(username, blob_key):
 	cached_items = memcache.get(username + '_submitted')
-	submission = db.GqlQuery("SELECT * FROM Guides WHERE blob_key = '" + blob_key + "'").get()
+	submission = db.GqlQuery("SELECT * FROM Guides WHERE blob_key = :blob_key", blob_key=blob_key).get()
 	if not cached_items is None:
 		new_guide = [{'title' : submission.title, 'subject' : submission.subject, 'votes' : submission.votes, 'date_created' : submission.date_created}]
 		try:
@@ -84,19 +87,15 @@ def get_submitted(username):
 	from_cache = memcache.get(username + '_submitted')
 	to_return = []
 	if from_cache is None:
-		guides = db.GqlQuery("SELECT * FROM Guides WHERE user_created = '" + username.replace("'", "&lsquo;") + "' ORDER BY date_created DESC").get()
+		GET_USER_GUIDES.bind(username = username)
+		guides = GET_USER_GUIDES
 		logging.error(username + '_submitted db read')
-		if guides is None:
-			return []
-		elif isinstance(guides, Guides):
-			to_return.append({'title' : guides.title, 'subject' : guides.subject, 'votes' : guides.votes, 'date_created' : guides.date_created, 'blob_key' : guides.blob_key})
-		else:
-			for submission in guides:
-				to_return.append({'title' : submission.title, 'subject' : submission.subject, 'votes' : submission.votes, 'date_created' : submission.date_created, 'blob_key' : submission.blob_key})
+		for submission in guides:
+			to_return.append({'title' : submission.title, 'subject' : submission.subject, 'votes' : submission.votes, 'date_created' : submission.date_created, 'blob_key' : submission.blob_key})
 		memcache.set(username + '_submitted', [x['blob_key'] for x in to_return])
 	else:
 		for submission in from_cache:
-			guide = db.GqlQuery("SELECT * FROM Guides WHERE blob_key = '" + submission.replace("'", "&lsquo;") + "' LIMIT 1").get()
+			guide = db.GqlQuery("SELECT * FROM Guides WHERE blob_key = :submission LIMIT 1", submission = submission).get()
 			to_return.append({'title' : guide.title, 'subject' : guide.subject, 'votes' : guide.votes, 'date_created' : guide.date_created, 'blob_key' : submission})
 
 	return to_return
@@ -104,7 +103,9 @@ def get_submitted(username):
 def get_submitted_guide_names(username):
 	to_return = memcache.get(username + '_submitted')
 	if to_return is None:
-		guides = db.GqlQuery("SELECT * FROM Guides WHERE user_created = '" + username.replace("'", "&lsquo;") + "' ORDER BY date_created DESC")
+		GET_USER_GUIDES.bind(username = username)
+		guides = GET_USER_GUIDES
+		# guides = db.GqlQuery("SELECT * FROM Guides WHERE user_created = '" + username.replace("'", "&lsquo;") + "' ORDER BY date_created DESC")
 		logging.error(username + '_submitted db read')
 		to_return = []
 		for submission in guides:
@@ -134,8 +135,8 @@ def get_error(results, error):
 		return None
 
 def get_user(username):
-	user = (db.GqlQuery("SELECT * FROM Users WHERE username = '" + username.replace("'", "&lsquo;") + "'")).get()
-	return user
+	GET_USER.bind(username = username)
+	return GET_USER.get()
 
 def get_school(username):
 	'''gets school from db from username'''
@@ -148,13 +149,14 @@ def get_school(username):
 		return None
 
 def unique_email(email):
-	accounts = (db.GqlQuery("SELECT * FROM Users WHERE email = '" + email.replace("'", "&lsquo;") + "'")).get()
+	accounts = (db.GqlQuery("SELECT * FROM Users WHERE email = :email", email = email)).get()
 	if accounts is None:
 		return True
 	return False
 
 def unique_username(username):
-	accounts = (db.GqlQuery("SELECT * FROM Users WHERE username = '" + username.replace("'", "&lsquo;") + "'")).get()
+	GET_USER.bind(username = username)
+	accounts = GET_USER.get()
 	if accounts:
 		return False
 	return True
@@ -171,7 +173,9 @@ def check_login(username, password):
 	correct = False
 
 	if username != '' and password != '':
-		accounts = db.GqlQuery("SELECT * FROM Users WHERE username = '" + username.replace("'", "&lsquo;") + "'")
+		GET_USER.bind(username = username)
+		accounts = GET_USER.get()
+		# accounts = db.GqlQuery("SELECT * FROM Users WHERE username = '" + username.replace("'", "&lsquo;") + "'")
 		logging.error("DB QUERY - check_login()")
 		accounts = accounts.get()
 		if accounts is None:
@@ -245,7 +249,7 @@ def signup(username='', password='', verify='', school='', year='', agree='', hu
 				hashed = salted_hash(password, salt)
 				hashed_pass = hashed + '|' + salt
 
-				account = Users(username = username.replace("'", "&lsquo;"), password = hashed_pass, school = school, grade = int(year), score = 0, confirmed = False, email = email)
+				account = Users(username = username, password = hashed_pass, school = school, grade = int(year), score = 0, confirmed = False, email = email)
 				account.put()
 				#put welcome notification
 				notification = Notification(username=username, is_new=True, name="welcome")
@@ -297,7 +301,8 @@ def signup_ext(username='', school='', year='', agree='', email=''):
 		elif not unique_email(email):
 			to_return['email'] = "Email already exits!"
 		else:
-			account = Users(username = username.replace("'", "&lsquo;"), school = school, grade = int(year), score = 0, confirmed = False, email = email)
+			# username.replace("'", "&lsquo;")
+			account = Users(username = username, school = school, grade = int(year), score = 0, confirmed = False, email = email)
 			account.put()
 
 			#put welcome notification
@@ -379,7 +384,8 @@ def change_password(old, new, verify, username):
 		return [False, {'current_password_error' : 'Incorrect current password'}]
 
 def delete_user_account(username):
-	user = db.GqlQuery("SELECT * FROM Users WHERE username = '" + username.replace("'", "&lsquo;") + "'")
+	GET_USER.bind(username = username)
+	user = GET_USER
 	for i in user:
 		i.delete()
 
@@ -387,7 +393,7 @@ def delete_user_account(username):
 ############################### email verification ###############################
 
 def deleted_old_links():
-	links = db.GqlQuery("SELECT * FROM Email_Verification WHERE username = * ORDER BY DESC")
+	links = db.GqlQuery("SELECT * FROM Email_Verification ORDER BY DESC")
 	for i in links:
 		if datetime.datetime.now() >= i.date_created + datetime.timedelta(hours=3):
 			i.delete()
