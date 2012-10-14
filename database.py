@@ -48,9 +48,6 @@ class Guides(db.Model):
 	up_users   = db.StringListProperty()
 	down_users = db.StringListProperty()
 
-	## will be deprecated ##
-	locked       = db.BooleanProperty(required = False)
-	users_voted  = JsonProperty()
 
 class Bookmarks(db.Model):
 	user  = db.ReferenceProperty(Users, collection_name='bookmark_list')
