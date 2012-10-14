@@ -535,6 +535,30 @@ def upload_errors(title, subject, teacher, editable, headers):
 
 last_refresh = {}
 
+from database import *
+from django.utils import simplejson
+
+def delete_guide(guide_key):
+	# delete guide
+	guide = Guides.get(guide_key)
+	school = guide.school
+	db.delete(guide_key)
+
+	# delete from bookmarks
+	bookmarks = list(guide.bookmarks_set)
+	for bookmark in bookmarks:
+	    bk_key = bookmark.key()
+	    db.delete(bk_key)
+
+	# delete from index
+	q = Indexes.all()
+	q.filter('school =', school)
+	index = q.get()
+	py_index = simplejson.loads(index.index)
+	del(py_index[str(guide_key)])
+	index.index = simplejson.dumps(py_index)
+	index.put()
+
 def get_top_guides(school=None, page=0):
 	global last_refresh
 	if page >= 5: # 5 is max number of memcache'd pages
