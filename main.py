@@ -162,7 +162,6 @@ class BaseHandler(webapp2.RequestHandler):
 		self.set_school_cookie(school)
 		return school
 
-
 class MainHandler(BaseHandler):
 	'''Handles homepage: index.html and dashboard.html'''
 	def get(self):
@@ -430,8 +429,8 @@ class UploadHandler(BaseHandler):
 			# add guide to db
 			guide = Guides(user_created=username, title=title, subject=subject,
 				   		   teacher=teacher, tags=tags, blob_key=str(blob_key),
-				   		   votes=0, edit_url=edit_url, school=school, url=url, 
-				   		   locked=False, report_users=[], icon=icon)
+				   		   edit_url=edit_url, school=school, url=url, icon=icon,
+				   		   votes=0, up_users=[], down_users=[])
 			guide.put()
 
 			# add subject, teacher to db
@@ -447,44 +446,6 @@ class UploadHandler(BaseHandler):
 			key = str(guide.key())
 			add_to_index(school, key, tags)
 			self.redirect('/guides/' + url)
-
-class AddBookmarkHandler(BaseHandler):
-	def get(self):
-		self.redirect('/')
-		
-	def post(self):
-		if self.logged_in():
-			
-			blob_key = self.rget('id')
-			current_user = get_user(self.get_username());
-			#check to make sure user doesnt have a duplicate bookmark
-			bookmarks = Bookmarks.all();
-			bookmarks.filter('user =', current_user)
-			temp_guide = Guides.all().filter('blob_key =', blob_key).get()
-			
-			bookmarks.filter('guide =', temp_guide)
-			if bookmarks.count() == 0:
-				temp_bookmark = Bookmarks(user=current_user, guide=temp_guide)
-				temp_bookmark.put()
-		#self.redirect('/guides')
-		
-class RemoveBookmarkHandler(BaseHandler):
-	def get(self):
-		self.redirect('/')
-		
-	def post(self):
-		if self.logged_in():
-			blob_key = self.rget('id')
-			current_user = get_user(self.get_username())
-			# check to make sure user has bookmark
-			bookmarks = Bookmarks.all();
-			bookmarks.filter('user =', current_user)
-			temp_guide = Guides.all().filter('blob_key =', blob_key).get()
-	
-			bookmarks.filter('guide =', temp_guide)
-			if bookmarks.count() != 0:
-				bookmarks.get().delete()
-			self.response.out.write("done")
 		
 class ServeHandler(blobstore_handlers.BlobstoreDownloadHandler):
 	def get(self, resource):
@@ -567,7 +528,7 @@ class ChangePasswordHandler(BaseHandler):
 	def post(self):
 		if self.logged_in():
 			username = self.get_username()
-			old_password, new_password, verify_new_password= [self.rget(x) for x in ['current_password', 'new_password', 'verify_new_password']]
+			old_password, new_password, verify_new_password = [self.rget(x) for x in ['current_password', 'new_password', 'verify_new_password']]
 			results = change_password(old_password, new_password, verify_new_password, username)
 			if results[0]:
 				self.set_cookie(results[1])
@@ -612,10 +573,6 @@ class DeleteAccountHandler(BaseHandler):
 				self.render('/delete_account')
 		else:
 			self.redirect('/')
-
-class GoogleSignupHandler(BaseHandler):
-    def get(self):
-        self.redirect(users.create_login_url("/ext_signup"))
 
 class GoogleLoginHandler(BaseHandler):
 	'''Handles google login: /google_login'''
@@ -685,49 +642,89 @@ class ExternalSignUp(BaseHandler):
 		else:
 			self.redirect('/google_signup')
 
-class TeachersHandler(BaseHandler):
-	'''receives AJAX request for the second page on guides->teacher'''
+### purely backend handlers ###
+
+class AddBookmarkHandler(BaseHandler):
+	def get(self):
+		self.redirect('/')
+		
 	def post(self):
-		teacher = self.rget('teacher')
-		school = self.get_school_cookie()
-		subjects = get_subjects_for_teacher(school, teacher)
+		if self.logged_in():
+			
+			blob_key = self.rget('id')
+			current_user = get_user(self.get_username());
+			#check to make sure user doesnt have a duplicate bookmark
+			bookmarks = Bookmarks.all();
+			bookmarks.filter('user =', current_user)
+			temp_guide = Guides.all().filter('blob_key =', blob_key).get()
+			
+			bookmarks.filter('guide =', temp_guide)
+			if bookmarks.count() == 0:
+				temp_bookmark = Bookmarks(user=current_user, guide=temp_guide)
+				temp_bookmark.put()
+		#self.redirect('/guides')
 
-		# construct return HTML
-		html = """
-		<ul class="breadcrumb">
-		  <li><a href="#" onclick="teachtoggle1()">Teachers</a> <span class="divider">/</span></li>
-		  <li class="active">%s</li>		  
-		</ul>
-		<ul>"""%teacher
+class GoogleSignupHandler(BaseHandler):
+    def get(self):
+        self.redirect(users.create_login_url("/ext_signup"))
 
-		# script must be initialized AFTER the html is in place, so we send it through AJAX
-		script = """
-		<script>
-		$('.teachers2').click(function (e) {
-      		subject = this.id;
-      		$('#'+subject+'load2').show()
-      		e.preventDefault();
-      		$.ajax({
-	            type:'POST', 
-	            url:'/teachers2', 
-	            data:'subject=' + subject + '&teacher=%s', 
-	            success: function(response) {
-	            	$('#'+teacher+'load2').hide()
-	            	$('#teacherlist2').hide();
-	            	$('#teacherlist3').html(response);
-	            	$('#teacherlist3').show();                
-	            }
-        	});
-      	})
+class NotificationHandler(BaseHandler):
+	def post(self):
+		username = self.rget('username')
+		q = Notification.all()
+		q.filter('username =', username)
+		q.filter('is_new =', True)
+		notif = q.get()
+		if notif:
+			notif.is_new = False
+			notif.put()
 
-		</script>
-		"""%teacher
+class RemoveBookmarkHandler(BaseHandler):
+	def get(self):
+		self.redirect('/')
+		
+	def post(self):
+		if self.logged_in():
+			blob_key = self.rget('id')
+			current_user = get_user(self.get_username())
+			# check to make sure user has bookmark
+			bookmarks = Bookmarks.all();
+			bookmarks.filter('user =', current_user)
+			temp_guide = Guides.all().filter('blob_key =', blob_key).get()
+	
+			bookmarks.filter('guide =', temp_guide)
+			if bookmarks.count() != 0:
+				bookmarks.get().delete()
+			self.response.out.write("done")
 
-		for subject in subjects:
-			html += '<li><a href="#" class="teachers2" id="%s">'%subject + subject + '</a>&nbsp;&nbsp;<img src="../static/img/ajax-loader.gif" id="%sload2" style="display:none;"/></li>'%subject
+class ReportHandler(BaseHandler):
+	''' Handles users reporting guides '''
+	def post(self):
+		blob_key = self.rget('blob_key')
+		username = self.get_username()
+		if get_user(username):
+			q = Guides.all()
+			q.filter('blob_key =', blob_key)
+			guide = q.get()
 
-		# send this html back to jquery/ajax
-		self.write(html+'</li>'+script)
+			report_users = guide.report_users
+			if report_users and username not in report_users:
+				report_users.append(username)
+			else:
+				report_users = [username]
+			guide.report_users = report_users
+
+			if len(report_users) >= 3:
+				guide.locked = True
+				### Jared, put a notification here ###
+
+			guide.put()
+
+		else:
+			self.write('An error occured.')
+			return
+
+		self.write('Reported. Thank you!')
 
 class SubjectsHandler(BaseHandler):
 	'''receives AJAX request for the second page on guides->subject'''
@@ -769,6 +766,97 @@ class SubjectsHandler(BaseHandler):
 
 		for teacher in teachers:
 			html += '<li><a href="#" class="subjects2" id="%s">'%teacher + teacher + '</a>&nbsp;&nbsp;<img src="../static/img/ajax-loader.gif" id="%sload2" style="display:none;"/></li>'%teacher
+
+		# send this html back to jquery/ajax
+		self.write(html+'</li>'+script)
+
+class SubjectsHandler2(BaseHandler):
+	'''receives AJAX request for the third page on guides->subject'''
+	def post(self):
+		teacher = self.rget('teacher')
+		subject = self.rget('subject')
+
+		school = self.get_school_cookie()
+		results = find_guides_ts(school, teacher, subject)
+
+		# construct return HTML
+		html = """
+		<ul class="breadcrumb">
+		  <li><a href="#" onclick="subtoggle2()">Subjects</a> <span class="divider">/</span></li>
+		  <li><a href="#" onclick="subtoggle3()">%s</a> <span class="divider">/</span></li>
+		  <li class="active">%s</li>		  
+		</ul>
+		<table class="table-hover">
+			<thead>
+				<tr>
+					<th>&nbsp;</th>
+					<th>Title</th>
+					<th>Subject</th>
+					<th>Teacher</th>
+					<th>Votes</th>
+				</tr>
+			</thead>
+			<tbody>
+			"""% (subject, teacher)
+
+		for result in results:
+			html += """<tr>
+					<td>
+						<div class="btn-group btn-group btn-group-vertical">
+							<button class="btn btn-mini"><i class="icon-caret-up"></i></button>
+							<button class="btn btn-mini"><i class="icon-caret-down"></i></button>
+						</div></td>"""
+
+			html += """<td><a href="/guides/%s">%s</a></td>"""%(result.url, result.title)
+			html += """<td>%s</td>"""%result.subject
+			html += """<td>%s</td>"""%result.teacher
+			html += """<td>%s</td>"""%result.votes
+			html += """</tr>"""
+
+		html += """</tbody></table>"""
+		# send this html back to jquery/ajax	
+		self.write(html)
+		
+class TeachersHandler(BaseHandler):
+	'''receives AJAX request for the second page on guides->teacher'''
+	def post(self):
+		teacher = self.rget('teacher')
+		school = self.get_school_cookie()
+		subjects = get_subjects_for_teacher(school, teacher)
+
+		# construct return HTML
+		html = """
+		<ul class="breadcrumb">
+		  <li><a href="#" onclick="teachtoggle1()">Teachers</a> <span class="divider">/</span></li>
+		  <li class="active">%s</li>		  
+		</ul>
+		<ul>"""%teacher
+
+		# script must be initialized AFTER the html is in place, so we send it through AJAX
+		script = """
+		<script>
+		$('.teachers2').click(function (e) {
+      		subject = this.id;
+      		$('#'+subject+'load2').show()
+      		e.preventDefault();
+      		$.ajax({
+	            type:'POST', 
+	            url:'/teachers2', 
+	            data:'subject=' + subject + '&teacher=%s', 
+	            success: function(response) {
+	            	$('#'+teacher+'load2').hide()
+	            	$('#teacherlist2').hide();
+	            	$('#teacherlist3').html(response);
+	            	$('#teacherlist3').show();                
+	            }
+        	});
+      	})
+
+		</script>
+		"""%teacher
+
+		for subject in subjects:
+			html += '<li><a href="#" class="teachers2" id="%s">'%subject + subject + '</a>&nbsp;&nbsp;<img src="../static/img/ajax-loader.gif" id="%sload2" style="display:none;"/></li>'%subject
 
 		# send this html back to jquery/ajax
 		self.write(html+'</li>'+script)
@@ -820,83 +908,6 @@ class TeachersHandler2(BaseHandler):
 		# send this html back to jquery/ajax	
 		self.write(html)
 
-class SubjectsHandler2(BaseHandler):
-	'''receives AJAX request for the third page on guides->subject'''
-	def post(self):
-		teacher = self.rget('teacher')
-		subject = self.rget('subject')
-
-		school = self.get_school_cookie()
-		results = find_guides_ts(school, teacher, subject)
-
-		# construct return HTML
-		html = """
-		<ul class="breadcrumb">
-		  <li><a href="#" onclick="subtoggle2()">Subjects</a> <span class="divider">/</span></li>
-		  <li><a href="#" onclick="subtoggle3()">%s</a> <span class="divider">/</span></li>
-		  <li class="active">%s</li>		  
-		</ul>
-		<table class="table-hover">
-			<thead>
-				<tr>
-					<th>&nbsp;</th>
-					<th>Title</th>
-					<th>Subject</th>
-					<th>Teacher</th>
-					<th>Votes</th>
-				</tr>
-			</thead>
-			<tbody>
-			"""% (subject, teacher)
-
-		for result in results:
-			html += """<tr>
-					<td>
-						<div class="btn-group btn-group btn-group-vertical">
-							<button class="btn btn-mini"><i class="icon-caret-up"></i></button>
-							<button class="btn btn-mini"><i class="icon-caret-down"></i></button>
-						</div></td>"""
-
-			html += """<td><a href="/guides/%s">%s</a></td>"""%(result.url, result.title)
-			html += """<td>%s</td>"""%result.subject
-			html += """<td>%s</td>"""%result.teacher
-			html += """<td>%s</td>"""%result.votes
-			html += """</tr>"""
-
-		html += """</tbody></table>"""
-		# send this html back to jquery/ajax	
-		self.write(html)
-
-class ReportHandler(BaseHandler):
-	''' Handles users reporting guides '''
-	def post(self):
-		blob_key = self.rget('blob_key')
-		username = self.get_username()
-		if get_user(username):
-			q = Guides.all()
-			q.filter('blob_key =', blob_key)
-			guide = q.get()
-
-			report_users = guide.report_users
-			if report_users and username not in report_users:
-				report_users.append(username)
-			else:
-				report_users = [username]
-			guide.report_users = report_users
-
-			if len(report_users) >= 3:
-				guide.locked = True
-				### Jared, put a notification here ###
-
-			guide.put()
-
-		else:
-			self.write('An error occured.')
-			return
-
-		self.write('Reported. Thank you!')
-
-
 class VoteHandler(BaseHandler):
 	def get(self):
 		self.error(404)
@@ -910,17 +921,6 @@ class VoteHandler(BaseHandler):
 		response = vote(key, vote_type, username)
 
 		self.write(response)
-
-class NotificationHandler(BaseHandler):
-	def post(self):
-		username = self.rget('username')
-		q = Notification.all()
-		q.filter('username =', username)
-		q.filter('is_new =', True)
-		notif = q.get()
-		if notif:
-			notif.is_new = False
-			notif.put()
 
 ### static pages ###
 
