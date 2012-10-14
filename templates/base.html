@@ -315,7 +315,7 @@
 	<script>
 	$('.bglink').click(function() {
 		var id = $(this).attr('id');
-		$.cookie('bg', id)
+		$.cookie('bg', id, {path:'/'});
 		if (id == 'bg1' || id == 'i3'){
 			$('body').css({'background-image':'url(/static/img/'+ id +'.jpg)'})		
 		} else if (id=='ti2') {
