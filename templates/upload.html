@@ -80,7 +80,10 @@ application/msword,application/vnd.openxmlformats-officedocument.wordprocessingm
 				</div>
 				
 	        	<div class="row">
-					<div class="span2">Subject</div>
+					<div class="span2">
+						Subject
+						<a rel="tooltip" data-placement="right" title="Be specific!<br/>Instead of 'History' write 'World History'" class="tooltips"><i class="icon-question-sign"></i></a>
+					</div>
 					<div class="span4"><input id="subject_box" class="input-xlarge" type="text" name="subject" data-provide="typeahead" value="{{subject}}" placeholder="e.g. AP Calculus BC"></div>
 					<div class="alert alert-error span4" {% if not subject_error %}style="display: none;"{% endif %}>{{subject_error}}</div>
 				</div>
