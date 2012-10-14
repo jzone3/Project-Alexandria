@@ -306,7 +306,7 @@ class GuidePageHandler(BaseHandler):
 		result = q.get()
 		bookmarked = False
 		username = ''
-		if self.logged_in():
+		if self.logged_in() and result:
 			username = self.get_username()
 			user = get_user(username)
 			for bookmark in user.bookmark_list:
