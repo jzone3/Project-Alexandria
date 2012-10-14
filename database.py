@@ -36,25 +36,26 @@ class Guides(db.Model):
 	title        = db.StringProperty(required = True)
 	subject      = db.StringProperty(required = True)
 	teacher      = db.StringProperty(required = True)
-	tags         = db.StringListProperty(required = True)
-	blob_key     = db.StringProperty(required = True)
-	votes        = db.IntegerProperty(required = True) 
-	edit_url     = db.StringProperty(required = False)
 	school       = db.StringProperty(required = True)
-	url          = db.StringProperty(required = True)
-	date_created = db.DateTimeProperty(auto_now_add = True)
+	blob_key     = db.StringProperty(required = True) # url for download
+	edit_url     = db.StringProperty(required = False) # url for google doc
+	url          = db.StringProperty(required = True) # url for guide page
+	tags         = db.StringListProperty(required = True)
 	icon         = db.StringProperty(required = True)
-	users_voted  = JsonProperty()
-	locked       = db.BooleanProperty(required = True)
 	report_users = db.StringListProperty(required = True)
+	date_created = db.DateTimeProperty(auto_now_add = True)
+	votes      = db.IntegerProperty(required = True)
+	up_users   = db.StringListProperty()
+	down_users = db.StringListProperty()
+
 
 class Bookmarks(db.Model):
-	user         = db.ReferenceProperty(Users, collection_name='bookmarks_set')
-	guide        = db.ReferenceProperty(Guides)
+	user  = db.ReferenceProperty(Users, collection_name='bookmark_list')
+	guide = db.ReferenceProperty(Guides)
 
 class Feedback(db.Model):
-	content      = db.TextProperty(required = True)
-	origin       = db.StringProperty(required = True)
+	content = db.TextProperty(required = True)
+	origin  = db.StringProperty(required = True)
 
 class Teachers(db.Model):
 	school        = db.StringProperty(required = True)

@@ -264,6 +264,7 @@ def signup(username='', password='', verify='', school='', year='', agree='', hu
 				to_return['cookie'] = cookie
 				to_return['success'] = True
 				email_verification(username, email)
+
 	return to_return
 
 def signup_ext(username='', school='', year='', agree='', email=''):
@@ -466,30 +467,32 @@ def upload_errors(title, subject, teacher, editable, headers):
 
 last_refresh = {}
 
-def get_top_guides(school=None):
+def get_top_guides(school=None, page=0):
 	global last_refresh
-	if str(school) in last_refresh.keys():
+	if page >= 5: # 5 is max number of memcache'd pages
+		results = list(top_guides_from_db(school, page))
+	elif str(school) in last_refresh.keys():
 		if time.time() > last_refresh[str(school)] + 900:
 			last_refresh[str(school)] = time.time()
-			results = list(top_guides_from_db(school))
-			memcache.set(str(school) + '-top_guides', results)
+			results = list(top_guides_from_db(school, page))
+			memcache.set(str(school) + '-top_guides-' + str(page), results)
 		else:
-			results = memcache.get(str(school) + '-top_guides')
+			results = memcache.get(str(school) + '-top_guides-' + str(page))
 			if results is None:
-				results = list(top_guides_from_db(school))
-				memcache.set(str(school) + '-top_guides', results)
+				results = list(top_guides_from_db(school, page))
+				memcache.set(str(school) + '-top_guides-' + str(page), results)
 	else:
 		last_refresh[str(school)] = time.time()
-		results = list(top_guides_from_db(school))
-		memcache.set(str(school) + '-top_guides', results)
+		results = list(top_guides_from_db(school, page))
+		memcache.set(str(school) + '-top_guides-' + str(page), results)
 	return results
 
-def top_guides_from_db(school):
+def top_guides_from_db(school, page=0):
 	q = Guides.all()
 	if school: # i.e. if user is logged in (school cookie)
 		q.filter('school =', school)
 	q.order('-votes')
-	results = q.run(limit=25)
+	results = q.run(limit=25, offset=page*25)
 
 	# logging
 	if school:
@@ -621,37 +624,41 @@ def find_guides_ts(school, teacher, subject):
 
 ############################### voting functions ###############################
 
-def vote(blob_key, vote_type, username):
+def vote(key, vote_type, username):
 	if username == "":
 		return False
 
-	submission = db.GqlQuery("SELECT * FROM Guides WHERE blob_key = '" + blob_key.replace("'", "&lsquo;") + "'").get()
-	if submission.users_voted:
-		voted_json = simplejson.loads(str(submission.users_voted))
-	else:
-		voted_json = {}
+	guide = Guides.get(key)
 
+	# calculate vote difference
 	if vote_type == 'up':
-		if username in voted_json.keys():
-			already_voted = voted_json[username]
-			if already_voted == 'down':
-				submission.votes += 2
-				voted_json[username] = 'up'
+		if username in guide.up_users:
+			return False
+		elif username in guide.down_users:
+			diff = 2
+			guide.down_users.remove(username)
 		else:
-			voted_json[username] = 'up'
-			submission.votes += 1
+			diff = 1
 	elif vote_type == 'down':
-		if username in voted_json.keys():
-			already_voted = voted_json[username]
-			if already_voted == 'up':
-				submission.votes -= 2
-				voted_json[username] = 'down'
+		if username in guide.down_users:
+			return False
+		elif username in guide.up_users:
+			diff = -2
+			guide.up_users.remove(username)
 		else:
-			voted_json[username] = 'down'
-			submission.votes += 1
+			diff = -1
 	else:
 		return False
-	submission.users_voted = simplejson.dumps(voted_json)
-	last_refresh[str(submission.school)] = 0
+
+	# record changes in guide
+	guide.votes += diff
+	if diff > 0:
+		guide.up_users.append(username)
+	else:
+		guide.down_users.append(username)
+	guide.put()
+
+	last_refresh[str(guide.school)] = 0
 	last_refresh['None'] = 0
-	submission.put()
+
+	return diff
