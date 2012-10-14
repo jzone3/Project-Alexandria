@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Email Verification Mistake{% endblock %}
+{% block nav_links %}
+	<li><a href="/">Home</a></li>
+	<li><a href="/guides">Guides</a></li>
+	{% if signed_in %}
+		<li><a href="/upload">Upload</a></li>
+	{% endif %}
+	<li><a href="/about">About</a></li>
+	<li><a href="/contact">Contact</a></li>
+{% endblock %}
+
+{% block page_content %}
+	<div class="container">
+		<div class="well">
+			<h1 align="center">We are sorry about that!</h1><h2 align="center">Your email address has been removed from our records</h2>
+			<hr>
+			<h3 align="center">While you're here, why not <a href="/">look around</a></h3>
+			<br/>
+			<div algin="center">
+				<form class="form" method="get" action="/search">
+					<input type="text" name="q" id="search" class="input-xlarge search-query" placeholder="Search for any study guide">
+					<button type="submit" class="btn btn-primary"><i class="icon-search"></i></button>
+				</form>
+			</div>
+		</div>
+	</div>
+{% endblock %}

@@ -25,6 +25,7 @@ import gdata.docs.data
 from google.appengine.api import files
 from google.appengine.api import urlfetch
 from google.appengine.api import users
+from google.appengine.api import datastore_errors
 from google.appengine.ext import blobstore
 from google.appengine.ext.webapp import blobstore_handlers
 from google.appengine.ext.webapp.util import run_wsgi_app
@@ -110,7 +111,7 @@ class BaseHandler(webapp2.RequestHandler):
 				email = None
 		else:
 			email = params['email']
-			del params['email']
+			del params['email']		
 
 		if not 'email_verified' in params.keys():
 			try:
@@ -323,8 +324,13 @@ class GuidePageHandler(BaseHandler):
 			self.render('guide_page.html', {'result':result, 'votes':votes, 'dl_link':dl_link, 'bookmarked':bookmarked, 
 											'logged_in':self.logged_in(), 'reported':reported})
 		else:
-			self.error(404)
-			self.render('404.html', {'blockbg':True})
+			site = url.lower().split('/')
+			if site[0] != 'null':
+				logging.error(site[0])
+				self.get('/null/' + site[1])
+			else:
+				self.error(404)
+				self.render('404.html', {'blockbg':True})
 
 class UserPageHandler(BaseHandler):
 	'''Handlers custom user pages: user_page.html'''
@@ -539,7 +545,7 @@ class ChangePasswordHandler(BaseHandler):
 		else:
 			self.redirect('/')
 
-class EmailVerificationHandler(BaseHandler):
+class ResendEmailVerificationHandler(BaseHandler):
 	def get(self):
 		self.redirect('/preferences')
 
@@ -551,6 +557,30 @@ class EmailVerificationHandler(BaseHandler):
 			self.render_prefs({'verification_success' : True})
 		else:
 			self.redirect('/')
+
+class EmailVerificationHandler(BaseHandler):
+	def get(self, key):
+		try:
+			if verify(key):
+				self.render('email_verified.html')
+			else:
+				self.error(404)
+				self.render('404.html', {'blockbg':True})
+		except datastore_errors.BadKeyError:
+			self.error(404)
+			self.render('404.html', {'blockbg':True})
+
+class DeleteEmailVerification(BaseHandler):
+	def get(self, key):
+		try:
+			if deleted(key):
+				self.render('email_deleted.html')
+			else:
+				self.error(404)
+				self.render('404.html', {'blockbg':True})
+		except datastore_errors.BadKeyError:
+			self.error(404)
+			self.render('404.html', {'blockbg':True})
 
 class DeleteAccountHandler(BaseHandler):
 	def get(self):
@@ -961,9 +991,11 @@ app = webapp2.WSGIApplication([('/?', MainHandler),
 							   ('/preferences/?', PreferencesHandler),
 							   ('/search', SearchHandler),	
 							   ('/change_email/?', ChangeEmailHandler),
+							   ('/verify/([^/]+)?', EmailVerificationHandler),
+							   ('/delete_email/([^/]+)?', DeleteEmailVerification),
 							   ('/change_school/?', ChangeSchoolHandler),
 							   ('/change_password/?', ChangePasswordHandler),
-							   ('/resend_email/?', EmailVerificationHandler),
+							   ('/resend_email/?', ResendEmailVerificationHandler),
 							   ('/delete_account/?', DeleteAccountHandler),
 							   ('/google_signup/?', GoogleSignupHandler),
 							   ('/google_login/?', GoogleLoginHandler),
