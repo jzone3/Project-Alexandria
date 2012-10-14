@@ -11,15 +11,15 @@
 {% endblock %}
 
 {% block blockbg %}
-	<body background="/static/img/bg2.png">
+	<body background="/static/img/bg10.png">
 {% endblock %}
 
 {% block page_content %}
 	<div class="errorblock">
-		<h1>Error: 404</h1>
-		<h3>Sorry, we couldn't find the page you were looking for</h3>
-		<p style="line-height:30px;">Try double-checking the URL or taking a break from studying.</p>
-		<p style="line-height:30px;">Either way, have a nice day! :D</p>
+		<h1 style="color: white;text-shadow: 2px 1px 1px #6B6B6B;font-size: 70px;margin-bottom: 42px;">Error: 404</h1>
+		<p style="text-shadow: 1px 1px 2px #6B6B6B;color:white;margin-bottom:50px;">You broke our site! Just kidding, we couldn't find this page.</p>
+		<p style="text-shadow: 1px 1px 2px #6B6B6B;color:white;font-size:20px;margin-bottom:4px;">There may be a typo in the URL, or this page has been deleted or moved.</p>
+		<p style="text-shadow: 1px 1px 2px #6B6B6B;color:white;font-size:20px;margin-bottom:21px;">Try searching, or contact us if you think this is a bug.</p>
 		<form class="form" method="get" action="/search">
 			<input type="text" name="q" id="search" class="input-xlarge search-query" placeholder="Search for any study guide">
 			<button type="submit" class="btn btn-primary"><i class="icon-search"></i></button>
