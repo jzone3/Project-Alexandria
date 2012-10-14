@@ -35,6 +35,11 @@
 
 				<!-- Top Tab Content -->
 				<div class="tab-pane fade active in" id="top">
+					<script>
+					function tiphide (){
+						$('this').tooltip('hide');
+					}					
+					</script>
 					<h2>Top Guides</h2>
 					<br />
 					<table class="table-hover">
@@ -55,7 +60,7 @@
 									<td>
 										<div class="btn-group btn-group btn-group-vertical answer" data-toggle="buttons-radio" id="{{ guide.key() }}">
 											<button class="btn btn-mini vote up"><i class="icon-caret-up"></i></button>
-											<span rel="tooltip" id="tip_{{ guide.key()}}"class="tooltips" title="You already voted for this guide." data-placement="right" style="float:right;"></span>
+											<span rel="tooltip" id="tip_{{ guide.key()}}" class="tooltips" title="You already voted for this guide. <a href='#' class='tiplink' onclick=&quot;$('#tip_{{guide.key()}}').tooltip('hide')&quot;>&times;</a>" data-placement="right" style="float:right;"></span>
 											<button class="btn btn-mini vote down"><i class="icon-caret-down"></i></button>											
 										</div>
 									</td>
@@ -70,9 +75,6 @@
 						</tbody>
 					</table>
 				</div>
-				<script>
-					$('.tooltips').tooltip();
-				</script>
 				<!-- End Top Tab Content -->
 
 				<!-- Subject Tab Content -->
@@ -139,7 +141,20 @@
 		    url:'/vote', 
 		    data:'id=' + id + '&type=' + vote_type + '&username=' + "{{ username }}",
 		    success: function(response) {
-				alert('voted');			        
+				if (response == 'False') {
+					// if already voted
+					$("#tip_" + id).tooltip('show');
+
+				} else {
+					prev = parseInt($('#votes_' + id).text())
+					after = prev + parseInt(response)
+					$('#votes_' + id).html(str_votes(after))
+					if (vote_type == 'up'){
+						$('#votes_' + id).css({'color':'#14BB14'})
+					} else {
+						$('#votes_' + id).css({'color':'red'})
+					}
+				}		        
 		    }
 		});
 	});

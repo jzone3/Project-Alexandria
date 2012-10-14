@@ -4860,3 +4860,19 @@ div.sticky-footer a:hover{
   font-weight: 800;
   text-align: center;
 }
+
+.tiplink{
+  color: gray;
+  color: gray;
+  font-size: 16px;
+  line-height: 10px;
+  margin-bottom: -12px;
+  position: relative;
+  top: 2px;
+  left: 2px;
+}
+
+.tiplink:hover{
+  color: white;
+  text-decoration: none;
+}

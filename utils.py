@@ -264,6 +264,7 @@ def signup(username='', password='', verify='', school='', year='', agree='', hu
 				to_return['cookie'] = cookie
 				to_return['success'] = True
 				email_verification(username, email)
+
 	return to_return
 
 def signup_ext(username='', school='', year='', agree='', email=''):
@@ -626,33 +627,36 @@ def vote(key, vote_type, username):
 		return False
 
 	guide = Guides.get(key)
-	if guide.users_voted:
-		voted_json = simplejson.loads(str(guide.users_voted))
-	else:
-		voted_json = {}
 
+	# calculate vote difference
 	if vote_type == 'up':
-		if username in voted_json.keys():
-			already_voted = voted_json[username]
-			if already_voted == 'down':
-				guide.votes += 2
-				voted_json[username] = 'up'
+		if username in guide.up_users:
+			return False
+		elif username in guide.down_users:
+			diff = 2
+			guide.down_users.remove(username)
 		else:
-			voted_json[username] = 'up'
-			guide.votes += 1
+			diff = 1
 	elif vote_type == 'down':
-		if username in voted_json.keys():
-			already_voted = voted_json[username]
-			if already_voted == 'up':
-				guide.votes -= 2
-				voted_json[username] = 'down'
+		if username in guide.down_users:
+			return False
+		elif username in guide.up_users:
+			diff = -2
+			guide.up_users.remove(username)
 		else:
-			voted_json[username] = 'down'
-			guide.votes += 1
+			diff = -1
 	else:
 		return False
 
-	guide.users_voted = simplejson.dumps(voted_json)
+	# record changes in guide
+	guide.votes += diff
+	if diff > 0:
+		guide.up_users.append(username)
+	else:
+		guide.down_users.append(username)
+	guide.put()
+
 	last_refresh[str(guide.school)] = 0
 	last_refresh['None'] = 0
-	guide.put()
+
+	return diff
