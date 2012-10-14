@@ -11,6 +11,7 @@
 	<link href='http://fonts.googleapis.com/css?family=Junge' rel='stylesheet' type='text/css'>
 	<script src="/static/js/jquery.js"></script>
 	<script src="/static/js/waypoints.js"></script>
+	<script src="/static/js/jquery.cookie.js"></script>
 	<meta name="google-site-verification" content="SDqbA2YJXxkaqRrfTFZkQ6cti0_wmLrJtGnws1NgyqQ" />
 </head>
 
@@ -18,8 +19,13 @@
 {% if blockbg %}
 	{% block blockbg %}{% endblock %}
 {% else %}
-	<body style="background-image: url(/static/img/wood.jpg);
-background-position: 50% 0px;">
+	{% if bg=='i3' or bg=='bg1' %}
+		<body style="background-image: url(/static/img/{{bg}}.jpg);background-position: 50% 0px;">
+	{% elif bg=='ti2' %}
+		<body style="background-image: url(/static/img/ti2.png);background-position: 50% 0px;background-color:#181818;">
+	{% else %}
+		<body style="background-image: url(/static/img/{{bg}}.png);background-position: 50% 0px;">
+	{% endif %}
 {% endif %}
 <!-- End If Custom Background -->
 
@@ -297,6 +303,26 @@ background-position: 50% 0px;">
 		<a href="/tos" class="footerlinks" style="color:gray;">Terms of Service</a> | 
 		<a href="/team" class="footerlinks" style="color:gray;">Team</a>
 	</div>
+	<div class="sticky-footer bg_switcher" style="color: gray;">
+		<img src="/static/img/thumb1.png" width="40px" id="bg1" class="bglink">
+		<img src="/static/img/thumb2.png" width="40px" id="bg2" class="bglink">
+		<img src="/static/img/thumb3.png" width="40px" id="i3" class="bglink">
+		<img src="/static/img/thumb5.png" width="40px" id="ti2" class="bglink">
+		<img src="/static/img/thumb4.png" width="40px" id="bg4" class="bglink">
+	</div>
+	<script>
+	$('.bglink').click(function() {
+		var id = $(this).attr('id');
+		$.cookie('bg', id)
+		if (id == 'bg1' || id == 'i3'){
+			$('body').css({'background-image':'url(/static/img/'+ id +'.jpg)'})		
+		} else if (id=='ti2') {
+			$('body').css({'background-image':'url(/static/img/ti2.png)', 'background-color':'#181818'})
+		} else {
+			$('body').css({'background-image':'url(/static/img/' + id + '.png)'})
+		}		
+	});
+	</script>
 	<!-- End Footer -->
 
 	{% if signed_in %}

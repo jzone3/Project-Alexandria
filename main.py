@@ -69,6 +69,7 @@ class BaseHandler(webapp2.RequestHandler):
 
 	def render(self, template, params={}):
 		params['signed_in'] = self.logged_in()
+		params['bg'] = self.request.cookies.get('bg', '')
 		if params['signed_in']:
 			params['username'] = self.get_username()
 

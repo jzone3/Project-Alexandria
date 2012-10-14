@@ -4876,3 +4876,24 @@ div.sticky-footer a:hover{
   color: white;
   text-decoration: none;
 }
+
+.bg_switcher{
+  position: absolute;
+  right: 6px;
+  bottom: 36px;
+}
+
+.bg_switcher img{
+  box-shadow: 1px 1px 3px #161616;
+  -webkit-filter: grayscale(0.4);
+
+}
+
+.bg_switcher img:hover{
+  box-shadow: 2px 2px 3px #161616;
+  -webkit-filter: grayscale(0);
+}
+
+.bglink{
+  border-radius:5px;
+}
