@@ -59,7 +59,7 @@
 										</div>
 										&nbsp;&nbsp;
 									</td>
-									<td>{{ loop.index }}</td>
+									<td>{{ loop.index|add:page_offset }}</td>
 									<td><a href="/guides/{{ guide.url }}">{{ guide.title }}</a></td>
 									<td>{{ guide.subject }}</td>
 									<td><a href="/user/{{ guide.user_created }}">{{ guide.user_created }}</a></td>
@@ -67,6 +67,7 @@
 									<td class="score_{{ guide.blob_key }}" id="{{ guide.votes|str_votes }}">{{ guide.votes|str_votes }}</td>
 								</tr>
 							{% endfor %}
+							<a href="guides?page={{ page:add:"1" }}">Next</a>
 						</tbody>
 					</table>
 				</div>

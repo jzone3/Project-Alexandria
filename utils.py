@@ -466,30 +466,32 @@ def upload_errors(title, subject, teacher, editable, headers):
 
 last_refresh = {}
 
-def get_top_guides(school=None):
+def get_top_guides(school=None, page=0):
 	global last_refresh
-	if str(school) in last_refresh.keys():
+	if page >= 5: # 5 is max number of memcache'd pages
+		results = list(top_guides_from_db(school, page))
+	elif str(school) in last_refresh.keys():
 		if time.time() > last_refresh[str(school)] + 900:
 			last_refresh[str(school)] = time.time()
-			results = list(top_guides_from_db(school))
-			memcache.set(str(school) + '-top_guides', results)
+			results = list(top_guides_from_db(school, page))
+			memcache.set(str(school) + '-top_guides-' + page, results)
 		else:
-			results = memcache.get(str(school) + '-top_guides')
+			results = memcache.get(str(school) + '-top_guides-' + page)
 			if results is None:
-				results = list(top_guides_from_db(school))
-				memcache.set(str(school) + '-top_guides', results)
+				results = list(top_guides_from_db(school, page))
+				memcache.set(str(school) + '-top_guides-'+page, results)
 	else:
 		last_refresh[str(school)] = time.time()
-		results = list(top_guides_from_db(school))
-		memcache.set(str(school) + '-top_guides', results)
+		results = list(top_guides_from_db(school, page))
+		memcache.set(str(school) + '-top_guides-' + page, results)
 	return results
 
-def top_guides_from_db(school):
+def top_guides_from_db(school, page=0):
 	q = Guides.all()
 	if school: # i.e. if user is logged in (school cookie)
 		q.filter('school =', school)
 	q.order('-votes')
-	results = q.run(limit=25)
+	results = q.run(limit=25, offset=page*25)
 
 	# logging
 	if school:
