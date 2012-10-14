@@ -621,13 +621,13 @@ def find_guides_ts(school, teacher, subject):
 
 ############################### voting functions ###############################
 
-def vote(blob_key, vote_type, username):
+def vote(key, vote_type, username):
 	if username == "":
 		return False
 
-	submission = db.GqlQuery("SELECT * FROM Guides WHERE blob_key = '" + blob_key.replace("'", "&lsquo;") + "'").get()
-	if submission.users_voted:
-		voted_json = simplejson.loads(str(submission.users_voted))
+	guide = Guides.get(key)
+	if guide.users_voted:
+		voted_json = simplejson.loads(str(guide.users_voted))
 	else:
 		voted_json = {}
 
@@ -635,23 +635,24 @@ def vote(blob_key, vote_type, username):
 		if username in voted_json.keys():
 			already_voted = voted_json[username]
 			if already_voted == 'down':
-				submission.votes += 2
+				guide.votes += 2
 				voted_json[username] = 'up'
 		else:
 			voted_json[username] = 'up'
-			submission.votes += 1
+			guide.votes += 1
 	elif vote_type == 'down':
 		if username in voted_json.keys():
 			already_voted = voted_json[username]
 			if already_voted == 'up':
-				submission.votes -= 2
+				guide.votes -= 2
 				voted_json[username] = 'down'
 		else:
 			voted_json[username] = 'down'
-			submission.votes += 1
+			guide.votes += 1
 	else:
 		return False
-	submission.users_voted = simplejson.dumps(voted_json)
-	last_refresh[str(submission.school)] = 0
+
+	guide.users_voted = simplejson.dumps(voted_json)
+	last_refresh[str(guide.school)] = 0
 	last_refresh['None'] = 0
-	submission.put()
+	guide.put()
