@@ -16,6 +16,7 @@ from google.appengine.api import mail
 
 import secret
 from database import *
+from activation import make_activation_email
 
 USER_RE = re.compile(r"^[a-zA-Z0-9_-]{3,20}$")
 PASS_RE = re.compile(r"^.{3,20}$")
@@ -263,7 +264,7 @@ def signup(username='', password='', verify='', school='', year='', agree='', hu
 				cookie = LOGIN_COOKIE_NAME + '=%s|%s; Expires=%s Path=/' % (str(username), hash_str(username), remember_me())
 				to_return['cookie'] = cookie
 				to_return['success'] = True
-				email_verification(username, email)
+				email_verification(username, email, account.key())
 
 	return to_return
 
@@ -344,7 +345,9 @@ def new_email(email, username):
 
 	user = get_user(username)
 	user.email = email
+	user.email_verified = False
 	user.put()
+	email_verification(username, email)
 	return [True]
 
 def change_password(old, new, verify, username):
@@ -380,22 +383,70 @@ def delete_user_account(username):
 	for i in user:
 		i.delete()
 
+
+############################### email verification ###############################
+
+def deleted_old_links():
+	links = db.GqlQuery("SELECT * FROM Email_Verification WHERE username = * ORDER BY DESC")
+	for i in links:
+		if datetime.datetime.now() >= i.date_created + datetime.timedelta(hours=3):
+			i.delete()
+		else:
+			break
+
+def delete_link(key):
+	links = db.get(key)
+	for i in link:
+		i.delete()
+
+def reset_user_link(username):
+	links = db.GqlQuery("SELECT * FROM Email_Verification WHERE username = :username", username = username)
+	for i in links:
+		i.delete()
+
+def get_unique_link(username):
+	reset_user_link(username)
+	link_row = Email_Verification(username = username)
+	link_row.put()
+	return 'http://projectalexa.com/verify/' + str(link_row.key()), 'http://projectalexa.com/delete_email/' + str(link_row.key())
+
 def email_verification(username, email):
-	body = """
-	%s,
-
-	To verify your email please click this link (or copy and paste it into your browser): %s
-	If you did not make an account on Project Alexandria click this link: %s
-
-	NOTE: Links expire in 2 hours
-	""" % (username, 'http://google.com', 'http://google.com')
-	# body_html = body
+	link, dellink = get_unique_link(username)
+	body, html = make_activation_email(username, link, dellink)
+	logging.error(body)
 	mail.send_mail(sender="Project Alexandria <info@projectalexa.com>",
 						to="%s <%s>" % (username, email),
 						subject="Email Verification",
 						body=body,
-						# html=body_html
+						html=html
 						)
+
+def verify(key):
+	link = db.get(key)
+	if link is None:
+		return False
+	if datetime.datetime.now() >= link.date_created + datetime.timedelta(hours=3):
+		link.delete()
+		return False
+	user = get_user(link.username)
+	if user is None:
+		return False
+	user.email_verified = True
+	user.put()
+	link.delete()
+	return True
+
+def deleted(key):
+	link = db.get(key)
+	if link is None:
+		return False
+	user = get_user(link.username)
+	if user is None:
+		return False
+	user.email = None
+	user.put()
+	link.delete()
+	return True
 
 ############################### file handling functions ###############################
 

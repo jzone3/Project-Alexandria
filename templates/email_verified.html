@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Email Verification{% endblock %}
+{% block nav_links %}
+	<li><a href="/">Home</a></li>
+	<li><a href="/guides">Guides</a></li>
+	{% if signed_in %}
+		<li><a href="/upload">Upload</a></li>
+	{% endif %}
+	<li><a href="/about">About</a></li>
+	<li><a href="/contact">Contact</a></li>
+{% endblock %}
+
+{% block page_content %}
+	<div class="container">
+		<div class="well">
+			<h1 align="center">Your Email Has Been Successfully Verified!</h1>
+			<hr>
+			<br/>
+			<a href="/guides"><img src="http://placedog.com/1000/600" style="margin-left: 65px;"></a> <!-- Not ad, just didn't know what else to put here, maybe a funny picture -->
+
+		</div>
+	</div>
+{% endblock %}

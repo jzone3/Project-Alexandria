@@ -22,14 +22,15 @@ class JsonProperty(db.TextProperty):
 		return super(JsonProperty, self).make_value_from_datastore(value)
 
 class Users(db.Model):
-	username     = db.StringProperty(required = True)
-	school       = db.StringProperty(required = True)
-	grade        = db.IntegerProperty(required = True)
-	score        = db.IntegerProperty(required = True) 
-	confirmed    = db.BooleanProperty(required = True) 
-	password     = db.StringProperty(required = False)
-	date_created = db.DateTimeProperty(auto_now_add = True)
-	email        = db.StringProperty(required = False)
+	username       = db.StringProperty(required = True)
+	school         = db.StringProperty(required = True)
+	grade          = db.IntegerProperty(required = True)
+	score          = db.IntegerProperty(required = True) 
+	confirmed      = db.BooleanProperty(required = True) 
+	password       = db.StringProperty(required = False)
+	date_created   = db.DateTimeProperty(auto_now_add = True)
+	email          = db.StringProperty(required = False)
+	email_verified = db.BooleanProperty(required = False)
 
 class Guides(db.Model):
 	user_created = db.StringProperty(required = True)
@@ -48,6 +49,9 @@ class Guides(db.Model):
 	up_users   = db.StringListProperty()
 	down_users = db.StringListProperty()
 
+class Email_Verification(db.Model):
+	username      = db.StringProperty(required = True)
+	date_created  = db.DateTimeProperty(auto_now_add = True)
 
 class Bookmarks(db.Model):
 	user  = db.ReferenceProperty(Users, collection_name='bookmark_list')
