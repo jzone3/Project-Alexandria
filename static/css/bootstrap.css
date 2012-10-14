@@ -4878,7 +4878,7 @@ div.sticky-footer a:hover{
 }
 
 .bg_switcher{
-  position: absolute;
+  position: fixed;
   right: 6px;
   bottom: 36px;
 }
