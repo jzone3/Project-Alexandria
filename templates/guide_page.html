@@ -18,7 +18,11 @@
 			<div class="row-fluid">
 				<div class="span8">
 					<h1>{{ result.title }}</h1>
-					<h3><em>by <a href="/user/{{ result.user_created }}">{{ result.user_created }}</a></em></h3>
+					{% if result.user_created == '[deleted]' %}
+						<h3><em>by </em>{{ result.user_created }}</h3>
+					{% else %}
+						<h3><em>by <a href="/user/{{ result.user_created }}">{{ result.user_created }}</a></em></h3>
+					{% endif %}
 					<h6>{{ result.subject }} - {{ result.teacher }}</h6> 
 					<h5>
 					    <a href="#" class="bookmarkbtn" id="{{ result.blob_key }}" style="margin-left:-1px;"><i class="icon-bookmark"></i> Bookmark</a>	

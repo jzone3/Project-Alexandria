@@ -67,7 +67,11 @@
 									<td>{{ loop.index + page_offset }}</td>
 									<td><a href="/guides/{{ guide.url }}">{{ guide.title }}</a></td>
 									<td>{{ guide.subject }}</td>
-									<td><a href="/user/{{ guide.user_created }}">{{ guide.user_created }}</a></td>
+									{% if guide.user_created == '[deleted]' %}
+										<td>{{ guide.user_created }}</td>
+									{% else %}
+										<td><a href="/user/{{ guide.user_created }}">{{ guide.user_created }}</a></td>
+									{% endif %}
 									<td>{{ guide.teacher }}</td>
 									<td id="votes_{{ guide.key() }}"> {{ guide.votes|str_votes }}</td>
 								</tr>

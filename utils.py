@@ -176,8 +176,8 @@ def check_login(username, password):
 		GET_USER.bind(username = username)
 		accounts = GET_USER.get()
 		# accounts = db.GqlQuery("SELECT * FROM Users WHERE username = '" + username.replace("'", "&lsquo;") + "'")
+		# accounts = accounts.get()
 		logging.error("DB QUERY - check_login()")
-		accounts = accounts.get()
 		if accounts is None:
 			return [False, 'Username does not exist']
 
@@ -202,7 +202,7 @@ def signup(username='', password='', verify='', school='', year='', agree='', hu
 	
 	if username == '':
 		to_return['username'] = "Please enter a username"
-	elif not USER_RE.match(username):
+	elif not USER_RE.match(username) or username == '[deleted]' or username == 'null':
 		to_return['username'] = "That's not a valid username."
 
 	
@@ -268,7 +268,7 @@ def signup(username='', password='', verify='', school='', year='', agree='', hu
 				cookie = LOGIN_COOKIE_NAME + '=%s|%s; Expires=%s Path=/' % (str(username), hash_str(username), remember_me())
 				to_return['cookie'] = cookie
 				to_return['success'] = True
-				email_verification(username, email, account.key())
+				email_verification(username, email)
 
 	return to_return
 
@@ -279,7 +279,7 @@ def signup_ext(username='', school='', year='', agree='', email=''):
 	
 	if username == '':
 		to_return['username'] = "Please enter a username"
-	elif not USER_RE.match(username):
+	elif not USER_RE.match(username) or username == '[deleted]' or username == 'null':
 		to_return['username'] = "That's not a valid username."
 	
 	if school == '':
@@ -388,7 +388,18 @@ def delete_user_account(username):
 	user = GET_USER
 	for i in user:
 		i.delete()
+	GET_USER_GUIDES.bind(username = username)
+	guides = GET_USER_GUIDES
+	for x in guides:
+		x.user_created = '[deleted]'
+		x.url = (x.url).replace(username, 'null')
+		x.put()
+	reset_user_link(username)
+	delete_bookmarks(username)
+	memcache.delete(username + '_submitted')
 
+def delete_bookmarks(username):
+	pass
 
 ############################### email verification ###############################
 
