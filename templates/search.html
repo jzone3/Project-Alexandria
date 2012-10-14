@@ -21,6 +21,8 @@
 			<button type="submit" class="btn">Search</button>
 		</form>
 		<hr/>
+		<img src="http://placedog.com/1100/150">
+		<br/><br/>
 		</center>
 		{% if guides %}
 		<table class="table-hover">
@@ -47,19 +49,6 @@
 					<td>{{ guide.teacher }}</td>
 					<td>{{ guide.votes }}</td>
 				</tr>
-				{% if loop.index is divisibleby 4 %}
-					</tdbody>
-					</table>
-					<!-- <tr>
-						<td> -->
-							<br/><br/>
-							<img src="http://placedog.com/1100/150">
-							<br/><br/>
-						<!-- </td>
-					</tr> -->
-					<table class="table-hover">
-					<tdbody>
-				{% endif %}
 			{% endfor %}
 			</tbody>
 		</table>
