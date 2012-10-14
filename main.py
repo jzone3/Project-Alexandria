@@ -240,14 +240,18 @@ class GuidesHandler(BaseHandler):
 		if self.rget('q'):
 			self.redirect('/search?q=' + self.rget('q'))
 
+		if self.rget('page'):
+			page = self.rget('page')
+		else:
+			page = 0
 		# check if user is logged in
 		# calculate variable top_guides
 		username = self.get_username()
 		school = get_school(username)
 		if username:
-			top_guides = get_top_guides(school)
+			top_guides = get_top_guides(school, page)
 		else:
-			top_guides = get_top_guides()
+			top_guides = get_top_guides(None, page)
 
 		# calculate subjects and teachers
 		if school:
@@ -256,10 +260,12 @@ class GuidesHandler(BaseHandler):
 		else:
 			self.render('guides.html', {'top_guides':top_guides})
 			return
-
+		page_offset = page * 25
 		self.render('guides.html', {'top_guides':top_guides, 
 									'subjects':subjects, 
-									'teachers':teachers})
+									'teachers':teachers,
+									'page':page,
+									'page_offset':page_offset})
 
 class DashboardHandler(BaseHandler):
 	'''Handlers dashboard: dashboard.html'''
