@@ -331,18 +331,18 @@
 	<a href="#feedback" id="feedbackbar" data-toggle="modal"></a>
 
 	<div id="feedback" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-		<form method="post" action="/">
+		<form method="post" action="/feedback">
 	        <div class="modal-header">
 	              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
 	              <h3 id="myModalLabel">Tell us anything!</h3>
 	        </div>
 	        <div class="modal-body">
-	        	<textarea style="width:510px;" placeholder="Write your message here.."></textarea>
-	        	<h5>Is is your feedback:</h5>
-				<button type="button" data-toggle="button" class="btn btn-primary">Idea</button>
-				<button type="button" data-toggle="button" class="btn btn-primary">Question</button>
-				<button type="button" data-toggle="button" class="btn btn-primary">Problem</button>
-				<button type="button" data-toggle="button" class="btn btn-primary">Praise</button>
+	        	<textarea name="message" style="width:510px;" placeholder="Write your message here.."></textarea>
+	        	<h5>Is your feedback:</h5>
+				<input type="checkbox" name="Idea" value="Idea">  Idea&nbsp;&nbsp;&nbsp;
+				<input type="checkbox" name="Question" value="Question">  Question&nbsp;&nbsp;&nbsp;
+				<input type="checkbox" name="Problem" value="Problem">  Problem&nbsp;&nbsp;&nbsp;
+				<input type="checkbox" name="Praise" value="Praise">  Praise&nbsp;&nbsp;&nbsp;
         	</div>
 	        <div class="modal-footer">
 	        	<input class="btn btn-warning" type="submit" value="Thank you!"> 

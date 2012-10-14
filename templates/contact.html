@@ -13,43 +13,30 @@
 {% block page_content %}
 	<div class="container">
 		<div class="well">
-			<h1>Contact</h1>
+			<h1>Talk to us!</h1>
 			<hr>
-			CONTACT FORM GOES HERE!
+			<p>Reach us anytime at: <a href="mailto:projalexandria@gmail.com">projalexandria@gmail.com</a></p>
 			<hr>
-			<h1>Team:</h1>
-			<br/><br/>
-			<div>
-				<img src="/static/img/avatar.png" style="width:100px;height:100px;float:left;">
-				<div style="margin-left:120px;">
-					<h2>Name</h2>
+			{% if signed_in %}
+			<p>Or fill out this handy form:</p>
+			<form method="post" action="/feedback">
+	        	<textarea name="message" style="width:510px;" placeholder="Write your message here.."></textarea>
+	        	<h5>Is your feedback:</h5>
+				<input type="checkbox" name="Idea" value="Idea">  Idea&nbsp;&nbsp;&nbsp;
+				<input type="checkbox" name="Question" value="Question">  Question&nbsp;&nbsp;&nbsp;
+				<input type="checkbox" name="Problem" value="Problem">  Problem&nbsp;&nbsp;&nbsp;
+				<input type="checkbox" name="Praise" value="Praise">  Praise&nbsp;&nbsp;&nbsp;
+				<br/><br/>
+		        <input class="btn btn-warning" type="submit" value="Thank you!"> 
+		
+				<input type="hidden" name="formname" value="feedback">
+			</form>
 
-					<h5>Bio here</h5> 
-					<h5>
-						<a href="#">Twitter</a> 
-						 |  
-						<a href="#">Email</a>
-						 |  
-						<a href="#">Etc</a>
-					</h5>
-				</div>
-			</div>
-			<hr>
-			<div>
-				<img src="/static/img/avatar.png" style="width:100px;height:100px;float:left;">
-				<div style="margin-left:120px;">
-					<h2>Name</h2>
-
-					<h5>Bio here</h5> 
-					<h5>
-						<a href="#">Twitter</a> 
-						 |  
-						<a href="#">Email</a>
-						 |  
-						<a href="#">Etc</a>
-					</h5>
-				</div>
-			</div>
+			{% else %}
+			<p>Or, <a href="#login" data-toggle="modal">log in</a> to directly send us feedback!</p>
+			{% endif %}
 		</div>
+
+
 	</div>
 {% endblock %}

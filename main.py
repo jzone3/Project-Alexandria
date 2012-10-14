@@ -695,6 +695,26 @@ class AddBookmarkHandler(BaseHandler):
 				temp_bookmark.put()
 		#self.redirect('/guides')
 
+class FeedbackHandler(BaseHandler):
+	def post(self):
+		message = self.rget('message')
+		idea = self.rget('Idea')
+		question = self.rget('Question')
+		problem = self.rget('Problem')
+		praise = self.rget('Praise')
+		username = self.get_username()
+
+		# write content
+		content = 'Type: '+idea+' '+question+' '+problem+' '+praise
+		content += '<br />'
+		content += message
+
+		# save to db
+		feedback = Feedback(origin=username, content=content)
+		feedback.put()
+		
+		self.redirect('/')
+
 class GoogleSignupHandler(BaseHandler):
     def get(self):
         self.redirect(users.create_login_url("/ext_signup"))
@@ -1010,5 +1030,6 @@ app = webapp2.WSGIApplication([('/?', MainHandler),
 							   ('/removebookmark/?', RemoveBookmarkHandler),
 							   ('/report/?', ReportHandler),
 							   ('/notifications/?', NotificationHandler),
+							   ('/feedback/?', FeedbackHandler),
 							   ('/.*', NotFoundHandler),
 							   ], debug=True)
