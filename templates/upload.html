@@ -113,7 +113,7 @@ application/msword,application/vnd.openxmlformats-officedocument.wordprocessingm
 				teacher_array = [];
 				{% for i in subjects %} subject_array.push('"{{ i }}"'); {% endfor %}
 				{% for i in teachers %} teacher_array.push('"{{ i }}"'); {% endfor %}
-				alert(subject_array+"");
+				//alert(subject_array+"");
 				$('#subject_box').attr('data-source', "[" + subject_array + "]");
 				//$('#subject_box').attr('data-matcher', checkFunction);
 				$('#teacher_box').attr('data-source', "[" + teacher_array + "]");

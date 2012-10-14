@@ -201,3 +201,22 @@ for course in courses:
 	si.put()
 
 	memcache.set('icon-'+course, group)
+
+#######
+
+q = Guides.all()
+for guide in q.run():
+	subject = guide.subject
+
+	icon = memcache.get('icon-'+subject)
+	if not icon: # if icon not in memcache
+		q = SubjectIcons.all()
+		q.filter('subject =', subject)
+		si = q.get()
+		if not si: # if icon not in db
+			icon = 'backpack' ##! change to default icon later
+		else:
+			icon = si.icon
+
+	guide.icon = icon
+	guide.put()

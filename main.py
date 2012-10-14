@@ -897,11 +897,13 @@ class VoteHandler(BaseHandler):
 		self.render('404.html',{'blockbg':True})
 
 	def post(self):
-		blob_key = self.rget('id')
+		key = self.rget('id')
 		vote_type = self.rget('type')
 		username = self.rget('username')
-		# IMPLEMENT: only allow user to vote once
-		response = vote(blob_key, vote_type, username)
+		
+		response = vote(key, vote_type, username)
+
+		self.write(response)
 
 class NotificationHandler(BaseHandler):
 	def post(self):
