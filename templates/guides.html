@@ -59,7 +59,7 @@
 											<button class="btn btn-mini vote down"><i class="icon-caret-down"></i></button>											
 										</div>
 									</td>
-									<td>{{ loop.index|add:page_offset }}</td>
+									<td>{{ loop.index + page_offset }}</td>
 									<td><a href="/guides/{{ guide.url }}">{{ guide.title }}</a></td>
 									<td>{{ guide.subject }}</td>
 									<td><a href="/user/{{ guide.user_created }}">{{ guide.user_created }}</a></td>
@@ -67,9 +67,13 @@
 									<td id="votes_{{ guide.key() }}"> {{ guide.votes|str_votes }}</td>
 								</tr>
 							{% endfor %}
-							<a href="guides?page={{ page:add:"1" }}">Next</a>
+							
 						</tbody>
 					</table>
+					<span style="text-align:center">
+						{% if page > 0 %} <a href='guides?page={{ page - 1 }}'>Previous</a> {% endif %}
+						{% if top_guides|length == 25 %}<a href='guides?page={{ page + 1 }}'>Next</a>{% endif %}
+					</span>
 				</div>
 				<script>
 					$('.tooltips').tooltip();
