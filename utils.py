@@ -27,6 +27,7 @@ LOGIN_COOKIE_NAME = 'uohferrvnksj'
 
 GET_USER = db.GqlQuery("SELECT * FROM Users WHERE username = :username LIMIT 1")
 GET_USER_GUIDES = db.GqlQuery("SELECT * FROM Guides WHERE user_created = :username ORDER BY date_created DESC")
+GET_GUIDES_BY_BLOB_KEY = db.GqlQuery("SELECT * FROM Guides WHERE blob_key = :blob_key LIMIT 1")
 
 ############################### misc. functions ###############################
 
@@ -95,7 +96,8 @@ def get_submitted(username):
 		memcache.set(username + '_submitted', [x['blob_key'] for x in to_return])
 	else:
 		for submission in from_cache:
-			guide = db.GqlQuery("SELECT * FROM Guides WHERE blob_key = :submission LIMIT 1", submission = submission).get()
+			GET_GUIDES_BY_BLOB_KEY.bind(blob_key = submission)
+			guide = GET_GUIDES_BY_BLOB_KEY.get()
 			to_return.append({'title' : guide.title, 'subject' : guide.subject, 'votes' : guide.votes, 'date_created' : guide.date_created, 'blob_key' : submission})
 
 	return to_return
@@ -112,6 +114,51 @@ def get_submitted_guide_names(username):
 			to_return.append({'title' : submission.title, 'subject' : submission.subject, 'votes' : submission.votes, 'date_created' : submission.date_created})
 		memcache.set(username + '_submitted', to_return)
 	return to_return
+
+def send_report_mail(blob_key):
+	GET_GUIDES_BY_BLOB_KEY.bind(blob_key = blob_key)
+	guide = GET_GUIDES_BY_BLOB_KEY.get()
+	
+	mail.send_mail(sender="Project Alexandria <info@projectalexa.com>",
+						to="Jared Zoneraich <jszoneraich@gmail.com>, Kenny Song <jellyksong@gmail.com>, Justin Kim <nitsuj199@gmail.com>, Eric Kim <randomperson97xd@gmail.com>, Matthew Lotocki <matthew.lotocki@gmail.com>",
+						subject="'%s' Reached 10 Reports!" % guide.title,
+						body= """
+The guide "%s" has reached 10 reports!
+
+Link: http://projectalexa.com/guides/%s
+Votes: %s
+Reports %s
+
+School: %s
+Teacher: %s
+Subject: %s
+User Created: %s
+
+Sincerely,
+PA9000
+""" % (guide.title, guide.url, str(guide.votes), str(len(guide.report_users) + 1), guide.school, guide.teacher, guide.subject, guide.user_created),
+						html= """
+<!DOCTYPE HTML>
+<html>
+<head></head>
+<body>
+The guide "%s" has reached 10 reports!<br/>
+<br/>
+Link: <a href="http://projectalexa.com/guides/%s">http://projectalexa.com/guides/%s</a><br/>
+Votes: %s<br/>
+Reports %s<br/>
+<br/>
+School: %s<br/>
+Teacher: %s<br/>
+Subject: %s<br/>
+User Created: %s<br/>
+<br/>
+Sincerely,<br/>
+PA9000<br/>
+</body>
+</html>
+""" % (guide.title, guide.url, guide.url, str(guide.votes), str(len(guide.report_users) + 1), guide.school, guide.teacher, guide.subject, guide.user_created)
+						)
 
 ############################### user functions ###############################
 
@@ -439,7 +486,6 @@ def get_unique_link(username):
 def email_verification(username, email):
 	link, dellink = get_unique_link(username)
 	body, html = make_activation_email(username, link, dellink)
-	logging.error(body)
 	mail.send_mail(sender="Project Alexandria <info@projectalexa.com>",
 						to="%s <%s>" % (username, email),
 						subject="Email Verification",

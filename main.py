@@ -252,6 +252,7 @@ class LogoutHandler(BaseHandler):
 		self.delete_cookie(LOGIN_COOKIE_NAME)
 		self.delete_cookie('ACSID')
 		self.delete_cookie('school')
+		self.delete_cookie('bg')
 		self.set_cookie('tour_current_step=0')
 		self.redirect('/')
 
@@ -803,9 +804,9 @@ class ReportHandler(BaseHandler):
 				report_users = [username]
 			guide.report_users = report_users
 
-			if len(report_users) >= 3:
-				guide.locked = True
-				### Jared, put a notification here ###
+			if len(report_users) >= 10:
+				# guide.locked = True
+				send_report_mail(blob_key)
 
 			guide.put()
 
