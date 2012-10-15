@@ -236,6 +236,7 @@ class LogoutHandler(BaseHandler):
 		self.delete_cookie(LOGIN_COOKIE_NAME)
 		self.delete_cookie('ACSID')
 		self.delete_cookie('school')
+		self.delete_cookie('bg')
 		self.set_cookie('tour_current_step=0')
 		self.redirect('/')
 
