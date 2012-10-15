@@ -30,6 +30,7 @@ class Users(db.Model):
 	password       = db.StringProperty(required = False)
 	date_created   = db.DateTimeProperty(auto_now_add = True)
 	email          = db.StringProperty(required = False)
+	bergen_mail    = db.StringProperty(required = False)
 	email_verified = db.BooleanProperty(required = False)
 
 class Guides(db.Model):

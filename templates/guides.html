@@ -150,10 +150,11 @@
 		    url:'/vote', 
 		    data:'id=' + id + '&type=' + vote_type + '&username=' + "{{ username }}",
 		    success: function(response) {
-				if (response == 'False') {
+				if (response == 'voted') {
 					// if already voted
 					$("#tip_" + id).tooltip('show');
-
+				} else if (response == 'signin') {
+					$('#login').modal('show');
 				} else {
 					prev = parseInt($('#votes_' + id).text())
 					after = prev + parseInt(response)
