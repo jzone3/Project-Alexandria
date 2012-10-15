@@ -157,6 +157,8 @@
 				if (response == 'False') {
 					// if already voted
 					$("#tip_" + id).tooltip('show');
+				} else if (response == 'signin') {
+					$('#login').modal('show');
 				} else {
 					prev = parseInt($('#votes_' + id).text())
 					after = prev + parseInt(response)

@@ -54,6 +54,29 @@
 		</center>
 			<form method="post">
 				<div class="row">
+					<div class="span2">School</div>
+					<div class="span3"><span class="input-large uneditable-input">Bergen County Academies</span></div>
+					<!-- <div class="span3"><input type="text" autocomplete="off" name="school" id="school" data-provide="typeahead" value="{{ school }}"></div> -->
+					<input name="school" value="Bergen County Academies" style="display:none;">
+				</div>
+				<div class="row" {% if not school_error %}style="display: none;"{% endif %}>
+					<div class="span5 alert alert-error">{{school_error}}</div>
+				</div>
+
+				<div class="row">
+					<div class="span2">Bergen Mail</div>
+					<div class="span3">
+						<div class="input-append">
+						  <input type="text" name="email" class="input-small" value="{{email}}"><span class="add-on">@bergen.org</span>
+						</div>
+					</div>
+				</div>
+				<div class="row"  {% if not email_error %}style="display: none;"{% endif %}>
+					<div class="span5 alert alert-error">{{email_error}}</div>
+				</div>				
+
+
+				<div class="row">
 					<div class="span2">Username:</div>
 					<div class="span3"><input type="text" name="username" value={{username}}></div>
 				</div>
@@ -83,15 +106,8 @@
 				<div class="row" {% if not year_error %}style="display: none;"{% endif %}>
 					<div class="span5 alert alert-error">{{year_error}}</div>
 				</div>
-				<div class="row">
-					<div class="span2">School:</div>
-					<div class="span3">
-						<input type="text" autocomplete="off" name="school" id="schools" data-provide="typeahead" value={{ school }}>
-					</div>
-				</div>
-				<div class="row" {% if not school_error %}style="display: none;"{% endif %}>
-					<div class="span5 alert alert-error">{{school_error}}</div>
-				</div>
+
+
 				<br />
 				<div class="row">
 					<div class="span5">

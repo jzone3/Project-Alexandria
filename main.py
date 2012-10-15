@@ -113,6 +113,10 @@ class BaseHandler(webapp2.RequestHandler):
 			email = params['email']
 			del params['email']		
 
+		if user.school == "Bergen County Academies":
+			if user.bergen_mail:
+				email = user.bergen_mail
+
 		if not 'email_verified' in params.keys():
 			try:
 				email_verified = user.email_verified
@@ -201,7 +205,7 @@ class MainHandler(BaseHandler):
 			username_error, password_error, verify_error, school_error, year_error, agree_error, human_error, email_error = ('', '', '', '', '', '', '', '')
 
 			username, password, verify, school, year, agree, human, email = [self.rget(x) for x in ('username', 'password', 'verify', 'school', 'year', 'agree', 'session_secret', 'email')]
-			results = signup(username=username, password=password, verify=verify, school=school, year=year, agree=agree, human=human, email=email)
+			results = signup(username=username, password=password, verify=verify, school=school, year=year, agree=agree, human=human, email=email+'@bergen.org')
 			if results['success']:
 				add_school(school)
 				self.set_cookie(results['cookie'])
@@ -641,6 +645,17 @@ class ExternalSignUp(BaseHandler):
 		user = users.get_current_user()
 		if not user:
 			self.redirect('/google_signup')
+
+		# unique email check	
+		email = user.email()
+		q = Users.all()
+		q.filter('email =', email)
+		if q.get():
+			self.render('index.html', {'ext_duplicate_error':'Someone is already using that account. Did you mean to <a href="#login" role="button" data-toggle="modal" onclick="$(\'#signup\').modal(\'hide\')">log in</a>?',
+									   'blockbg' : True,
+									    'modal': 'signup'})
+			return
+
 		self.render('external_signup.html')
 
 	def post(self):
@@ -650,9 +665,15 @@ class ExternalSignUp(BaseHandler):
 			school = self.rget('school')
 			year = self.rget('year')
 			agree = self.rget('agree')
-			email = user.email()
 
-			result = signup_ext(username, school, year, agree, email)
+			if school == 'Bergen County Academies':
+				email = self.rget('email') + '@bergen.org'
+				ext_email = user.email()
+			else:
+				email = user.email()
+				ext_email = ''
+
+			result = signup_ext(username, school, year, agree, email, ext_email)
 
 			if result['success']:
 				# set user cookie
@@ -662,14 +683,15 @@ class ExternalSignUp(BaseHandler):
 				self.set_school_cookie(school)
 				self.redirect('/dashboard?tour=True')
 			else:
-				self.render('external_signup.html', {'username_error':result.get('username'),
-													 'school_error':result.get('school'),
-													 'year_error':result.get('year'),
-													 'agree_error':result.get('agree'),
+				self.render('external_signup.html', {'username_error':result.get('username_error'),
+													 'school_error':result.get('school_error'),
+													 'year_error':result.get('year_error'),
+													 'agree_error':result.get('agree_error'),
+													 'email_error':result.get('email_error'),
 													 'username':username,
 													 'school':school,
+													 'email':email[:-11],
 													 'choice':year})
-
 		else:
 			self.redirect('/google_signup')
 
@@ -994,7 +1016,10 @@ class ToSHandler(BaseHandler):
 	def get(self):
 		self.render('tos.html')
 
-
+class BetaHandler(BaseHandler):
+	def get(self):
+		username = self.get_username()
+		self.render('beta.html', {'username':username})
 
 app = webapp2.WSGIApplication([('/?', MainHandler),
 							   ('/about/?', AboutHandler),
@@ -1031,5 +1056,6 @@ app = webapp2.WSGIApplication([('/?', MainHandler),
 							   ('/report/?', ReportHandler),
 							   ('/notifications/?', NotificationHandler),
 							   ('/feedback/?', FeedbackHandler),
+							   ('/beta/?', BetaHandler),
 							   ('/.*', NotFoundHandler),
 							   ], debug=True)

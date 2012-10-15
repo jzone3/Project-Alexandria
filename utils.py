@@ -319,56 +319,65 @@ def signup(username='', password='', verify='', school='', year='', agree='', hu
 
 	return to_return
 
-def signup_ext(username='', school='', year='', agree='', email=''):
+def signup_ext(username='', school='', year='', agree='', email='', ext_email=''):
 	"""Signs up user from google/facebook"""
 
 	to_return = {'success' : False}
 	
 	if username == '':
-		to_return['username'] = "Please enter a username"
+		to_return['username_error'] = "Please enter a username"
 	elif not USER_RE.match(username) or username == '[deleted]' or username == 'null':
-		to_return['username'] = "That's not a valid username."
+		to_return['username_error'] = "That's not a valid username."
 	
 	if school == '':
-		to_return['school'] = "Please enter a school"
+		to_return['school_error'] = "Please enter a school"
 	if not SCHOOL_RE.match(school):
-		to_return['school'] = "That is not a valid school name"
+		to_return['school_error'] = "That is not a valid school name"
 	
 	if year == '':
-		to_return['year'] = "Please enter a year"
+		to_return['year_error'] = "Please enter a year"
 	if not int(year) in [9,10,11,12]:
-		to_return['year'] = "That is not a valid grade level"
+		to_return['year_error'] = "That is not a valid grade level"
 	
 	if agree != 'on':
-		to_return['agree'] = "You must agree to the Terms of Service to create an account"
+		to_return['agree_error'] = "You must agree to the Terms of Service to create an account"
+
+	if school == 'Bergen County Academies' and not EMAIL_RE.match(email):
+		to_return['email_error'] = "Please provide a valid Bergen Mail."	
+	elif not unique_email(email):
+		to_return['email_error'] = "Email already exits!"
+
+	if not unique_username(username):
+		to_return['username_error'] = "Username already exists!"
 
 	if len(to_return) == 1:
-		if not unique_username(username):
-			to_return['username'] = "Username already exists!"
-		elif not unique_email(email):
-			to_return['email'] = "Email already exits!"
+		# username.replace("'", "&lsquo;")
+		if school == 'Bergen County Academies':
+			account = Users(username = username, school = school, grade = int(year), score = 0, confirmed = False, bergen_mail=email, email=ext_email)
 		else:
-			# username.replace("'", "&lsquo;")
-			account = Users(username = username, school = school, grade = int(year), score = 0, confirmed = False, email = email)
-			account.put()
+			account = Users(username = username, school = school, grade = int(year), score = 0, confirmed = False, email=email)
+		account.put()
 
-			#put welcome notification
-			notification = Notification(username=username, is_new=True, name="welcome")
-			notification.put()
+		#put welcome notification
+		notification = Notification(username=username, is_new=True, name="welcome")
+		notification.put()
 
-			# make initial bookmarks
-			top_guides = get_top_guides(school)
-			counter = 0
-			if top_guides:
-				for guide in top_guides:
-					if counter == 3: break
-					bookmark = Bookmark(user=account.key(), guide=guide.key())
-					bookmark.put()
-					counter += 1
+		# make initial bookmarks
+		top_guides = get_top_guides(school)
+		counter = 0
+		if top_guides:
+			for guide in top_guides:
+				if counter == 3: break
+				bookmark = Bookmarks(user=account.key(), guide=guide.key())
+				bookmark.put()
+				counter += 1
 
-			cookie = LOGIN_COOKIE_NAME + '=%s|%s; Expires=%s Path=/' % (str(username), hash_str(username), remember_me())
-			to_return['cookie'] = cookie
-			to_return['success'] = True
+		cookie = LOGIN_COOKIE_NAME + '=%s|%s; Expires=%s Path=/' % (str(username), hash_str(username), remember_me())
+		to_return['cookie'] = cookie
+		to_return['success'] = True
+
+		if school == 'Bergen County Academies':
+			email_verification(username, email)
 			
 	return to_return
 		
@@ -764,14 +773,14 @@ def find_guides_ts(school, teacher, subject):
 
 def vote(key, vote_type, username):
 	if username == "":
-		return False
+		return 'signin'
 
 	guide = Guides.get(key)
 
 	# calculate vote difference
 	if vote_type == 'up':
 		if username in guide.up_users:
-			return False
+			return 'voted'
 		elif username in guide.down_users:
 			diff = 2
 			guide.down_users.remove(username)
@@ -779,7 +788,7 @@ def vote(key, vote_type, username):
 			diff = 1
 	elif vote_type == 'down':
 		if username in guide.down_users:
-			return False
+			return 'voted'
 		elif username in guide.up_users:
 			diff = -2
 			guide.up_users.remove(username)

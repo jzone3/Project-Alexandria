@@ -159,26 +159,44 @@
 			    			<a class="btn-auth btn-facebook" href="#">
 							    Sign Up with <b>Facebook</b>
 							</a>
+							<div class="alert alert-error" style="{% if not ext_duplicate_error %}display: none{% endif %};margin-bottom: -8px;margin-top: 11px;">{{ext_duplicate_error|safe}}</div>
 		        		</center>
 		   			</div>
 		   			<hr />
 		   			<center><h4 style="margin-bottom:15px;">Don't have Facebook or Google? <a href="#" onClick="$('#form').show('slow');">Sign up <i class="icon-hand-down"></i></a></h4></center>
 		   			<div id="form" {% if not (modal == 'signup') %}style="display:none;"{% endif %}>
+		   				<div class="row">
+							<div class="span2">School</div>
+							<div class="span3"><span class="input-large uneditable-input">Bergen County Academies</span></div>
+							<!-- <div class="span3"><input type="text" autocomplete="off" name="school" id="school" data-provide="typeahead" value="{{ school }}"></div> -->
+							<input name="school" value="Bergen County Academies" style="display:none;">
+ 						</div>
+						<div class="alert alert-error" {% if not school_error %}style="display: none;"{% endif %}>{{school_error}}</div>
+
+						<div class="row">
+							<div class="span2">Bergen Mail</div>
+							<div class="span3">
+								<div class="input-append">
+								  <input type="text" name="email" class="input-small" value="{{email}}"><span class="add-on">@bergen.org</span>
+								</div>
+							</div>
+						</div>
+						
+						<div class="alert alert-error" {% if not email_error %}style="display: none;"{% endif %}>{{email_error}}</div>
 			        	<div class="row">
 							<div class="span2">Username</div>
 							<div class="span3"><input type="text" name="username" type="text" value="{{username}}"></div>
 						</div>
 						<div class="alert alert-error" {% if not username_error %}style="display: none;"{% endif %}>{{username_error}}</div>
-						<div class="row">
+						<!-- <div class="row">
 							<div class="span2">
 								Email 
 								<a rel="tooltip" data-placement="right" title="A Bergen email is required to join BCA" class="tooltips" onclick="$('#edit_url').modal('hide')">
 									<i class="icon-question-sign"></i>
 								</a>
 							</div>
-							<div class="span3"><input type="text" name="email" type="text" value="{{email}}"></div>
-						</div>
-						<div class="alert alert-error" {% if not email_error %}style="display: none;"{% endif %}>{{email_error}}</div>
+							<div class="span3"><input type="text" name="email" value="{{email}}"></div>
+						</div> -->						
 						<div class="row">
 							<div class="span2">Password</div>
 							<div class="span3"><input name="password" type="password"></div>
@@ -189,12 +207,7 @@
 							<div class="span3"><input name="verify" type="password"></div>
 						</div>
 						<div class="alert alert-error" {% if not verify_error %}style="display: none;"{% endif %}>{{verify_error}}</div>
-						<div class="row">
-							<div class="span2">School</div>
-							<!-- <div class="span3"><div class="input-large uneditable-input">Bergen County Academies</div></div> -->
-							<div class="span3"><input type="text" autocomplete="off" name="school" id="school" data-provide="typeahead" value="{{ school }}"></div>
-						</div>
-						<div class="alert alert-error" {% if not school_error %}style="display: none;"{% endif %}>{{school_error}}</div>
+						
 						<div class="row">
 							<div class="span2">Grade</div>
 							<div class="span3">
@@ -267,8 +280,6 @@
 		   					{{ google_error | safe}}
 		   				</div>	
 		   			</div>
-
-
 		   			<hr />
 					<div class="row">
 						<div class="span2">Username</div>
@@ -320,6 +331,7 @@
 		<a href="/tos" class="footerlinks" style="color:gray;">Terms of Service</a> | 
 		<a href="/team" class="footerlinks" style="color:gray;">Team</a>
 	</div>
+	{% if signed_in %}
 	<div class="sticky-footer bg_switcher" style="color: gray;">
 		<img src="/static/img/thumb1.png" width="40px" id="bg1" class="bglink">
 		<img src="/static/img/thumb2.png" width="40px" id="bg2" class="bglink">
@@ -342,7 +354,7 @@
 	</script>
 	<!-- End Footer -->
 
-	{% if signed_in %}
+	
 	<a href="#feedback" id="feedbackbar" data-toggle="modal"></a>
 
 	<div id="feedback" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
