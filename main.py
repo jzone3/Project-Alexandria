@@ -1041,6 +1041,8 @@ class BetaHandler(BaseHandler):
 			self.redirect('/')
 		username = self.get_username()
 		user = get_user(username)
+		if not user:
+			self.redirect('/')
 		if user.email in email_list:
 			self.redirect('/dashboard/')
 		template = jinja_env.get_template('beta.html')
