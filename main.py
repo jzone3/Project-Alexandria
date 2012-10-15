@@ -98,6 +98,22 @@ class BaseHandler(webapp2.RequestHandler):
 		if template == 'prefs.html':
 			params['all_schools'] = self.get_schools_list()
 
+		from temp import email_list
+
+		if params['username']:
+			user = get_user(params['username'])
+			if user.bergen_mail:
+				email = user.bergen_mail
+			else:
+				email = user.email
+			if email not in email_list:
+				self.redirect('/beta')
+		elif not params['signed_in']:
+			if template != 'index.html' and template != 'about.html' and template != 'contact.html' and template != 'external_signup.html':
+				template = jinja_env.get_template('index.html')
+				self.response.out.write(template.render({'widget_html':params['widget_html'], 'blockbg':True, 'modal':'login'}))
+				return
+
 		template = jinja_env.get_template(template)
 		self.response.out.write(template.render(params))
 
@@ -1019,7 +1035,8 @@ class ToSHandler(BaseHandler):
 class BetaHandler(BaseHandler):
 	def get(self):
 		username = self.get_username()
-		self.render('beta.html', {'username':username})
+		template = jinja_env.get_template('beta.html')
+		self.response.out.write(template.render({'username':username, 'signed_in':True, 'beta':True}))
 
 app = webapp2.WSGIApplication([('/?', MainHandler),
 							   ('/about/?', AboutHandler),
