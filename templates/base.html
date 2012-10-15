@@ -13,6 +13,21 @@
 	<script src="/static/js/waypoints.js"></script>
 	<script src="/static/js/jquery.cookie.js"></script>
 	<meta name="google-site-verification" content="SDqbA2YJXxkaqRrfTFZkQ6cti0_wmLrJtGnws1NgyqQ" />
+
+	<!-- Google Analytics -->
+	<script type="text/javascript">
+
+	var _gaq = _gaq || [];
+	_gaq.push(['_setAccount', 'UA-35582025-1']);
+	_gaq.push(['_trackPageview']);
+
+	(function() {
+	var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+	ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+	var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+	})();
+
+	</script>
 </head>
 
 <!-- If Custom Background, e.g. homepage -->
@@ -33,7 +48,7 @@
 
 	<script src="/static/js/bootstrap.js"></script>
 
-    <script type="text/javascript">	    
+	<script type="text/javascript">	    
         jQuery(document).ready(function() {
             {% if all_schools %}
             	$('#school').typeahead({source: {{ all_schools | safe }}.sort(), items:5});
