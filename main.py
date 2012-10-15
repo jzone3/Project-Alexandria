@@ -100,14 +100,15 @@ class BaseHandler(webapp2.RequestHandler):
 
 		from temp import email_list
 
-		if params['username']:
-			user = get_user(params['username'])
-			if user.bergen_mail:
-				email = user.bergen_mail
-			else:
-				email = user.email
-			if email not in email_list:
-				self.redirect('/beta')
+		if self.get_username():
+			user = get_user(self.get_username())
+			if user:
+				if user.bergen_mail:
+					email = user.bergen_mail
+				else:
+					email = user.email
+				if email not in email_list:
+					self.redirect('/beta')
 		elif not params['signed_in']:
 			if template != 'index.html' and template != 'about.html' and template != 'contact.html' and template != 'external_signup.html':
 				template = jinja_env.get_template('index.html')

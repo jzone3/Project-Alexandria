@@ -356,7 +356,7 @@
 	</script>
 	<!-- End Footer -->
 
-	
+	{% if not beta %}
 	<a href="#feedback" id="feedbackbar" data-toggle="modal"></a>
 
 	<div id="feedback" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
@@ -379,6 +379,7 @@
 			<input type="hidden" name="formname" value="feedback">
 		</form>
 	</div>
+	{% endif %}
 	{% endif %}
 
 	<script type="text/javascript">
