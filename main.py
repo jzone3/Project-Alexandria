@@ -1053,7 +1053,14 @@ class BetaHandler(BaseHandler):
 			self.response.out.write(template.render({'username':username, 'signed_in':True, 'beta':True}))
 		template = jinja_env.get_template('beta.html')
 		self.response.out.write(template.render({'username':username, 'signed_in':True, 'beta':True}))
-		
+
+# class ModHandler(BaseHandler):
+# 	def get(self):
+# 		if self.logged_in() and self.get_username() in ['jzone3', 'ksong', 'mattlotocki', 'nitsuj', 'airrick213']:
+# 			self.render('mod.html', mod_page_vars())
+# 		else:
+# 			self.error(404)
+# 			self.render('404.html',{'blockbg':True})
 
 app = webapp2.WSGIApplication([('/?', MainHandler),
 							   ('/about/?', AboutHandler),
@@ -1091,5 +1098,6 @@ app = webapp2.WSGIApplication([('/?', MainHandler),
 							   ('/notifications/?', NotificationHandler),
 							   ('/feedback/?', FeedbackHandler),
 							   ('/beta/?', BetaHandler),
+							   # ('/mod/?', ModHandler),
 							   ('/.*', NotFoundHandler),
 							   ], debug=True)
