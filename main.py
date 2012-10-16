@@ -1041,7 +1041,7 @@ class BetaHandler(BaseHandler):
 			self.redirect('/')
 		username = self.get_username()
 		user = get_user(username)
-		if not user:
+		if user is None:
 			self.redirect('/')
 		if user.email in email_list:
 			self.redirect('/dashboard/')
