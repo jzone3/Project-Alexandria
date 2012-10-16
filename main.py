@@ -648,16 +648,19 @@ class DeleteAccountHandler(BaseHandler):
 class GoogleLoginHandler(BaseHandler):
 	'''Handles google login: /google_login'''
 	def google_login(self, user):
+
 		account = memcache.get('useremail-'+user.email())
+
 		if account:
 			logging.error('CACHE GLOGIN: '+user.email())
 		else:
 			logging.error('DB GLOGIN: '+user.email())
-
-		if not account:
 			q = Users.all()
 			q.filter('email =', user.email())
 			account = q.get()
+
+			memcache.set('useremail-'+user.email(), user)
+			logging.error('CACHE set glogin useremail-'+user.email())
 
 		if account:
 			username = account.username

@@ -197,7 +197,12 @@ def get_user(username):
 	else:
 		logging.error('DB GET_USER: '+username)
 		GET_USER.bind(username = username)
-		return GET_USER.get()
+		user = GET_USER.get()
+
+		memcache.set('user-'username, user)
+		logging.error('CACHE set user-'+username)
+
+		return user
 
 
 def get_school(username):
@@ -242,6 +247,9 @@ def check_login(username, password):
 			logging.error("DB LOGIN check_login(): "+username)
 			GET_USER.bind(username = username)
 			accounts = GET_USER.get()
+
+			memcache.set('user-'+username, accounts)
+			logging.error("CACHE set user-"+username)
 
 		if accounts is None:
 			return [False, 'Username does not exist']
