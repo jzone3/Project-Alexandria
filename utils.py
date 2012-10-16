@@ -19,6 +19,8 @@ import secret
 from database import *
 from activation import make_activation_email
 
+from google.appengine.api import memcache
+
 USER_RE = re.compile(r"^[a-zA-Z0-9_-]{3,20}$")
 PASS_RE = re.compile(r"^.{3,20}$")
 EMAIL_RE = re.compile(r"^[\S]+@[\S]+\.[\S]+$")
@@ -187,8 +189,14 @@ def get_error(results, error):
 		return None
 
 def get_user(username):
-	GET_USER.bind(username = username)
-	return GET_USER.get()
+	user = memcache.get('user-'+username)
+	if user:
+		logging.error('CACHE GET_USER: '+username)
+		return user
+	else:
+		logging.error('DB GET_USER: '+username)
+		GET_USER.bind(username = username)
+		return GET_USER.get()
 
 
 def get_school(username):
@@ -225,12 +233,15 @@ def check_login(username, password):
 
 	correct = False
 
-	if username != '' and password != '':
-		GET_USER.bind(username = username)
-		accounts = GET_USER.get()
-		# accounts = db.GqlQuery("SELECT * FROM Users WHERE username = '" + username.replace("'", "&lsquo;") + "'")
-		# accounts = accounts.get()
-		logging.error("DB QUERY - check_login()")
+	if username != '' and password != '':		
+		accounts = memcache.get('user-'+username)
+		if accounts:
+			logging.error("CACHE LOGIN check_login(): "+username)
+		else:
+			logging.error("DB LOGIN check_login(): "+username)
+			GET_USER.bind(username = username)
+			accounts = GET_USER.get()
+
 		if accounts is None:
 			return [False, 'Username does not exist']
 
@@ -240,6 +251,7 @@ def check_login(username, password):
 
 		if salted_hash(password, salt) == db_password:
 			return [True, '%s=%s|%s;' % (LOGIN_COOKIE_NAME, str(username), str(hash_str(username)))]
+
 	return [False, 'Invalid username or password!']
 
 def signup(username='', password='', verify='', school='', year='', agree='', human='', email=''):

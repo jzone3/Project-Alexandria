@@ -631,9 +631,17 @@ class DeleteAccountHandler(BaseHandler):
 class GoogleLoginHandler(BaseHandler):
 	'''Handles google login: /google_login'''
 	def google_login(self, user):
-		q = Users.all()
-		q.filter('email =', user.email())
-		account = q.get()
+		account = memcache.get('useremail-'+user.email())
+		if account:
+			logging.error('CACHE GLOGIN: '+user.email())
+		else:
+			logging.error('DB GLOGIN: '+user.email())
+
+		if not account:
+			q = Users.all()
+			q.filter('email =', user.email())
+			account = q.get()
+
 		if account:
 			username = account.username
 			cookie = LOGIN_COOKIE_NAME + '=%s|%s; Expires=%s Path=/' % (str(username), hash_str(username), remember_me())
