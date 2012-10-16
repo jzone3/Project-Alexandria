@@ -1,5 +1,7 @@
 import operator
 from django.utils import simplejson
+import logging
+from google.appengine.api import memcache
 
 from google.appengine.ext import db
 
@@ -20,7 +22,7 @@ NUM_MAPPING = {'1':'one', '2':'two', '3':'three', '4':'four', '5':'five', '6':'s
 
 COMMON_WORDS = {'the', 'a', 'or', 'and', 'to', 'that', 'of', 'is', 'it', 'for', 'from', 'but', 'an'}
 
-# divide votes by this for ranking (will implement later)
+# divide votes by this for ranking
 VOTES_DIVISOR = 10.0**6
 
 def filt_query(query):
@@ -69,8 +71,13 @@ def add_to_index(school, key, tags):
 		new_index.put()
 
 def get_index(school):
-	q = Indexes.all()
-	q = q.filter('school =', school).get()
+	index = memcache.get('index-'+school)
+	if index:
+		logging.error("CACHE get_index(): "+school)
+	else:
+		logging.error("DB get_index(): "+school)
+		q = Indexes.all()
+		q = q.filter('school =', school).get()	
 	if q:
 		return simplejson.loads(q.index)
 	else:
@@ -95,6 +102,11 @@ def get_rankings(query, index):
 # highest level function!
 def search(school, query):
 	'''Returns search results'''
+	results = memcache.get('query'+query)
+	if results:
+		logging.error('CACHE query search(): '+query)
+		return results
+
 	index = get_index(school)
 	if not index: # if no entries for that school
 		return None
@@ -117,4 +129,10 @@ def search(school, query):
 		adj_score = rankings[str(guide.key())] + (guide.votes / VOTES_DIVISOR)
 		results.append((guide, adj_score))
 	
-	return sorted(results, key=lambda x: x[1], reverse=True)
+	results_final = sorted(results, key=lambda x: x[1], reverse=True)
+
+	logging.error('DB query search(): '+query)
+	memcache.set('query'+query, results_final)
+	logging.error('CACHE set query-'+query)
+
+	return results_final

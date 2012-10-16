@@ -658,13 +658,13 @@ def top_guides_from_db(school, page=0):
 	if school: # i.e. if user is logged in (school cookie)
 		q.filter('school =', school)
 	q.order('-votes')
-	results = q.run(limit=25, offset=page*25)
 
+	results = q.run(limit=25, offset=page*25)
 	# logging
 	if school:
-		logging.error('DB HIT: top guides for '+school)
+		logging.error('DB top_guides_from_db: '+school)
 	else:
-		logging.error('DB HIT: top guides for ALL')
+		logging.error('DB top_guides_from_db: ALL')
 
 	return results
 
