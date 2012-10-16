@@ -95,6 +95,7 @@ def get_submitted(username):
 	from_cache = memcache.get(username + '_submitted')
 	to_return = []
 	if from_cache is None:
+		return None
 		GET_USER_GUIDES.bind(username = username)
 		guides = GET_USER_GUIDES
 		logging.error(username + '_submitted db read')

@@ -319,14 +319,31 @@ class DashboardHandler(BaseHandler):
 			self.redirect('/')
 
 class GuidePageHandler(BaseHandler):
+"""
+FOR INTERACTIVE CONSOLE THING
+
+from google.appengine.ext import db
+from database import *
+
+q = Guides.all()
+for guide in q:
+    print guide.title
+    memcache.set('guideurl-' + guide.url, guide)
+print '\nSUCCESS\n'
+"""
+
 	'''Handlers custom guide pages: guide_page.html'''
 	def get(self, url):
 		# formats url
 		url = url[1:]
 		# retrieve guide from db
-		q = Guides.all()
-		q.filter('url =', url.lower())
-		result = q.get()
+		guide = memcache.get('guideurl-' + url)
+		if guide is None:
+			q = Guides.all()
+			q.filter('url =', url.lower())
+			result = q.get()
+		else:
+			result = guide
 		bookmarked = False
 		username = ''
 		if self.logged_in() and result:
