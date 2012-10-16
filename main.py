@@ -1040,11 +1040,17 @@ class BetaHandler(BaseHandler):
 		if not self.logged_in():
 			self.redirect('/')
 		username = self.get_username()
+		if username is None:
+			self.redirect('/')
 		user = get_user(username)
 		if user is None:
 			self.redirect('/')
-		if user.email in email_list:
-			self.redirect('/dashboard/')
+		try:
+			if user.email in email_list:
+				self.redirect('/dashboard/')
+		except AttributeError:
+			template = jinja_env.get_template('beta.html')
+			self.response.out.write(template.render({'username':username, 'signed_in':True, 'beta':True}))
 		template = jinja_env.get_template('beta.html')
 		self.response.out.write(template.render({'username':username, 'signed_in':True, 'beta':True}))
 		
