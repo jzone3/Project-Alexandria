@@ -13,6 +13,7 @@ from google.appengine.ext import db
 from google.appengine.ext import blobstore
 from google.appengine.api import memcache
 from google.appengine.api import mail
+from google.appengine.ext.db import stats
 
 import secret
 from database import *
@@ -30,6 +31,10 @@ GET_USER_GUIDES = db.GqlQuery("SELECT * FROM Guides WHERE user_created = :userna
 GET_GUIDES_BY_BLOB_KEY = db.GqlQuery("SELECT * FROM Guides WHERE blob_key = :blob_key LIMIT 1")
 
 ############################### misc. functions ###############################
+
+# def mod_page_vars():
+# 	global_stat = stats.GlobalStat.all().get()
+# 	return {'total_data' : global_stat.bytes / 1048576.0}
 
 def str_votes(votes):
 	if votes > 0:

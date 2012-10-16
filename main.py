@@ -36,6 +36,8 @@ template_dir = os.path.join(os.path.dirname(__file__), 'templates')
 jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir), autoescape=True)
 jinja_env.filters['str_votes'] = str_votes
 
+from temp import email_list
+
 class BaseHandler(webapp2.RequestHandler):
 	'''Parent class for all handlers, shortens functions'''
 	def write(self, content):
@@ -98,7 +100,6 @@ class BaseHandler(webapp2.RequestHandler):
 		if template == 'prefs.html':
 			params['all_schools'] = self.get_schools_list()
 
-		from temp import email_list
 
 		if self.get_username():
 			user = get_user(self.get_username())
@@ -1036,9 +1037,30 @@ class ToSHandler(BaseHandler):
 
 class BetaHandler(BaseHandler):
 	def get(self):
+		if not self.logged_in():
+			self.redirect('/')
 		username = self.get_username()
+		if username is None:
+			self.redirect('/')
+		user = get_user(username)
+		if user is None:
+			self.redirect('/')
+		try:
+			if user.email in email_list:
+				self.redirect('/dashboard/')
+		except AttributeError:
+			template = jinja_env.get_template('beta.html')
+			self.response.out.write(template.render({'username':username, 'signed_in':True, 'beta':True}))
 		template = jinja_env.get_template('beta.html')
 		self.response.out.write(template.render({'username':username, 'signed_in':True, 'beta':True}))
+
+# class ModHandler(BaseHandler):
+# 	def get(self):
+# 		if self.logged_in() and self.get_username() in ['jzone3', 'ksong', 'mattlotocki', 'nitsuj', 'airrick213']:
+# 			self.render('mod.html', mod_page_vars())
+# 		else:
+# 			self.error(404)
+# 			self.render('404.html',{'blockbg':True})
 
 app = webapp2.WSGIApplication([('/?', MainHandler),
 							   ('/about/?', AboutHandler),
@@ -1076,5 +1098,6 @@ app = webapp2.WSGIApplication([('/?', MainHandler),
 							   ('/notifications/?', NotificationHandler),
 							   ('/feedback/?', FeedbackHandler),
 							   ('/beta/?', BetaHandler),
+							   # ('/mod/?', ModHandler),
 							   ('/.*', NotFoundHandler),
 							   ], debug=True)
