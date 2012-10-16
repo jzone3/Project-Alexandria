@@ -199,7 +199,7 @@ def get_user(username):
 		GET_USER.bind(username = username)
 		user = GET_USER.get()
 
-		memcache.set('user-'username, user)
+		memcache.set('user-'+username, user)
 		logging.error('CACHE set user-'+username)
 
 		return user
