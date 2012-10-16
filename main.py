@@ -451,7 +451,7 @@ class UploadHandler(BaseHandler):
 				q.filter('subject =', subject)
 				si = q.get()
 				if not si: # if icon not in db
-					icon = 'backpack' ##! change to default icon later
+					icon = 'default_icon' ##! change to default icon later
 				else:
 					icon = si.icon
 

@@ -22,7 +22,7 @@ USER_RE = re.compile(r"^[a-zA-Z0-9_-]{3,20}$")
 PASS_RE = re.compile(r"^.{3,20}$")
 EMAIL_RE = re.compile(r"^[\S]+@[\S]+\.[\S]+$")
 SCHOOL_RE= re.compile(r"^[a-zA-Z0-9 _]{1,30}$")
-PAGE_RE = r'(/(?:[a-zA-Z0-9_-]+/?)*)'
+PAGE_RE = r'(/(?:[\.a-zA-Z0-9_-]+/?)*)'
 LOGIN_COOKIE_NAME = 'uohferrvnksj'
 
 GET_USER = db.GqlQuery("SELECT * FROM Users WHERE username = :username LIMIT 1")
@@ -184,6 +184,7 @@ def get_error(results, error):
 def get_user(username):
 	GET_USER.bind(username = username)
 	return GET_USER.get()
+
 
 def get_school(username):
 	'''gets school from db from username'''

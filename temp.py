@@ -194,31 +194,31 @@ courses = {"Musicianship": "Music",
 "French I/II": "Languages",
 "Foundations of Spanish": "Languages"}
 
-from database import *
-from google.appengine.api import memcache
+# from database import *
+# from google.appengine.api import memcache
 
-for course in courses:
-	group = courses[course].lower()
-	si = SubjectIcons(subject=course, icon=group)
-	si.put()
+# for course in courses:
+# 	group = courses[course].lower()
+# 	si = SubjectIcons(subject=course, icon=group)
+# 	si.put()
 
-	memcache.set('icon-'+course, group)
+# 	memcache.set('icon-'+course, group)
 
 #######
 
-q = Guides.all()
-for guide in q.run():
-	subject = guide.subject
+# q = Guides.all()
+# for guide in q.run():
+# 	subject = guide.subject
 
-	icon = memcache.get('icon-'+subject)
-	if not icon: # if icon not in memcache
-		q = SubjectIcons.all()
-		q.filter('subject =', subject)
-		si = q.get()
-		if not si: # if icon not in db
-			icon = 'backpack' ##! change to default icon later
-		else:
-			icon = si.icon
+# 	icon = memcache.get('icon-'+subject)
+# 	if not icon: # if icon not in memcache
+# 		q = SubjectIcons.all()
+# 		q.filter('subject =', subject)
+# 		si = q.get()
+# 		if not si: # if icon not in db
+# 			icon = 'backpack' ##! change to default icon later
+# 		else:
+# 			icon = si.icon
 
-	guide.icon = icon
-	guide.put()
+# 	guide.icon = icon
+# 	guide.put()
