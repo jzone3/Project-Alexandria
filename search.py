@@ -108,7 +108,7 @@ def get_rankings(query, index):
 # highest level function!
 def search(school, query):
 	'''Returns search results'''
-	results = memcache.get('query'+query)
+	results = memcache.get('query-'+query)
 	if results:
 		logging.error('CACHE query search(): '+query)
 		return results
@@ -121,7 +121,7 @@ def search(school, query):
 
 	# remove all 0 scores
 	# {key1:rank1, key2:rank2, ...}
-	rankings = {key: rankings[key] for key in rankings if rankings[key] != 0}
+	rankings = {key: rankings[key] for key in rankings if rankings[key] >= 1}
 
 	# list all keys, retrieve guides
 	keys = rankings.keys()
@@ -138,7 +138,7 @@ def search(school, query):
 	results_final = sorted(results, key=lambda x: x[1], reverse=True)
 
 	logging.error('DB query search(): '+query)
-	memcache.set('query'+query, results_final)
+	memcache.set('query-'+query, results_final)
 	logging.error('CACHE set query-'+query)
 
 	return results_final
