@@ -25,7 +25,7 @@ USER_RE = re.compile(r"^[a-zA-Z0-9_-]{3,20}$")
 PASS_RE = re.compile(r"^.{3,20}$")
 EMAIL_RE = re.compile(r"^[\S]+@[\S]+\.[\S]+$")
 SCHOOL_RE= re.compile(r"^[a-zA-Z0-9 _]{1,30}$")
-PAGE_RE = r'(/(?:[\.a-zA-Z0-9_-]+/?)*)'
+PAGE_RE = r'(/(?:[\'\.a-zA-Z0-9_-]+/?)*)'
 LOGIN_COOKIE_NAME = 'uohferrvnksj'
 
 GET_USER = db.GqlQuery("SELECT * FROM Users WHERE username = :username LIMIT 1")
@@ -463,7 +463,7 @@ def change_password(old, new, verify, username):
 
 		memcache.set('user-'+username, user)
 		memcache.set('useremail-'+str(user.email), user)
-		logging.error('CACHE set user-'+user)
+		logging.error('CACHE set user-'+username)
 		logging.error('CACHE set useremail-'+str(user.email))
 
 		cookie = LOGIN_COOKIE_NAME + '=%s|%s; Expires=%s Path=/' % (str(username), hash_str(username), remember_me())
@@ -580,6 +580,10 @@ def get_url(filename, user):
 	'''Creates url: user/guidename from filename and uploading user'''
 	user = user.lower()
 	filename = filename[:filename.rfind('_')]
+	filename = filename.replace("'",'')
+	filename = filename.replace("/",'')
+	filename = filename.replace("\\",'')
+	filename = filename.replace(".",'')
 	return user + '/' + filename
 
 def upload_errors(title, subject, teacher, editable, headers):
