@@ -74,6 +74,7 @@ def get_index(school):
 	index = memcache.get('index-'+school)
 	if index:
 		logging.error("CACHE get_index(): "+school)
+		return simplejson.loads(index)
 	else:
 		logging.error("DB get_index(): "+school)
 		q = Indexes.all()
@@ -88,13 +89,18 @@ def get_rankings(query, index):
 	   Returns dictionary of {guide_key:score}
 	"""
 	query = filt_query(query)
+	query_words = query.split()
 	rankings = dict()
 	for key in index:
 		tags = index[key]
 		rank = 0
 		for tag in tags:
 			if tag in query:
-				rank += 1
+				# this way partial words can be matched
+				if tag in query_words:	
+					rank += 1
+				else:
+					rank += 0.5
 		rankings[key] = rank
 
 	return rankings
