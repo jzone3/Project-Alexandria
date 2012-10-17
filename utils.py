@@ -461,6 +461,11 @@ def change_password(old, new, verify, username):
 		user.password = hashed_pass
 		user.put()
 
+		memcache.set('user-'+username, user)
+		memcache.set('useremail-'+str(user.email), user)
+		logging.error('CACHE set user-'+user)
+		logging.error('CACHE set useremail-'+str(user.email))
+
 		cookie = LOGIN_COOKIE_NAME + '=%s|%s; Expires=%s Path=/' % (str(username), hash_str(username), remember_me())
 		return [True, cookie]
 	else:
