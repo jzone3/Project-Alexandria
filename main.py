@@ -336,13 +336,9 @@ class GuidePageHandler(BaseHandler):
 		# formats url
 		url = url[1:]
 		# retrieve guide from db
-		guide = memcache.get('guideurl-' + url)
-		if guide is None:
-			q = Guides.all()
-			q.filter('url =', url.lower())
-			result = q.get()
-		else:
-			result = guide
+		q = Guides.all()
+		q.filter('url =', url.lower())
+		result = q.get()
 		bookmarked = False
 		username = ''
 		if self.logged_in() and result:
@@ -375,19 +371,22 @@ class UserPageHandler(BaseHandler):
 	'''Handlers custom user pages: user_page.html'''
 	def get(self, url):
 		url = url[1:]
-		q = Users.all()
-		q.filter('username =', url)
-		result = q.get()
+		result = get_submitted(url)
 
-		if result:
-			guides = Guides.all().filter('user_created =', result.username)
-			count = guides.count()
-			score = str_votes(result.score)
-			grade = str_grade(result.grade)
-			self.render('user_page.html', {'result':result, 'grade':grade, 'score':score, 'count':count, 'guides':guides})
-		else:
+		if result == 5:
 			self.error(404)
 			self.render('404.html', {'blockbg':True})
+		else:
+			user = get_user(url)
+			# guides = Guides.all().filter('user_created =', result.username)
+			count = len(result)
+			# total = 0
+			# for i in result:
+			# 	total += i['votes']
+			# score = str_votes(total)
+			score = 0
+			grade = str_grade(user.grade)
+			self.render('user_page.html', {'result':result, 'grade':grade, 'score':score, 'count':count, 'guides':result, 'school' : user.school, 'username' : url})
 
 class UploadHandler(BaseHandler):
 	def get(self):

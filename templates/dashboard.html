@@ -69,7 +69,7 @@
 								<a href="#" class="btn btn-info btn-mini">Date</a>
 								<a href="#" class="btn btn-primary btn-mini">Downloads</a>
 								<a href="#" class="btn btn-warning btn-mini">Bookmarks</a>
-								<a href="#" class="btn btn-success btn-mini">Votes</a>
+								<a href="#" class="btn btn-success btn-mini">Teacher</a>
 						</form><br><br>
 						<table class="table table-hover">
 							<thead>
@@ -86,7 +86,7 @@
 										<td><a href="/guides/{{username}}/{{ i['title'].replace(' ', '_').lower()}}">{{i['title']}}</a></td>
 										<td>{{i['subject']}}</td>
 										<td>{{i['date_created'].strftime("%B %d, %Y")}}</td>
-										<td>{{i['votes']}}</td>
+										<td>{{i['teacher']}}</td>
 									</tr>
 								{% endfor %}
 							</tbody>

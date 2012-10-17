@@ -80,34 +80,33 @@ def save_feedback(content, origin):
 	new_feedback = Feedback(content = content, origin = origin)
 	new_feedback.put()
 
-def add_submitted(username, blob_key):
+def add_submitted(username, key):
 	cached_items = memcache.get(username + '_submitted')
-	submission = db.GqlQuery("SELECT * FROM Guides WHERE blob_key = :blob_key", blob_key=blob_key).get()
+	submission = Guides.get(key).get()
+	new_guide = [{'title' : submission.title, 'subject' : submission.subject, 'teacher' : submission.teacher, 'date_created' : submission.date_created, 'key' : key, 'icon' : submission.icon}]
 	if not cached_items is None:
-		new_guide = [{'title' : submission.title, 'subject' : submission.subject, 'votes' : submission.votes, 'date_created' : submission.date_created}]
 		try:
 			cached_items = new_guide.append(cached_items)
 			memcache.set(username + '_submitted', cached_items)
 		except:
 			memcache.set(username + '_submitted', new_guide)
+	else:
+		memcache.set(username + '_submitted', new_guide)
 
 def get_submitted(username):
 	from_cache = memcache.get(username + '_submitted')
-	to_return = []
 	if from_cache is None:
-		return None
 		GET_USER_GUIDES.bind(username = username)
 		guides = GET_USER_GUIDES
+		if guides is None:
+			return 5
 		logging.error(username + '_submitted db read')
+		to_return = []
 		for submission in guides:
-			to_return.append({'title' : submission.title, 'subject' : submission.subject, 'votes' : submission.votes, 'date_created' : submission.date_created, 'blob_key' : submission.blob_key})
-		memcache.set(username + '_submitted', [x['blob_key'] for x in to_return])
+			to_return.append({'title' : submission.title, 'subject' : submission.subject, 'teacher' : submission.teacher, 'date_created' : submission.date_created, 'key' : submission.key(), 'icon' : submission.icon, 'url' : submission.url})
+		memcache.set(username + '_submitted', to_return)
 	else:
-		for submission in from_cache:
-			GET_GUIDES_BY_BLOB_KEY.bind(blob_key = submission)
-			guide = GET_GUIDES_BY_BLOB_KEY.get()
-			to_return.append({'title' : guide.title, 'subject' : guide.subject, 'votes' : guide.votes, 'date_created' : guide.date_created, 'blob_key' : submission})
-
+		return from_cache
 	return to_return
 
 def get_submitted_guide_names(username):
@@ -119,7 +118,7 @@ def get_submitted_guide_names(username):
 		logging.error(username + '_submitted db read')
 		to_return = []
 		for submission in guides:
-			to_return.append({'title' : submission.title, 'subject' : submission.subject, 'votes' : submission.votes, 'date_created' : submission.date_created})
+			to_return.append({'title' : submission.title, 'subject' : submission.subject, 'votes' : submission.votes, 'date_created' : submission.date_created, 'url' : submission.url})
 		memcache.set(username + '_submitted', to_return)
 	return to_return
 
