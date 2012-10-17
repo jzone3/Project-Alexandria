@@ -78,10 +78,10 @@ def get_index(school):
 		logging.error("DB get_index(): "+school)
 		q = Indexes.all()
 		q = q.filter('school =', school).get()	
-	if q:
-		return simplejson.loads(q.index)
-	else:
-		return None
+		if q:
+			return simplejson.loads(q.index)
+		else:
+			return None
 
 def get_rankings(query, index):
 	"""Ranks guides given a query and all db entries.
