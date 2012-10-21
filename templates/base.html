@@ -163,7 +163,7 @@
 							<div class="alert alert-error" style="{% if not ext_duplicate_error %}display: none{% endif %};margin-bottom: -8px;margin-top: 11px;">{{ext_duplicate_error|safe}}</div>
 		        		</center>
 		   			</div>
-		   			<hr />
+		   			<hr style="margin-top:15px"/>
 		   			<center><h4 style="margin-bottom:15px;">Don't have Facebook or Google? <a href="#" onClick="$('#form').show('slow');">Sign up <i class="icon-hand-down"></i></a></h4></center>
 		   			<div id="form" {% if not (modal == 'signup') %}style="display:none;"{% endif %}>
 		   				<div class="row">
@@ -258,7 +258,7 @@
 		   					{{ google_error | safe}}
 		   				</div>	
 		   			</div>
-		   			<hr />
+		   			<hr style="margin-top:15px"/>
 					<div class="row">
 						<div class="span2">Username</div>
 						<div class="span3"><input name="username" type="text" value="{{username}}"></div>
