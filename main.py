@@ -275,6 +275,16 @@ class GuidesHandler(BaseHandler):
 				page = 0
 		else:
 			page = 0
+		
+		if self.rget('new_page'):
+			try:
+				new_page = int(self.rget('new_page'))
+			except:
+				new_page = False
+			if new_page < 0:
+				new_page = False
+		else:
+			new_page = False
 		# check if user is logged in
 		# calculate variable top_guides
 		username = self.get_username()
@@ -297,7 +307,24 @@ class GuidesHandler(BaseHandler):
 									'subjects':subjects, 
 									'teachers':teachers,
 									'page':page,
-									'page_offset':page_offset})
+									'page_offset':page_offset,
+									'school':school,
+									'new_page' : new_page})
+
+class NewGuidesHandler(BaseHandler):
+	def get(self):
+		self.redirect('/guides')
+
+	def post(self):
+		school = self.rget('school')
+		try:
+			page = int(self.rget('new_page'))
+		except:
+			page = 0
+		
+		response = get_new_guides(school, page)
+
+		self.write(response)
 
 class DashboardHandler(BaseHandler):
 	'''Handlers dashboard: dashboard.html'''
@@ -484,11 +511,12 @@ class UploadHandler(BaseHandler):
 			add_subject_to_teacher(school, teacher, subject)
 			add_teacher_to_subject(school, teacher, subject)
 
+			key = str(guide.key())
+
 			# add guide to user's submitted guides cache
-			add_submitted(username,str(blob_key))
+			add_submitted(username,key)
 			
 			# add guide to index
-			key = str(guide.key())
 			add_to_index(school, key, tags)
 			self.redirect('/guides/' + url)
 		
@@ -1104,6 +1132,7 @@ app = webapp2.WSGIApplication([('/?', MainHandler),
 							   ('/about/?', AboutHandler),
 							   ('/logout/?', LogoutHandler),
 							   ('/guides/?', GuidesHandler),
+							   ('/newguides/?', NewGuidesHandler),
 							   ('/contact/?', ContactHandler),
 							   ('/team/?', TeamHandler),
 							   ('/dashboard/?', DashboardHandler),
