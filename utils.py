@@ -613,6 +613,70 @@ last_refresh = {}
 from database import *
 from django.utils import simplejson
 
+def delete_all_test_guides(school='Bergen County Academies'):
+	# delete guide, index entries, etc.
+	q = Guides.all()
+	q.filter('tags =', 'deletethis')
+	for g in q.run():
+		delete_guide(str(g.key()))
+
+	# delete from active subjects
+	q = ActiveSubjects.all()
+	q.filter('school =', school)
+	result = q.get()
+	l = result.active_subjects_list
+	result.active_subjects_list = [x for x in l if x not in ["Subject", "subject"]]
+	result.put()
+
+	# delete from active teachers
+	q = ActiveTeachers.all()
+	q.filter('school =', school)
+	result = q.get()
+	l = result.active_teachers_list
+	result.active_teachers_list = [x for x in l if x not in ["Teacher", "teacher"]]
+	result.put()
+
+	# delete from Subjects
+	q = Subjects.all()
+	q.filter('school =', school)
+	result = q.get()
+	l = result.subjects_list
+	result.subjects_list = [x for x in l if x not in ["Subject", "subject"]]
+	result.put()
+
+	# delete from Teachers
+	q = Teachers.all()
+	q.filter('school =', school)
+	result = q.get()
+	l = result.teachers_list
+	result.teachers_list = [x for x in l if x not in ["Teacher", "teacher"]]
+	result.put()
+
+	# delete from Subject_Teachers
+	q = Subject_Teachers.all()
+	q.filter('subject =', 'Subject')
+	result = q.get()
+	if result:
+		result.delete()
+	q = Subject_Teachers.all()
+	q.filter('subject =', 'subject')
+	result = q.get()
+	if result:
+		result.delete()
+
+	# delete from Teacher_Subjects
+	q = Teacher_Subjects.all()
+	q.filter('teacher =', 'Teacher')
+	result = q.get()
+	if result:
+		result.delete()
+
+	q = Teacher_Subjects.all()
+	q.filter('teacher =', 'teacher')
+	result = q.get()
+	if result:
+		result.delete()
+
 def delete_guide(guide_key):
 	# delete guide
 	guide = Guides.get(guide_key)
@@ -716,7 +780,13 @@ def add_subject(school, subject):
 		result.active_subjects_list = subjects
 	else:
 		result = ActiveSubjects(school=school, active_subjects_list=[subject])
+
+	memcache.set('activesubjects-'+school, sorted(result.active_subjects_list))
+	logging.error('CACHE set from upload activesubjects: '+school)
+		
 	result.put()
+
+
 
 def add_teacher(school, teacher):
 	'''adds/updates a teacher to Teachers'''
@@ -749,26 +819,50 @@ def add_teacher(school, teacher):
 		result.active_teachers_list = teachers
 	else:
 		result = ActiveTeachers(school=school, active_teachers_list=[teacher])
+
+	memcache.set('activeteachers-'+school, sorted(result.active_teachers_list))
+	logging.error('CACHE set from upload activesubjects: '+school)
+
 	result.put()
+
 
 
 def get_all_active_teachers(school):
 	'''gets list of all active teachers from ActiveTeachers model'''
+	result = memcache.get('activeteachers-'+school)
+	if result:
+		logging.error('CACHE get_all_active_teachers(): '+school)
+		return result
+
+	logging.error('DB get_all_active_teachers(): '+school)
 	q = ActiveTeachers.all()
 	q.filter('school =', school)
 	result = q.get()
 	if result:
-		return sorted(result.active_teachers_list)
+		logging.error('CACHE set get_all_active_teachers(): '+school)
+		x = sorted(result.active_teachers_list)
+		memcache.set('activeteachers-'+school, x)
+		return x
 	else:
 		return []
 
 def get_all_active_subjects(school):
 	'''gets list of all active subjects from ActiveSubjects model'''
+	result = memcache.get('activesubjects-'+school)
+	if result:
+		logging.error('CACHE get_all_active_subjects(): '+school)
+		return result
+
+	logging.error('DB get_all_active_subjects(): '+school)
 	q = ActiveSubjects.all()
 	q.filter('school =', school)
 	result = q.get()
 	if result:
-		return sorted(result.active_subjects_list)
+		logging.error('CACHE set get_all_active_subjects(): '+school)
+		x = sorted(result.active_subjects_list)
+		memcache.set('activesubjects-'+school, x)
+		return x
+
 	else:
 		return []
 
