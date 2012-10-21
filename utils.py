@@ -44,18 +44,6 @@ def str_votes(votes):
 	else:
 		return str(votes)
 
-def str_grade(grade):
-	if grade == 9:
-		return 'Freshman'
-	elif grade == 10:
-		return 'Sophomore'
-	elif grade == 11:
-		return 'Junior'
-	elif grade == 12:
-		return 'Senior'
-	else:
-		return 'Alumnus'
-
 def get_schools():
 	lst = memcache.get('all_schools')
 	if lst is None:
@@ -267,7 +255,7 @@ def check_login(username, password):
 
 	return [False, 'Invalid username or password!']
 
-def signup(username='', password='', verify='', school='', year='', agree='', human='', email=''):
+def signup(username='', password='', verify='', school='', agree='', human='', email=''):
 	"""Signs up user
 
 	Returns:
@@ -301,10 +289,6 @@ def signup(username='', password='', verify='', school='', year='', agree='', hu
 	if not SCHOOL_RE.match(school):
 		to_return['school'] = "That is not a valid school name"
 	
-	if year == '':
-		to_return['year'] = "Please enter a year"
-	if not int(year) in [9,10,11,12]:
-		to_return['year'] = "That is not a valid grade level"
 	
 	if agree != 'on':
 		to_return['agree'] = "You must agree to the Terms of Service to create an account"
@@ -327,7 +311,7 @@ def signup(username='', password='', verify='', school='', year='', agree='', hu
 				hashed = salted_hash(password, salt)
 				hashed_pass = hashed + '|' + salt
 
-				account = Users(username = username, password = hashed_pass, school = school, grade = int(year), score = 0, confirmed = False, email = email)
+				account = Users(username = username, password = hashed_pass, school = school, score = 0, confirmed = False, email = email)
 				account.put()
 				#put welcome notification
 				notification = Notification(username=username, is_new=True, name="welcome")
@@ -350,7 +334,7 @@ def signup(username='', password='', verify='', school='', year='', agree='', hu
 
 	return to_return
 
-def signup_ext(username='', school='', year='', agree='', email='', ext_email=''):
+def signup_ext(username='', school='', agree='', email='', ext_email=''):
 	"""Signs up user from google/facebook"""
 
 	to_return = {'success' : False}
@@ -364,11 +348,6 @@ def signup_ext(username='', school='', year='', agree='', email='', ext_email=''
 		to_return['school_error'] = "Please enter a school"
 	if not SCHOOL_RE.match(school):
 		to_return['school_error'] = "That is not a valid school name"
-	
-	if year == '':
-		to_return['year_error'] = "Please enter a year"
-	if not int(year) in [9,10,11,12]:
-		to_return['year_error'] = "That is not a valid grade level"
 	
 	if agree != 'on':
 		to_return['agree_error'] = "You must agree to the Terms of Service to create an account"
@@ -384,9 +363,9 @@ def signup_ext(username='', school='', year='', agree='', email='', ext_email=''
 	if len(to_return) == 1:
 		# username.replace("'", "&lsquo;")
 		if school == 'Bergen County Academies':
-			account = Users(username = username, school = school, grade = int(year), score = 0, confirmed = False, bergen_mail=email, email=ext_email)
+			account = Users(username = username, school = school, score = 0, confirmed = False, bergen_mail=email, email=ext_email)
 		else:
-			account = Users(username = username, school = school, grade = int(year), score = 0, confirmed = False, email=email)
+			account = Users(username = username, school = school, score = 0, confirmed = False, email=email)
 		account.put()
 
 		#put welcome notification

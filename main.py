@@ -221,11 +221,11 @@ class MainHandler(BaseHandler):
 				self.render('index.html', {'username': username, 'wrong': value, 'modal' : 'login', 'blockbg' : True})
 
 		elif formname == 'signup':
-			username, password, verify, school, year, agree, human, email = ('', '', '', '', '', '', '', '')
-			username_error, password_error, verify_error, school_error, year_error, agree_error, human_error, email_error = ('', '', '', '', '', '', '', '')
+			username, password, verify, school, agree, human, email = ('', '', '', '', '', '', '', '')
+			username_error, password_error, verify_error, school_error, agree_error, human_error, email_error = ('', '', '', '', '', '', '', '')
 
-			username, password, verify, school, year, agree, human, email = [self.rget(x) for x in ('username', 'password', 'verify', 'school', 'year', 'agree', 'session_secret', 'email')]
-			results = signup(username=username, password=password, verify=verify, school=school, year=year, agree=agree, human=human, email=email+'@bergen.org')
+			username, password, verify, school, year, agree, human, email = [self.rget(x) for x in ('username', 'password', 'verify', 'school', 'agree', 'session_secret', 'email')]
+			results = signup(username=username, password=password, verify=verify, school=school, agree=agree, human=human, email=email+'@bergen.org')
 			if results['success']:
 				add_school(school)
 				self.set_cookie(results['cookie'])
@@ -240,7 +240,6 @@ class MainHandler(BaseHandler):
 										   'password_error': get_error(results, 'password'),
 										   'verify_error': get_error(results, 'verify'),
 										   'school_error': get_error(results, 'school'),
-										   'year_error': get_error(results, 'year'),
 										   'agree_error': get_error(results, 'agree'),
 										   'human_error': get_error(results, 'human'),
 										   'choice' : int(year),
@@ -387,8 +386,7 @@ class UserPageHandler(BaseHandler):
 			# 	total += i['votes']
 			# score = str_votes(total)
 			score = 0
-			grade = str_grade(user.grade)
-			self.render('user_page.html', {'result':result, 'grade':grade, 'score':score, 'count':count, 'guides':result, 'school' : user.school, 'username' : url})
+			self.render('user_page.html', {'result':result, 'score':score, 'count':count, 'guides':result, 'school' : user.school, 'username' : url})
 
 class UploadHandler(BaseHandler):
 	def get(self):
@@ -710,7 +708,6 @@ class ExternalSignUp(BaseHandler):
 		if user:
 			username = self.rget('username')
 			school = self.rget('school')
-			year = self.rget('year')
 			agree = self.rget('agree')
 
 			if school == 'Bergen County Academies':
@@ -720,7 +717,7 @@ class ExternalSignUp(BaseHandler):
 				email = user.email()
 				ext_email = ''
 
-			result = signup_ext(username, school, year, agree, email, ext_email)
+			result = signup_ext(username, school, agree, email, ext_email)
 
 			if result['success']:
 				# set user cookie
@@ -732,7 +729,6 @@ class ExternalSignUp(BaseHandler):
 			else:
 				self.render('external_signup.html', {'username_error':result.get('username_error'),
 													 'school_error':result.get('school_error'),
-													 'year_error':result.get('year_error'),
 													 'agree_error':result.get('agree_error'),
 													 'email_error':result.get('email_error'),
 													 'username':username,
