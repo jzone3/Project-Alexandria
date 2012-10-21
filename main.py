@@ -855,7 +855,7 @@ class SubjectsHandler(BaseHandler):
 		  <li><a href="#" onclick="subtoggle1()">Subjects</a> <span class="divider">/</span></li>
 		  <li class="active">%s</li>		  
 		</ul>
-		<ul>"""%subject
+		<div class="row-fluid">"""%subject
 
 		# script must be initialized AFTER the html is in place, so we send it through AJAX
 		script = """
@@ -876,15 +876,20 @@ class SubjectsHandler(BaseHandler):
 	            }
         	});
       	})
-
 		</script>
 		"""%subject
 
-		for teacher in teachers:
-			html += '<li><a href="#" class="subjects2" id="%s">'%teacher + teacher + '</a>&nbsp;&nbsp;<img src="../static/img/ajax-loader.gif" id="%sload2" style="display:none;"/></li>'%teacher
+		for i in range(len(teachers)):
+			teacher = teachers[i]
+			if i % 3 == 0:
+				html += """</div><div class="row-fluid">"""
+			html += """<div class="span4 hoverspn4">
+				<a href="#" class="subjects2" id="%s">%s</a>
+				&nbsp;&nbsp;<img src="../static/img/ajax-loader.gif" id="%sload2" style="display:none;"/>
+			</div>"""%(teacher,teacher,teacher)
 
 		# send this html back to jquery/ajax
-		self.write(html+'</li>'+script)
+		self.write(html+'</div>'+script)
 
 class SubjectsHandler2(BaseHandler):
 	'''receives AJAX request for the third page on guides->subject'''
