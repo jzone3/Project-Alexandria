@@ -659,7 +659,7 @@ class GoogleLoginHandler(BaseHandler):
 			q.filter('email =', user.email())
 			account = q.get()
 
-			memcache.set('useremail-'+user.email(), user)
+			memcache.set('useremail-'+user.email(), account)
 			logging.error('CACHE set glogin useremail-'+user.email())
 
 		if account:
