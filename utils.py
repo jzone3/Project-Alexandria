@@ -745,9 +745,9 @@ def get_new_guides_from_db(school, page=0):
 	results = q.run(limit=25, offset=page*25)
 	# logging
 	if school:
-		logging.error('DB top_guides_from_db: '+school)
+		logging.error('DB new_guides_from_db: '+school)
 	else:
-		logging.error('DB top_guides_from_db: ALL')
+		logging.error('DB new_guides_from_db: ALL')
 
 	return results
 
