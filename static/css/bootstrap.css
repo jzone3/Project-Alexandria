@@ -4905,3 +4905,7 @@ input[type=checkbox]{
 .popover{
   position:fixed;
 }
+
+.span4.hoverspn4.intro:hover{
+  background-color: rgba(0, 0, 0, 0.43);
+}
