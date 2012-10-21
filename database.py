@@ -75,12 +75,14 @@ class Teacher_Subjects(db.Model):
 	school        = db.StringProperty(required = True)
 	teacher       = db.StringProperty(required = True)
 	subjects_list = db.StringListProperty(required = True)
+	is_guides     = db.BooleanProperty(required = False)
 
 class Subject_Teachers(db.Model):
 	'''List of teachers for a subject'''
 	school        = db.StringProperty(required = True)
 	subject       = db.StringProperty(required = True)
 	teachers_list = db.StringListProperty(required = True)
+	is_guides     = db.BooleanProperty(required = False)
 
 class Indexes(db.Model):
 	school = db.StringProperty(required = True)
