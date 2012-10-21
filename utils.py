@@ -18,6 +18,7 @@ from google.appengine.ext.db import stats
 import secret
 from database import *
 from activation import make_activation_email
+from new_guides import make_new_guides
 
 from google.appengine.api import memcache
 
@@ -70,7 +71,7 @@ def save_feedback(content, origin):
 
 def add_submitted(username, key):
 	cached_items = memcache.get(username + '_submitted')
-	submission = Guides.get(key).get()
+	submission = Guides.get(key)
 	new_guide = [{'title' : submission.title, 'subject' : submission.subject, 'teacher' : submission.teacher, 'date_created' : submission.date_created, 'key' : key, 'icon' : submission.icon}]
 	if not cached_items is None:
 		try:
@@ -659,6 +660,24 @@ def top_guides_from_db(school, page=0):
 		q.filter('school =', school)
 	q.order('-votes')
 
+	results = q.run(limit=25, offset=page*25)
+	# logging
+	if school:
+		logging.error('DB top_guides_from_db: '+school)
+	else:
+		logging.error('DB top_guides_from_db: ALL')
+
+	return results
+
+def get_new_guides(school, page=0):
+	results = get_new_guides_from_db(school, page)
+	return make_new_guides(results, page)
+
+def get_new_guides_from_db(school, page=0):
+	q = Guides.all()
+	if school: # i.e. if user is logged in (school cookie)
+		q.filter('school =', school)
+	q.order('-date_created')
 	results = q.run(limit=25, offset=page*25)
 	# logging
 	if school:

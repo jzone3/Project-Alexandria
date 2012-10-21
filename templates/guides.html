@@ -18,9 +18,8 @@
 			</center>
 			<!-- Tabs -->
 			<ul class="nav nav-tabs" id="guides_tabs">
-				<li class="active">
-					<a href="#top" data-toggle="tab">Top</a>
-				</li>
+				<li {% if new_page == False %}class="active"{% endif %}><a href="#top" data-toggle="tab">Top</a></li>
+				<li {% if new_page != False %}class="active"{% endif %}><a href="#new" data-toggle="tab" id="new_tab">New</a></li>
 				<li><a href="#subject" data-toggle="tab">Subject</a></li>
 				<li><a href="#teacher" data-toggle="tab">Teacher</a></li>
 				<form method="get" class="form-search" style="float:right;">
@@ -33,7 +32,7 @@
 			<div class="tab-content">
 
 				<!-- Top Tab Content -->
-				<div class="tab-pane fade active in" id="top">
+				<div class="tab-pane fade{% if new_page == False %} active in{% endif %}" id="top">
 					<script>
 					function tiphide (){
 						$('this').tooltip('hide');
@@ -80,7 +79,7 @@
 									<td><a href="/guides/{{ guide.url }}">{{ guide.title }}</a></td>
 									<td>{{ guide.subject }}</td>
 									{% if guide.user_created == '[deleted]' %}
-										<td>{{ guide.user_created }}</td>
+										<td>[deleted]</td>
 									{% else %}
 										<td><a href="/user/{{ guide.user_created }}">{{ guide.user_created }}</a></td>
 									{% endif %}
@@ -97,6 +96,33 @@
 					</span>
 				</div>
 				<!-- End Top Tab Content -->
+
+				<!-- New Tab Content -->
+				<div class="tab-pane fade {% if new_page != False %}active in{% endif %}" id="new">
+					<script>
+					function tiphide (){
+						$('this').tooltip('hide');
+					}					
+					</script>
+					<h2 style="margin:0;">New Guides</h2>
+					<div align="center">
+						<script type="text/javascript"><!--
+						google_ad_client = "ca-pub-1213608668776384";
+						/* New Guides */
+						google_ad_slot = "8123206118";
+						google_ad_width = 728;
+						google_ad_height = 90;
+						//-->
+						</script>
+						<script type="text/javascript"
+						src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+						</script>
+					</div>
+					<br />
+					<div id="new_guides">
+					</div>
+				</div>
+				<!-- End New Tab Content -->
 
 				<!-- Subject Tab Content -->
 				<div class="tab-pane fade" id="subject">
@@ -193,6 +219,47 @@
 	});
 	// End Voting Script
 </script>
+{% if new_page == False %}
+<script>
+  	alreadyDone = false;
+  	// New Guides Tab
+	$('#new_tab').click(function (e) {
+		if (!alreadyDone) {
+			$.ajax({
+			    type:'POST', 
+			    url:'/newguides',
+			    data:'school=' + '{{school}}&new_page=0', 
+			    success: function(response) {
+			    	$('#new_guides').html(response);
+			    }
+			});
+			alreadyDone = true;
+		}
+	})
+	// End New Guides Tab 
+</script>
+{% else %}
+<script>
+  	alreadyDone = false;
+  	// New Guides Tab
+	if (!alreadyDone) {
+		$.ajax({
+		    type:'POST', 
+		    url:'/newguides',
+		    data:'school=' + '{{school}}&new_page={{new_page}}', 
+		    success: function(response) {
+		    	$('#new_guides').html(response);
+		    }
+		});
+		alreadyDone = true;
+	}
+
+	$('div.new-answer button.vote').click(function() {
+		console.log("NEW VOTE");
+	})
+	// End New Guides Tab 
+</script>
+{% endif %}
 <script>
   	// Subjects Tab
 	$('.subjects').click(function (e) {
