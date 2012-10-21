@@ -197,7 +197,8 @@
   	// Subjects Tab
 	$('.subjects').click(function (e) {
 		subject = this.id;
-		$('#s_'+subject+'load').show();
+		$(document.getElementById('s_'+subject+'load')).show();
+		// used getElementById since there are spaces in ID
 
 	e.preventDefault();
 	$.ajax({
@@ -205,11 +206,13 @@
 	    url:'/subjects', 
 	    data:'subject=' + subject, 
 	    success: function(response) {
-	    	$('#s_'+subject+'load').hide();
+	    	$(document.getElementById('s_'+subject+'load')).hide();
+
+	    	// used getElementById since there are spaces in ID
 	    	$('#subjectlist').hide();
 	    	$('#subjectlist2').html(response);
 	    	$('#subjectlist2').show();
-	        
+
 	    }
 	});
 	})
@@ -231,7 +234,8 @@
 	// Teachers Tab
 	$('.teachers').click(function (e) {
 		teacher = this.id;
-		$('#t_'+teacher+'load').show();
+		$(document.getElementById('t_'+teacher+'load')).show();
+		// used getElementById since there are spaces in ID
 
 	e.preventDefault();
 	$.ajax({
@@ -239,7 +243,8 @@
 	    url:'/teachers', 
 	    data:'teacher=' + teacher, 
 	    success: function(response) {
-	    	$('#t_'+teacher+'load').hide();
+	    	$(document.getElementById('t_'+teacher+'load')).hide();
+	    	// used getElementById since there are spaces in ID
 	    	$('#teacherlist').hide();
 	    	$('#teacherlist2').html(response);
 	    	$('#teacherlist2').show();
