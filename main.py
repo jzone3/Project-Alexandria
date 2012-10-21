@@ -890,14 +890,14 @@ class SubjectsHandler(BaseHandler):
 		<script>
 		$('.subjects2').click(function (e) {
       		teacher = this.id;
-      		$('#'+teacher+'load2').show()
+      		$(document.getElementById('t_'+teacher+'load2')).show();
       		e.preventDefault();
       		$.ajax({
 	            type:'POST', 
 	            url:'/subjects2', 
-	            data:'teacher=' + teacher + '&subject=%s', 
+	            data:'teacher=' + teacher + "&subject=%s", 
 	            success: function(response) {
-	            	$('#'+teacher+'load2').hide()
+	            	$(document.getElementById('t_'+teacher+'load2')).hide();
 	            	$('#subjectlist2').hide();
 	            	$('#subjectlist3').html(response);
 	            	$('#subjectlist3').show();                
@@ -909,12 +909,15 @@ class SubjectsHandler(BaseHandler):
 
 		for i in range(len(teachers)):
 			teacher = teachers[i]
+
 			if i % 3 == 0:
 				html += """</div><div class="row-fluid">"""
+
 			html += """<div class="span4 hoverspn4">
 				<a href="#" class="subjects2" id="%s">%s</a>
-				&nbsp;&nbsp;<img src="../static/img/ajax-loader.gif" id="%sload2" style="display:none;"/>
-			</div>"""%(teacher,teacher,teacher)
+				&nbsp;&nbsp;<img src="../static/img/ajax-loader.gif" id="t_%sload2" style="display:none;"/>
+				</div>
+				"""%(teacher,teacher,teacher)
 
 		# send this html back to jquery/ajax
 		self.write(html+'</div>'+script)
@@ -986,14 +989,14 @@ class TeachersHandler(BaseHandler):
 		<script>
 		$('.teachers2').click(function (e) {
       		subject = this.id;
-      		$('#'+subject+'load2').show()
+      		$(document.getElementById('s_'+subject+'load2')).show();
       		e.preventDefault();
       		$.ajax({
 	            type:'POST', 
 	            url:'/teachers2', 
 	            data:'subject=' + subject + '&teacher=%s', 
 	            success: function(response) {
-	            	$('#'+teacher+'load2').hide()
+	            	$(document.getElementById('s_'+subject+'load2')).hide();
 	            	$('#teacherlist2').hide();
 	            	$('#teacherlist3').html(response);
 	            	$('#teacherlist3').show();                
@@ -1010,7 +1013,7 @@ class TeachersHandler(BaseHandler):
 				html += """</div><div class="row-fluid">"""
 			html += """<div class="span4 hoverspn4">
 				<a href="#" class="teachers2" id="%s">%s</a>
-				&nbsp;&nbsp;<img src="../static/img/ajax-loader.gif" id="%sload2" style="display:none;"/>
+				&nbsp;&nbsp;<img src="../static/img/ajax-loader.gif" id="s_%sload2" style="display:none;"/>
 			</div>"""%(subject,subject,subject)
 
 		# send this html back to jquery/ajax
