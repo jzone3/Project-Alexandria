@@ -322,7 +322,12 @@ class NewGuidesHandler(BaseHandler):
 		except:
 			page = 0
 		
-		response = get_new_guides(school, page)
+		if self.logged_in():
+			username = self.get_username()
+		else:
+			username = ''
+
+		response = get_new_guides(school, page, username)
 
 		self.write(response)
 

@@ -40,17 +40,16 @@
 					</script>
 					<h2 style="margin:0;">Top Guides</h2>
 					<div align="center">
-						<script type="text/javascript"><!--
-						google_ad_client = "ca-pub-1213608668776384";
-						/* Top Guides */
-						google_ad_slot = "5402750935";
-						google_ad_width = 728;
-						google_ad_height = 90;
-						//-->
+						<script type="text/javascript">
+							<!--
+							google_ad_client = "ca-pub-1213608668776384";
+							/* Top Guides */
+							google_ad_slot = "5402750935";
+							google_ad_width = 728;
+							google_ad_height = 90;
+							//-->
 						</script>
-						<script type="text/javascript"
-						src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
-						</script>
+						<script type="text/javascript" src="http://pagead2.googlesyndication.com/pagead/show_ads.js"></script>
 					</div>
 					<br />
 					<table class="table-hover">
@@ -219,47 +218,49 @@
 	});
 	// End Voting Script
 </script>
+
 {% if new_page == False %}
-<script>
-  	alreadyDone = false;
-  	// New Guides Tab
-	$('#new_tab').click(function (e) {
+	<script>
+	  	alreadyDone = false;
+	  	// New Guides Tab
+		$('#new_tab').click(function (e) {
+			if (!alreadyDone) {
+				$.ajax({
+				    type:'POST', 
+				    url:'/newguides',
+				    data:'school=' + '{{school}}&new_page=0', 
+				    success: function(response) {
+				    	$('#new_guides').html(response);
+				    }
+				});
+				alreadyDone = true;
+			}
+		})
+		// End New Guides Tab 
+	</script>
+{% else %}
+	<script>
+	  	alreadyDone = false;
+	  	// New Guides Tab
 		if (!alreadyDone) {
 			$.ajax({
 			    type:'POST', 
 			    url:'/newguides',
-			    data:'school=' + '{{school}}&new_page=0', 
+			    data:'school=' + '{{school}}&new_page={{new_page}}', 
 			    success: function(response) {
 			    	$('#new_guides').html(response);
 			    }
 			});
 			alreadyDone = true;
 		}
-	})
-	// End New Guides Tab 
-</script>
-{% else %}
-<script>
-  	alreadyDone = false;
-  	// New Guides Tab
-	if (!alreadyDone) {
-		$.ajax({
-		    type:'POST', 
-		    url:'/newguides',
-		    data:'school=' + '{{school}}&new_page={{new_page}}', 
-		    success: function(response) {
-		    	$('#new_guides').html(response);
-		    }
-		});
-		alreadyDone = true;
-	}
 
-	$('div.new-answer button.vote').click(function() {
-		console.log("NEW VOTE");
-	})
-	// End New Guides Tab 
-</script>
+		//$('div.new-answer button.vote').click(function() {
+		//	console.log("NEW VOTE");
+		//})
+		// End New Guides Tab 
+	</script>
 {% endif %}
+
 <script>
   	// Subjects Tab
 	$('.subjects').click(function (e) {
