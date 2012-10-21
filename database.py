@@ -70,6 +70,14 @@ class Subjects(db.Model):
 	school        = db.StringProperty(required = True)
 	subjects_list = db.StringListProperty(required = True)
 
+class ActiveTeachers(db.Model):
+	school        = db.StringProperty(required = True)
+	active_teachers_list = db.StringListProperty(required = True)
+
+class ActiveSubjects(db.Model):
+	school        = db.StringProperty(required = True)
+	active_subjects_list = db.StringListProperty(required = True)
+
 class Teacher_Subjects(db.Model):
 	'''List subjects for a teacher'''
 	school        = db.StringProperty(required = True)
