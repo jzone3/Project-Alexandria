@@ -704,6 +704,20 @@ def add_subject(school, subject):
 		result = Subjects(school=school, subjects_list=[subject])
 	result.put()
 
+	## add to active subjects list
+	r = ActiveSubjects.all()
+	r.filter('school =', school)
+	result = r.get()
+
+	if result:
+		subjects = result.active_subjects_list 
+		if subject not in subjects:
+			subjects.append(subject)
+		result.active_subjects_list = subjects
+	else:
+		result = ActiveSubjects(school=school, active_subjects_list=[subject])
+	result.put()
+
 def add_teacher(school, teacher):
 	'''adds/updates a teacher to Teachers'''
 	q = Teachers.all()
@@ -722,6 +736,41 @@ def add_teacher(school, teacher):
 		logging.error('new')
 		result = Teachers(school=school, teachers_list=[teacher])
 	result.put()
+
+	## add to active teachers list
+	r = ActiveTeachers.all()
+	r.filter('school =', school)
+	result = r.get()
+
+	if result:
+		teachers = result.active_teachers_list 
+		if teacher not in teachers:
+			teachers.append(teacher)
+		result.active_teachers_list = teachers
+	else:
+		result = ActiveTeachers(school=school, active_teachers_list=[teacher])
+	result.put()
+
+
+def get_all_active_teachers(school):
+	'''gets list of all active teachers from ActiveTeachers model'''
+	q = ActiveTeachers.all()
+	q.filter('school =', school)
+	result = q.get()
+	if result:
+		return sorted(result.active_teachers_list)
+	else:
+		return []
+
+def get_all_active_subjects(school):
+	'''gets list of all active subjects from ActiveSubjects model'''
+	q = ActiveSubjects.all()
+	q.filter('school =', school)
+	result = q.get()
+	if result:
+		return sorted(result.active_subjects_list)
+	else:
+		return []
 
 def get_all_subjects(school):
 	'''gets list of all subjects from Subjects model'''

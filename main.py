@@ -298,8 +298,8 @@ class GuidesHandler(BaseHandler):
 		
 		# calculate subjects and teachers
 		if school:
-			subjects = get_all_subjects(school)
-			teachers = get_all_teachers(school)
+			subjects = get_all_active_subjects(school)
+			teachers = get_all_active_teachers(school)
 		else:
 			self.render('guides.html', {'top_guides':top_guides, 'page':page, 'page_offset':page_offset})
 			return
