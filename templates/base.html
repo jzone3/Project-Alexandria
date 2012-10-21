@@ -236,7 +236,7 @@
 						<div class="alert alert-error" {% if not year_error %}style="display: none;"{% endif %}>{{year_error}}</div>
 						<br />
 						<label class="checkbox">
-							<input type="checkbox" name="agree"> I agree to the Project Alexandria <a href="tos" target="_blank">Terms of Service</a>
+							<input type="checkbox" name="agree"> I agree to the Project Alexandria <a href="tos" target="_blank">Terms of Service</a> and I am over 13 years old
 						</label>
 						<div class="alert alert-error" {% if not agree_error %}style="display: none;"{% endif %}>{{agree_error}}</div>
 						<div id="human" class="row">
@@ -328,18 +328,25 @@
 	</div>
 
 	<!-- Footer -->
+	{% if main_page %}
 	<div class="sticky-footer" style="color: gray;">
 		Copyright 2012 All Rights Reserved | 
 		<a href="/tos" class="footerlinks" style="color:gray;">Terms of Service</a> | 
 		<a href="/team" class="footerlinks" style="color:gray;">Team</a>
 	</div>
+	{% else %}
+	<div class="sticky-footer" style="color: #CFCFCF;">
+		Copyright 2012 All Rights Reserved | 
+		<a href="/tos" class="footerlinks" style="color:#CFCFCF;">Terms of Service</a> | 
+		<a href="/team" class="footerlinks" style="color:#CFCFCF;">Team</a>
+	</div>
+	{% endif %}
 	{% if signed_in %}
 	<div class="sticky-footer bg_switcher" style="color: gray;">
 		<img src="/static/img/thumb1.png" width="40px" id="bg1" class="bglink">
-		<img src="/static/img/thumb2.png" width="40px" id="bg2" class="bglink">
 		<img src="/static/img/thumb3.png" width="40px" id="i3" class="bglink">
-		<img src="/static/img/thumb5.png" width="40px" id="ti2" class="bglink">
-		<img src="/static/img/thumb4.png" width="40px" id="bg4" class="bglink">
+		<img src="/static/img/bg12.png" width="40px" id="bg12" class="bglink">
+		<img src="/static/img/bg7.png" width="40px" id="bg7" class="bglink">
 	</div>
 	<script>
 	$('.bglink').click(function() {

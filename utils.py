@@ -659,8 +659,7 @@ def get_top_guides(school=None, page=0):
 	if page >= 5: # 5 is max number of memcache'd pages
 		results = list(top_guides_from_db(school, page))
 	elif str(school) in last_refresh.keys():
-		# if time.time() > last_refresh[str(school)] + 900:
-		if False:
+		if time.time() > last_refresh[str(school)] + 900:
 			last_refresh[str(school)] = time.time()
 			results = list(top_guides_from_db(school, page))
 			memcache.set(str(school) + '-top_guides-' + str(page), results)

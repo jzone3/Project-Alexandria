@@ -71,6 +71,8 @@ class BaseHandler(webapp2.RequestHandler):
 		return schools_list
 
 	def render(self, template, params={}):
+		if template == 'index.html':
+			params['main_page'] = True
 		params['signed_in'] = self.logged_in()
 		params['bg'] = self.request.cookies.get('bg', '')
 		if params['signed_in']:
@@ -113,7 +115,7 @@ class BaseHandler(webapp2.RequestHandler):
 		elif not params['signed_in']:
 			if template != 'index.html' and template != 'about.html' and template != 'contact.html' and template != 'external_signup.html':
 				template = jinja_env.get_template('index.html')
-				self.response.out.write(template.render({'widget_html':params['widget_html'], 'blockbg':True, 'modal':'login'}))
+				self.response.out.write(template.render({'widget_html':params['widget_html'], 'blockbg':True, 'modal':'login', 'main_page' : True}))
 				return
 
 		template = jinja_env.get_template(template)

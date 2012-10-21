@@ -156,7 +156,6 @@
 	    var id = $(this).parents('div.answer').attr('id');
 	    var vote_type = $(this).hasClass('up') ? 'up' : 'down';
 	    var previous_votes = $("td.score_" + id).attr('id');
-
 	    $.ajax({
 		    type:'POST', 
 		    url:'/vote', 
