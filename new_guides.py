@@ -32,7 +32,7 @@ def make_new_guides(guides, page=0, username=''):
 						<td>{0[teacher]}</td>
 						<td id="new-votes_{0[key]}">{0[votes]}</td>
 					</tr>
-				""".format({'key':str(i.key()), 'url':i.url, 'title':i.title, 'subject':i.subject, 'user_created':user, 'teacher':i.teacher, 'votes':i.votes, 'x':str(x)})
+				""".format({'key':str(i.key()), 'url':i.url, 'title':i.title, 'subject':i.subject, 'user_created':user, 'teacher':i.teacher, 'votes':str_votes(i.votes), 'x':str(x)})
 	
 	pg = ''
 	if page > 0:
@@ -77,10 +77,13 @@ def make_new_guides(guides, page=0, username=''):
 						prev = parseInt($('#new-votes_' + id).text())
 						after = prev + parseInt(response)
 						$('#new-votes_' + id).html(str_votes(after))
+						$('#votes_' + id).html(str_votes(after))
 						if (vote_type == 'up'){
 							$('#new-votes_' + id).css({'color':'#14BB14'})
+							$('#votes_' + id).css({'color':'#14BB14'})
 						} else {
 							$('#new-votes_' + id).css({'color':'red'})
+							$('#votes_' + id).css({'color':'red'})
 						}
 					}		        
 			    }
