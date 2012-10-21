@@ -100,12 +100,14 @@ def get_submitted(username):
 		guides = GET_USER_GUIDES
 		if guides is None:
 			return 5
-		logging.error(username + '_submitted db read')
+		logging.error('DB get_submitted(): '+username)
 		to_return = []
 		for submission in guides:
 			to_return.append({'title' : submission.title, 'subject' : submission.subject, 'teacher' : submission.teacher, 'date_created' : submission.date_created, 'key' : submission.key(), 'icon' : submission.icon, 'url' : submission.url})
 		memcache.set(username + '_submitted', to_return)
+		logging.error('CACHE set: '+username+'_submitted')
 	else:
+		logging.error('CACHE get_submitted(): '+username)
 		return from_cache
 	return to_return
 
@@ -115,11 +117,14 @@ def get_submitted_guide_names(username):
 		GET_USER_GUIDES.bind(username = username)
 		guides = GET_USER_GUIDES
 		# guides = db.GqlQuery("SELECT * FROM Guides WHERE user_created = '" + username.replace("'", "&lsquo;") + "' ORDER BY date_created DESC")
-		logging.error(username + '_submitted db read')
+		logging.error('DB get_submitted_guide_names(): '+username)
 		to_return = []
 		for submission in guides:
 			to_return.append({'title' : submission.title, 'subject' : submission.subject, 'votes' : submission.votes, 'date_created' : submission.date_created, 'url' : submission.url})
 		memcache.set(username + '_submitted', to_return)
+		logging.error('CACHE set: '+username+'_submitted')
+	else:
+		logging.error('CACHE get_submitted_guide_names(): '+username)
 	return to_return
 
 def send_report_mail(blob_key):
