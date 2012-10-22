@@ -208,7 +208,7 @@ class MainHandler(BaseHandler):
 			username, password, verify, school, agree, human, email = ('', '', '', '', '', '', '')
 			username_error, password_error, verify_error, school_error, agree_error, human_error, email_error = ('', '', '', '', '', '', '')
 
-			username, password, verify, school, year, agree, human, email = [self.rget(x) for x in ('username', 'password', 'verify', 'school', 'agree', 'session_secret', 'email')]
+			username, password, verify, school, agree, human, email = [self.rget(x) for x in ('username', 'password', 'verify', 'school', 'agree', 'session_secret', 'email')]
 			results = signup(username=username, password=password, verify=verify, school=school, agree=agree, human=human, email=email+'@bergen.org')
 			if results['success']:
 				add_school(school)
@@ -226,7 +226,6 @@ class MainHandler(BaseHandler):
 										   'school_error': get_error(results, 'school'),
 										   'agree_error': get_error(results, 'agree'),
 										   'human_error': get_error(results, 'human'),
-										   'choice' : int(year),
 										   'blockbg' : True,
 										   'modal': 'signup'})
 
