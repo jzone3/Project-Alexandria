@@ -65,9 +65,37 @@ def add_school(new_school):
 		current_schools.append(new_school)
 	memcache.set('all_schools', current_schools)
 
+# http://www.google.com/a/projectalexa.com
+PEOPLE = ['jared@projectalexa.com', 'kenny@projectalexa.com', 'matthew@projectalexa.com', 'eric@projectalexa.com', 'justin@projectalexa.com']
+person = 0
+
+DEVS = ['jared@projectalexa.com', 'kenny@projectalexa.com', 'matthew@projectalexa.com']
+dev = 0
+
 def save_feedback(content, origin):
 	new_feedback = Feedback(content = content, origin = origin)
 	new_feedback.put()
+	feedback_type = ((content.split("<br")[0].strip())[8:])
+	feedback_to_compare = feedback_type.split(' ')
+	logging.error(feedback_type)
+	if "Problem" in feedback_to_compare:
+		mail.send_mail(sender="Project Alexandria <info@projectalexa.com>",
+						to=DEVS[dev],
+						subject="Feedback: %s" % feedback_type,
+						body=content)
+		if dev == 2:
+			dev = 0
+		else:
+			dev += 1
+	else:
+		mail.send_mail(sender="Project Alexandria <info@projectalexa.com>",
+						to=PEOPLE[person],
+						subject="Feedback: %s" % feedback_type,
+						body=content)
+		if person == 4:
+			person = 0
+		else:
+			person += 1
 
 def add_submitted(username, key):
 	cached_items = memcache.get(username + '_submitted')
