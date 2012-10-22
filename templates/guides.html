@@ -229,10 +229,13 @@
 					prev = parseInt($('#votes_' + id).text())
 					after = prev + parseInt(response)
 					$('#votes_' + id).html(str_votes(after))
+					if (alreadyDone) {$('#new-votes_' + id).html(str_votes(after));}
 					if (vote_type == 'up'){
 						$('#votes_' + id).css({'color':'#14BB14'})
+						if (alreadyDone) {$('#new-votes_' + id).css({'color':'#14BB14'})}
 					} else {
 						$('#votes_' + id).css({'color':'red'})
+						if (alreadyDone) {$('#new-votes_' + id).css({'color':'red'})}
 					}
 				}		        
 		    }
@@ -275,10 +278,6 @@
 			});
 			alreadyDone = true;
 		}
-
-		//$('div.new-answer button.vote').click(function() {
-		//	console.log("NEW VOTE");
-		//})
 		// End New Guides Tab 
 	</script>
 {% endif %}
