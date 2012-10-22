@@ -37,8 +37,6 @@ template_dir = os.path.join(os.path.dirname(__file__), 'templates')
 jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir), autoescape=True)
 jinja_env.filters['str_votes'] = str_votes
 
-from temp import email_list
-
 class BaseHandler(webapp2.RequestHandler):
 	'''Parent class for all handlers, shortens functions'''
 	def write(self, content):
@@ -103,22 +101,6 @@ class BaseHandler(webapp2.RequestHandler):
 		if template == 'prefs.html':
 			params['all_schools'] = self.get_schools_list()
 
-
-		if self.get_username():
-			user = get_user(self.get_username())
-			if user:
-				if user.bergen_mail:
-					email = user.bergen_mail
-				else:
-					email = user.email
-				if email not in email_list:
-					self.redirect('/beta')
-		elif not params['signed_in']:
-			if template != 'index.html' and template != 'about.html' and template != 'contact.html' and template != 'external_signup.html':
-				template = jinja_env.get_template('index.html')
-				self.response.out.write(template.render({'widget_html':params['widget_html'], 'blockbg':True, 'modal':'login', 'main_page' : True}))
-				return
-
 		template = jinja_env.get_template(template)
 		self.response.out.write(template.render(params))
 
@@ -149,6 +131,7 @@ class BaseHandler(webapp2.RequestHandler):
 		school = self.get_school_cookie()
 		if 'school' in params.keys():
 			del params['school']
+
 		new_params = {'email':email, 'email_verified':email_verified, 'school':school}
 		all_params = dict(new_params)
 		all_params.update(params)
@@ -222,8 +205,8 @@ class MainHandler(BaseHandler):
 				self.render('index.html', {'username': username, 'wrong': value, 'modal' : 'login', 'blockbg' : True})
 
 		elif formname == 'signup':
-			username, password, verify, school, agree, human, email = ('', '', '', '', '', '', '', '')
-			username_error, password_error, verify_error, school_error, agree_error, human_error, email_error = ('', '', '', '', '', '', '', '')
+			username, password, verify, school, agree, human, email = ('', '', '', '', '', '', '')
+			username_error, password_error, verify_error, school_error, agree_error, human_error, email_error = ('', '', '', '', '', '', '')
 
 			username, password, verify, school, year, agree, human, email = [self.rget(x) for x in ('username', 'password', 'verify', 'school', 'agree', 'session_secret', 'email')]
 			results = signup(username=username, password=password, verify=verify, school=school, agree=agree, human=human, email=email+'@bergen.org')
@@ -298,12 +281,10 @@ class GuidesHandler(BaseHandler):
 		page_offset = page * 25
 		
 		# calculate subjects and teachers
-		if school:
-			subjects = get_all_active_subjects(school)
-			teachers = get_all_active_teachers(school)
-		else:
-			self.render('guides.html', {'top_guides':top_guides, 'page':page, 'page_offset':page_offset})
-			return
+
+		subjects = get_all_active_subjects(school)
+		teachers = get_all_active_teachers(school)
+
 		self.render('guides.html', {'top_guides':top_guides, 
 									'subjects':subjects, 
 									'teachers':teachers,

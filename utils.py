@@ -835,8 +835,11 @@ def add_teacher(school, teacher):
 
 
 
-def get_all_active_teachers(school):
+def get_all_active_teachers(school=''):
 	'''gets list of all active teachers from ActiveTeachers model'''
+	if not school:
+		school = "Bergen County Academies"
+
 	result = memcache.get('activeteachers-'+school)
 	if result:
 		logging.error('CACHE get_all_active_teachers(): '+school)
@@ -854,8 +857,11 @@ def get_all_active_teachers(school):
 	else:
 		return []
 
-def get_all_active_subjects(school):
+def get_all_active_subjects(school=''):
 	'''gets list of all active subjects from ActiveSubjects model'''
+	if not school:
+		school = "Bergen County Academies"
+		
 	result = memcache.get('activesubjects-'+school)
 	if result:
 		logging.error('CACHE get_all_active_subjects(): '+school)

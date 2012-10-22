@@ -30,10 +30,14 @@
 					    <a href="{{ dl_link }}"><i class="icon-download-alt"></i> Download</a>
 					    <span> | </span>
 
-						{% if result.edit_url %}
+						{% if result.edit_url and signed_in %}
 						<a href="{{ result.edit_url }}" target="_blank">
 							<i class="icon-cloud"></i> Edit on Google Docs
 						</a>
+						{% elif not signed_in %}
+						<span style="color:#ACACAC;">							
+							<i class="icon-cloud"></i> Please <a href="#login" data-toggle="modal">log in</a> to edit this guide						
+						</span>	
 						{% else %}
 						<span style="color:#ACACAC;">							
 							<i class="icon-cloud"></i> Edit on Google Docs						
