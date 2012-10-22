@@ -307,20 +307,21 @@
 	})
 
 	$('#subjectsearch').click(function (e) {
-		subject = $('#subject_box').val();
-		// used getElementById since there are spaces in ID
+		subject = $("<div/>").html($('#subject_box').val()).text();
+		// above unencodes text
 		$('#subjectsearch').html('<img style="margin-bottom: 4px;" src="/static/img/ajax-loader.gif">')
-	e.preventDefault();
-	$.ajax({
-	    type:'POST', 
-	    url:'/subjects', 
-	    data:'subject=' + subject, 
-	    success: function(response) {
-	    	$('#subjectlist').hide();
-	    	$('#subjectlist2').html(response);
-	    	$('#subjectlist2').show();
-	    	$('#subjectsearch').html('<i class="icon-arrow-right"></i>')
-	    }
+
+		e.preventDefault();
+		$.ajax({
+		    type:'POST', 
+		    url:'/subjects', 
+		    data:'subject=' + subject, 
+		    success: function(response) {
+		    	$('#subjectlist').hide();
+		    	$('#subjectlist2').html(response);
+		    	$('#subjectlist2').show();
+		    	$('#subjectsearch').html('<i class="icon-arrow-right"></i>')
+		    }
 	});
 	})
 	function subtoggle1(){
@@ -361,7 +362,7 @@
 	})
 
 	$('#teachersearch').click(function (e) {
-		teacher = $('#teacher_box').val();
+		teacher = $("<div/>").html($('#teacher_box').val()).text();
 		$('#teachersearch').html('<img style="margin-bottom: 4px;" src="/static/img/ajax-loader.gif">')
 
 		e.preventDefault();

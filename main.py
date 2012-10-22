@@ -1,4 +1,5 @@
 ## import python modules
+import cgi
 import hashlib
 import hmac
 import jinja2
@@ -878,7 +879,7 @@ class ReportHandler(BaseHandler):
 class SubjectsHandler(BaseHandler):
 	'''receives AJAX request for the second page on guides->subject'''
 	def post(self):
-		subject = self.rget('subject')
+		subject = cgi.escape(self.rget('subject'))
 		school = self.get_school_cookie()
 		teachers = get_teachers_for_subject(school, subject)
 
@@ -977,7 +978,7 @@ class SubjectsHandler2(BaseHandler):
 class TeachersHandler(BaseHandler):
 	'''receives AJAX request for the second page on guides->teacher'''
 	def post(self):
-		teacher = self.rget('teacher')
+		teacher = cgi.escape(self.rget('teacher'))
 		school = self.get_school_cookie()
 		subjects = get_subjects_for_teacher(school, teacher)
 
