@@ -12,6 +12,10 @@ handlers:
   static_files: static/robots.txt
   upload: static/robots.txt
 
+- url: /channel.html
+  static_files: static/channel.html
+  upload: static/channel.html
+
 - url: /admin/.*
   script: google.appengine.ext.admin.application
   login: admin

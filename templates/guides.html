@@ -18,8 +18,8 @@
 			</center>
 			<!-- Tabs -->
 			<ul class="nav nav-tabs" id="guides_tabs">
-				<li {% if new_page == False %}class="active"{% endif %}><a href="#top" data-toggle="tab">Top</a></li>
-				<li {% if new_page != False %}class="active"{% endif %}><a href="#new" data-toggle="tab" id="new_tab">New</a></li>
+				<li {% if new_page == False %}class="active"{% endif %}><a href="#top" data-toggle="tab"><i class="icon-fire"></i>Top</a></li>
+				<li {% if new_page != False %}class="active"{% endif %}><a href="#new" data-toggle="tab" id="new_tab"><i class="icon-leaf"></i> New</a></li>
 				<li><a href="#subject" data-toggle="tab">Subject</a></li>
 				<li><a href="#teacher" data-toggle="tab">Teacher</a></li>
 				<form method="get" class="form-search" style="float:right;">
@@ -129,18 +129,24 @@
 						<ul class="breadcrumb">
 							<li class="active">Subjects <span class="divider">/</span></li>
 						</ul>
+						<center>
+							<div>
+								<input id="subject_box" class="input-xlarge" type="text" name="subject" data-provide="typeahead" placeholder="Search for a subject" autocomplete="off" style="margin-bottom:0px;">
+								<a href="#subject" id="subjectsearch" role="button" class="btn btn-primary"><i class="icon-arrow-right"></i></a>
+							</div>
+							<br>
+						</center>
 						<div class="row-fluid">
 							{% for subject in subjects %}
-
-							<!-- Start a new row every 3 span4's -->
-							{% if loop.index0 is divisibleby(3) %} 
+								<!-- Start a new row every 3 span4's -->
+								{% if loop.index0 is divisibleby(3) %} 
+									</div>
+									<div class="row-fluid">
+								{% endif %}
+								<div class="span4 hoverspn4">
+									<a href="#{{subject}}" class="subjects" id="{{subject}}">{{ subject }}</a>
+									&nbsp;&nbsp;<img src="../static/img/ajax-loader.gif" id="s_{{subject}}load" style="display:none;"/>
 								</div>
-								<div class="row-fluid">
-							{% endif %}
-							<div class="span4 hoverspn4">
-								<a href="#{{subject}}" class="subjects" id="{{subject}}">{{ subject }}</a>
-								&nbsp;&nbsp;<img src="../static/img/ajax-loader.gif" id="s_{{subject}}load" style="display:none;"/>
-							</div>
 							{% endfor %}
 						</div>
 					</div>
@@ -155,6 +161,13 @@
 						<ul class="breadcrumb">
 							<li class="active">Teachers <span class="divider">/</span></li>
 						</ul>
+						<center>
+							<div>
+								<input id="teacher_box" class="input-xlarge" type="text" name="teacher" data-provide="typeahead" placeholder="Search for a teacher" autocomplete="off" style="margin-bottom:0px;">
+								<a href="#teacher" id="teachersearch" role="button" class="btn btn-primary"><i class="icon-arrow-right"></i></a>
+							</div>
+							<br>
+						</center>
 						<div class="row-fluid">
 							{% for teacher in teachers %}
 
@@ -178,6 +191,15 @@
 			</div>
 		</div>
 	</div>
+
+<script>
+	subject_array = [];
+	{% for i in subjects %} subject_array.push('"{{ i }}"'); {% endfor %}
+	$('#subject_box').attr('data-source', "[" + subject_array + "]");
+	teacher_array = [];
+	{% for i in teachers %} teacher_array.push('"{{ i }}"'); {% endfor %}
+	$('#teacher_box').attr('data-source', "[" + teacher_array + "]");
+</script>
 
 <script>
 	// Voting Script
@@ -284,6 +306,24 @@
 	    }
 	});
 	})
+
+	$('#subjectsearch').click(function (e) {
+		subject = $('#subject_box').val();
+		// used getElementById since there are spaces in ID
+		$('#subjectsearch').html('<img style="margin-bottom: 4px;" src="/static/img/ajax-loader.gif">')
+	e.preventDefault();
+	$.ajax({
+	    type:'POST', 
+	    url:'/subjects', 
+	    data:'subject=' + subject, 
+	    success: function(response) {
+	    	$('#subjectlist').hide();
+	    	$('#subjectlist2').html(response);
+	    	$('#subjectlist2').show();
+	    	$('#subjectsearch').html('<i class="icon-arrow-right"></i>')
+	    }
+	});
+	})
 	function subtoggle1(){
 		$('#subjectlist2').hide();
 	$('#subjectlist').show();   
@@ -320,6 +360,25 @@
 	    }
 	});
 	})
+
+	$('#teachersearch').click(function (e) {
+		teacher = $('#teacher_box').val();
+		$('#teachersearch').html('<img style="margin-bottom: 4px;" src="/static/img/ajax-loader.gif">')
+
+		e.preventDefault();
+		$.ajax({
+		    type:'POST', 
+		    url:'/teachers', 
+		    data:'teacher=' + teacher, 
+		    success: function(response) {
+		    	$('#teacherlist').hide();
+		    	$('#teacherlist2').html(response);
+		    	$('#teacherlist2').show();
+		        $('#teachersearch').html('<i class="icon-arrow-right"></i>')
+		    }
+		});
+	})
+
 	function teachtoggle1(){
 		$('#teacherlist2').hide();
 	$('#teacherlist').show();   
