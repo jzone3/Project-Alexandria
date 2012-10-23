@@ -359,31 +359,32 @@ class GuidePageHandler(BaseHandler):
 	"""
 	'''Handlers custom guide pages: guide_page.html'''
 	def get(self, url):
-		# formats url
-		url = url[1:]
+		bookmarked, reported = False, False
+		logged_in = self.logged_in()
+		url = url[1:] # formats url 
+
 		# retrieve guide from db
 		q = Guides.all()
 		q.filter('url =', url.lower())
 		result = q.get()
-		bookmarked = False
-		username = ''
-		if self.logged_in() and result:
-			username = self.get_username()
-			user = get_user(username)
-			for bookmark in user.bookmark_list:
-				if bookmark.guide.blob_key == result.blob_key:
-					bookmarked = True
-		
-		# render page
+
+		# if guide exists, render page
 		if result:
 			votes = str_votes(result.votes)
 			dl_link = '/serve/' + result.blob_key
-			if username:
+
+			if logged_in:
+				# check if user reported
+				username = self.get_username()				
 				reported = (username in result.report_users)
-			else:
-				reported = False
+				# check if bookmarked
+				user = get_user(username)
+				if any([bookmark.guide.blob_key == result.blob_key \
+				        for bookmark in user.bookmark_list]):
+						bookmarked = True
+
 			self.render('guide_page.html', {'result':result, 'votes':votes, 'dl_link':dl_link, 'bookmarked':bookmarked, 
-											'logged_in':self.logged_in(), 'reported':reported})
+											'logged_in':logged_in, 'reported':reported})
 		else:
 			# site = url.lower().split('/')
 			# if site[0] != 'null':
@@ -668,6 +669,10 @@ class DeleteAccountHandler(BaseHandler):
 				self.render('/delete_account')
 		else:
 			self.redirect('/')
+
+class DeleteGuideHandler(BaseHandler):
+	def post(self):
+		pass
 
 class GoogleLoginHandler(BaseHandler):
 	'''Handles google login: /google_login'''
@@ -1163,6 +1168,7 @@ app = webapp2.WSGIApplication([('/?', MainHandler),
 							   ('/notifications/?', NotificationHandler),
 							   ('/feedback/?', FeedbackHandler),
 							   ('/beta/?', BetaHandler),
+							   ('/guide/delete/?', DeleteGuideHandler),
 							   # ('/mod/?', ModHandler),
 							   ('/.*', NotFoundHandler),
 							   ], debug=True)
