@@ -766,6 +766,7 @@ def get_new_guides(school, page=0, username=''):
 	return make_new_guides(results, page, username)
 
 def get_new_guides_from_db(school=None, page=0):
+	results = None
 	if page == 0:
 		results = memcache.get('new-guides-' + str(school))
 	if results is None:
@@ -774,10 +775,10 @@ def get_new_guides_from_db(school=None, page=0):
 			q.filter('school =', school)
 		q.order('-date_created')
 		results = q.run(limit=25, offset=page*25)
+		lst = []
+		for i in results:
+			lst.append(i)
 		if page == 0:
-			lst = []
-			for i in results:
-				lst.append(i)
 			memcache.set('new-guides-' + str(school), lst)
 		results = lst
 		# logging

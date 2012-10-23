@@ -93,10 +93,20 @@
 							
 						</tbody>
 					</table>
-					<span style="text-align:center">
-						{% if page > 0 %} <a href='guides?page={{ page - 1 }}'>Previous</a> {% endif %}
-						{% if top_guides|length == 25 %}<a href='guides?page={{ page + 1 }}'>Next</a>{% endif %}
-					</span>
+					<!-- <span style="text-align:center"> -->
+						<ul class="pager">
+						{% if page > 0 %}
+						<li class="previous">
+							<a href='guides?page={{ page - 1 }}'>&larr; Previous</a>
+						</li>
+						{% endif %}
+						{% if top_guides|length == 25 %}
+						<li class="next">
+							<a href='guides?page={{ page + 1 }}'>Next &rarr;</a>
+						</li>
+						{% endif %}
+						</ul>
+					<!-- </span> -->
 				</div>
 				<!-- End Top Tab Content -->
 

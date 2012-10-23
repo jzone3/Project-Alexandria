@@ -36,9 +36,13 @@ def make_new_guides(guides, page=0, username=''):
 	
 	pg = ''
 	if page > 0:
-		pg += "<a href='guides?new_page=" + str(page - 1) + "'>Previous</a>"
+		pg += """<li class="previous">
+							<a href='guides?new_page=%s'>&larr; Previous</a>
+						</li>""" % str(page - 1)
 	if x == 25:
-		pg += "<a href='guides?new_page=" + str(page + 1) + "'>Next</a>"
+		pg += """<li class="next">
+							<a href='guides?new_page=%s'>Next &rarr;</a>
+						</li>""" % str(page + 1)
 
 	html = """
 			<table class="table-hover">
@@ -55,7 +59,7 @@ def make_new_guides(guides, page=0, username=''):
 				</thead>
 				<tbody>%s</tbody>
 			</table>
-			<span style="text-align:center">%s</span>
+			<ul class="pager">%s</ul>
 	""" % (table, pg)
 
 	script = """<script>	
