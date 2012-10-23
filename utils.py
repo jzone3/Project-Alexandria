@@ -765,12 +765,12 @@ def get_new_guides(school, page=0, username=''):
 	results = get_new_guides_from_db(school, page)
 	return make_new_guides(results, page, username)
 
-def get_new_guides_from_db(school, page=0):
+def get_new_guides_from_db(school=None, page=0):
 	if page == 0:
 		results = memcache.get('new-guides-' + str(school))
 	if results is None:
 		q = Guides.all()
-		if school: # i.e. if user is logged in (school cookie)
+		if str(school) != 'None': # i.e. if user is logged in (school cookie)
 			q.filter('school =', school)
 		q.order('-date_created')
 		results = q.run(limit=25, offset=page*25)
@@ -779,11 +779,12 @@ def get_new_guides_from_db(school, page=0):
 			for i in results:
 				lst.append(i)
 			memcache.set('new-guides-' + str(school), lst)
+		results = lst
 		# logging
 		if school:
 			logging.error('DB new_guides_from_db: '+school)
 		else:
-			logging.error('DB new_guides_from_db: ALL')
+			logging.error('DB new_guides_from_db: '+str(school))
 
 	return results
 

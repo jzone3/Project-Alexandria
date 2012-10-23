@@ -18,10 +18,14 @@
 			</center>
 			<!-- Tabs -->
 			<ul class="nav nav-tabs" id="guides_tabs">
+				{% if signed_in %}
 				<li {% if new_page == False %}class="active"{% endif %}><a href="#top" data-toggle="tab"><i class="icon-fire"></i>Top</a></li>
 				<li {% if new_page != False %}class="active"{% endif %}><a href="#new" data-toggle="tab" id="new_tab"><i class="icon-leaf"></i> New</a></li>
 				<li><a href="#subject" data-toggle="tab">Subject</a></li>
 				<li><a href="#teacher" data-toggle="tab">Teacher</a></li>
+				{% else %}
+				<li class="active"><a href="#top" data-toggle="tab"><i class="icon-fire"></i>Top</a></li>
+				{% endif %}
 				<form method="get" class="form-search" style="float:right;">
 					<input type="text" name ="q" class="input-xlarge search-query" placeholder="Search All Materials">
 					<button type="submit" class="btn">Search</button>
@@ -96,6 +100,7 @@
 				</div>
 				<!-- End Top Tab Content -->
 
+				{% if signed_in %}
 				<!-- New Tab Content -->
 				<div class="tab-pane fade {% if new_page != False %}active in{% endif %}" id="new">
 					<script>
@@ -187,6 +192,7 @@
 					<div id="teacherlist3" style="display:none;"></div>
 				</div>
 				<!-- End Teacher Tab Content -->
+				{% endif %}
 
 			</div>
 		</div>

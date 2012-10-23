@@ -279,18 +279,27 @@ class GuidesHandler(BaseHandler):
 			
 		page_offset = page * 25
 		
+		logged_in = self.logged_in()
+
 		# calculate subjects and teachers
+		if logged_in:
+			subjects = get_all_active_subjects(school)
+			teachers = get_all_active_teachers(school)
 
-		subjects = get_all_active_subjects(school)
-		teachers = get_all_active_teachers(school)
-
-		self.render('guides.html', {'top_guides':top_guides, 
+			self.render('guides.html', {'top_guides':top_guides, 
 									'subjects':subjects, 
 									'teachers':teachers,
 									'page':page,
 									'page_offset':page_offset,
 									'school':school,
-									'new_page' : new_page})
+									'new_page' : new_page,
+									'logged_in' : logged_in})
+		else:
+			self.render('guides.html', {'top_guides':top_guides, 
+										'page':page,
+										'page_offset':page_offset,
+										'new_page' : new_page,
+										'logged_in' : logged_in})
 
 class NewGuidesHandler(BaseHandler):
 	def get(self):
@@ -399,7 +408,7 @@ class UserPageHandler(BaseHandler):
 			# 	total += i['votes']
 			# score = str_votes(total)
 			score = 0
-			self.render('user_page.html', {'result':result, 'score':score, 'count':count, 'guides':result, 'school' : user.school, 'username' : url})
+			self.render('user_page.html', {'result':result, 'score':score, 'count':count, 'guides':result, 'school' : user.school, 'user' : url})
 
 class UploadHandler(BaseHandler):
 	def get(self):
