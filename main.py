@@ -399,7 +399,7 @@ class UserPageHandler(BaseHandler):
 			# 	total += i['votes']
 			# score = str_votes(total)
 			score = 0
-			self.render('user_page.html', {'result':result, 'score':score, 'count':count, 'guides':result, 'school' : user.school, 'username' : url})
+			self.render('user_page.html', {'result':result, 'score':score, 'count':count, 'guides':result, 'school' : user.school, 'user' : url})
 
 class UploadHandler(BaseHandler):
 	def get(self):
