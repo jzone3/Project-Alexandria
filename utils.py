@@ -762,6 +762,8 @@ def top_guides_from_db(school, page=0):
 	return results
 
 def get_new_guides(school, page=0, username=''):
+	if page == 'zero':
+		page = 0
 	results = get_new_guides_from_db(school, page)
 	return make_new_guides(results, page, username)
 

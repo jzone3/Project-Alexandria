@@ -262,6 +262,8 @@ class GuidesHandler(BaseHandler):
 		if self.rget('new_page'):
 			try:
 				new_page = int(self.rget('new_page'))
+				if new_page == 0:
+					new_page = 'zero'
 			except:
 				new_page = False
 			if new_page < 0:

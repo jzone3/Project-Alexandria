@@ -19,8 +19,8 @@
 			<!-- Tabs -->
 			<ul class="nav nav-tabs" id="guides_tabs">
 				{% if signed_in %}
-				<li {% if new_page == False and new_page != 0 %}class="active"{% endif %}><a href="#top" data-toggle="tab"><i class="icon-fire"></i>Top</a></li>
-				<li {% if new_page != False or new_page == 0 %}class="active"{% endif %}><a href="#new" data-toggle="tab" id="new_tab"><i class="icon-leaf"></i> New</a></li>
+				<li {% if not new_page %}class="active"{% endif %}><a href="#top" data-toggle="tab"><i class="icon-fire"></i>Top</a></li>
+				<li {% if new_page %}class="active"{% endif %}><a href="#new" data-toggle="tab" id="new_tab"><i class="icon-leaf"></i> New</a></li>
 				<li><a href="#subject" data-toggle="tab">Subject</a></li>
 				<li><a href="#teacher" data-toggle="tab">Teacher</a></li>
 				{% else %}
@@ -36,7 +36,7 @@
 			<div class="tab-content">
 
 				<!-- Top Tab Content -->
-				<div class="tab-pane fade{% if new_page == False and new_page != 0 %} active in{% endif %}" id="top">
+				<div class="tab-pane fade{% if not new_page %} active in{% endif %}" id="top">
 					<script>
 					function tiphide (){
 						$('this').tooltip('hide');
@@ -112,7 +112,7 @@
 
 				{% if signed_in %}
 				<!-- New Tab Content -->
-				<div class="tab-pane fade {% if new_page != False or new_page == 0 %}active in{% endif %}" id="new">
+				<div class="tab-pane fade {% if new_page %}active in{% endif %}" id="new">
 					<script>
 					function tiphide (){
 						$('this').tooltip('hide');
@@ -260,7 +260,7 @@
 	// End Voting Script
 </script>
 
-{% if new_page == False and new_page != 0 %}
+{% if not new_page %}
 	<script>
 	  	alreadyDone = false;
 	  	// New Guides Tab
