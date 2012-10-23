@@ -12,6 +12,10 @@ handlers:
   static_files: static/robots.txt
   upload: static/robots.txt
 
+- url: /basic_sitemap.txt
+  static_files: static/basic_sitemap.txt
+  upload: static/basic_sitemap.txt
+
 - url: /channel.html
   static_files: static/channel.html
   upload: static/channel.html
