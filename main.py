@@ -309,6 +309,8 @@ class NewGuidesHandler(BaseHandler):
 
 	def post(self):
 		school = self.rget('school')
+		if not school:
+			school = ''
 		try:
 			page = int(self.rget('new_page'))
 		except:
@@ -320,7 +322,6 @@ class NewGuidesHandler(BaseHandler):
 			username = ''
 
 		response = get_new_guides(school, page, username)
-
 		self.write(response)
 
 class DashboardHandler(BaseHandler):
