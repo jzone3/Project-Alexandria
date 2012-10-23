@@ -4909,3 +4909,11 @@ input[type=checkbox]{
 .span4.hoverspn4.intro:hover{
   background-color: rgba(0, 0, 0, 0.43);
 }
+
+.link404{
+  color: white;
+}
+
+.link404:hover{
+  color: white;
+}

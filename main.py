@@ -373,13 +373,13 @@ class GuidePageHandler(BaseHandler):
 			self.render('guide_page.html', {'result':result, 'votes':votes, 'dl_link':dl_link, 'bookmarked':bookmarked, 
 											'logged_in':self.logged_in(), 'reported':reported})
 		else:
-			site = url.lower().split('/')
-			if site[0] != 'null':
-				logging.error(site[0])
-				self.get('/null/' + site[1])
-			else:
-				self.error(404)
-				self.render('404.html', {'blockbg':True})
+			# site = url.lower().split('/')
+			# if site[0] != 'null':
+			# 	logging.error(site[0])
+			# 	self.get('/null/' + site[1])
+			# else:
+			self.error(404)
+			self.render('404.html', {'blockbg':True})
 
 class UserPageHandler(BaseHandler):
 	'''Handlers custom user pages: user_page.html'''
