@@ -39,7 +39,7 @@ def make_new_guides(guides, page=0, username=''):
 		pg += """<li class="previous">
 							<a href='guides?new_page=%s'>&larr; Previous</a>
 						</li>""" % str(page - 1)
-	if x == 25:
+	if len(guides) == 25 and page < 2:
 		pg += """<li class="next">
 							<a href='guides?new_page=%s'>Next &rarr;</a>
 						</li>""" % str(page + 1)

@@ -98,7 +98,7 @@
 							<a href='guides?page={{ page - 1 }}'>&larr; Previous</a>
 						</li>
 						{% endif %}
-						{% if top_guides|length == 25 %}
+						{% if top_guides|length == 25 and page < 2 %}
 						<li class="next">
 							<a href='guides?page={{ page + 1 }}'>Next &rarr;</a>
 						</li>

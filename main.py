@@ -252,6 +252,9 @@ class GuidesHandler(BaseHandler):
 		if self.rget('page'):
 			try:
 				page = int(self.rget('page'))
+				if page > 2:
+					self.error(404)
+					self.render('404.html')
 			except:
 				page = 0
 			if page < 0:
@@ -264,6 +267,9 @@ class GuidesHandler(BaseHandler):
 				new_page = int(self.rget('new_page'))
 				if new_page == 0:
 					new_page = 'zero'
+				elif page > 2:
+					self.error(404)
+					self.render('404.html')
 			except:
 				new_page = False
 			if new_page < 0:
