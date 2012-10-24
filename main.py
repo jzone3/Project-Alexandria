@@ -458,9 +458,9 @@ class UploadHandler(BaseHandler):
 					  'editable':editable, 'tags':tags}
 			errors.update(fields)
 			self.render('/upload.html', errors)
-		else:
-			tags = get_tags(tags) + create_tags(title, subject, teacher)
+		else:			
 			username = self.get_username()
+			tags = get_tags(tags) + create_tags(title, subject, teacher, username)
 			filename = get_filename(title, username)
 			school = get_school(username)
 			edit_url = None

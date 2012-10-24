@@ -38,25 +38,20 @@
 		<table class="table-hover">
 			<thead>
 				<tr>
-					<th>&nbsp;</th>
 					<th>Title</th>
 					<th>Subject</th>
 					<th>Teacher</th>
+					<th>Uploader</th>
 					<th>Votes</th>
 				</tr>
 			</thead>
 			<tbody>
 			{% for guide in guides %}
 				<tr>
-					<td>
-						<div class="btn-group btn-group btn-group-vertical">
-							<button class="btn btn-mini"><i class="icon-caret-up"></i></button>
-							<button class="btn btn-mini"><i class="icon-caret-down"></i></button>
-						</div>
-					</td>
 					<td><a href="/guides/{{ guide.url }}">{{ guide.title }}</a></td>
 					<td>{{ guide.subject }}</td>
 					<td>{{ guide.teacher }}</td>
+					<td>{{ guide.user_created }}</td>
 					<td>{{ guide.votes }}</td>
 				</tr>
 			{% endfor %}

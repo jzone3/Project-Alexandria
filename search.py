@@ -49,12 +49,12 @@ def filt_query(query):
 
 	return ' '.join(query)
 
-def create_tags(title, subject, teacher):
+def create_tags(title, subject, teacher, username):
 	"""Returns a list of tags given the inputs."""
 	title_tags = filt_query(title).split()
 	subject_tags = filt_query(subject).split()
 	teacher_tags = filt_query(teacher).split()
-	return title_tags + subject_tags + teacher_tags
+	return title_tags + subject_tags + teacher_tags + [username]
 
 def add_to_index(school, key, tags):
 	'''Adds a guide to the index for its school'''
