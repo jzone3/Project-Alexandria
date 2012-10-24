@@ -359,6 +359,7 @@ class GuidePageHandler(BaseHandler):
 		bookmarked, reported, deletable = False, False, False
 		logged_in = self.logged_in()
 		url = url[1:] # formats url 
+		diff = "12345"
 
 		# retrieve guide from db
 		q = Guides.all()
