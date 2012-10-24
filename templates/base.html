@@ -319,7 +319,7 @@
 		<a href="/team" class="footerlinks" style="color:#CFCFCF;">Team</a>
 	</div>
 	{% endif %}
-	{% if signed_in %}
+	{% if signed_in and not not_found %}
 	<div class="sticky-footer bg_switcher" style="color: gray;">
 		<img src="/static/img/thumb1.png" width="40px" id="bg1" class="bglink">
 		<img src="/static/img/thumb3.png" width="40px" id="i3" class="bglink">

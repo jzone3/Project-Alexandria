@@ -72,6 +72,8 @@ class BaseHandler(webapp2.RequestHandler):
 	def render(self, template, params={}):
 		if template == 'index.html':
 			params['main_page'] = True
+		elif template == '404.html':
+			params['not_found'] = True
 		params['signed_in'] = self.logged_in()
 		params['bg'] = self.request.cookies.get('bg', '')
 		if params['signed_in']:
@@ -411,6 +413,10 @@ class UserPageHandler(BaseHandler):
 			self.render('404.html', {'blockbg':True})
 		else:
 			user = get_user(url)
+			if user is None:
+				self.error(404)
+				self.render('404.html', {'blockbg':True})
+				return
 			# guides = Guides.all().filter('user_created =', result.username)
 			count = len(result)
 			# total = 0
