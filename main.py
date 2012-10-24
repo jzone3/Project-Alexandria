@@ -1,5 +1,6 @@
 ## import python modules
 import cgi
+import datetime
 import hashlib
 import hmac
 import jinja2
@@ -353,21 +354,9 @@ class DashboardHandler(BaseHandler):
 			self.redirect('/')
 
 class GuidePageHandler(BaseHandler):
-	"""
-	FOR INTERACTIVE CONSOLE THING
-
-	from google.appengine.ext import db
-	from database import *
-
-	q = Guides.all()
-	for guide in q:
-	    print guide.title
-	    memcache.set('guideurl-' + guide.url, guide)
-	print '\nSUCCESS\n'
-	"""
 	'''Handlers custom guide pages: guide_page.html'''
 	def get(self, url):
-		bookmarked, reported = False, False
+		bookmarked, reported, deletable = False, False, False
 		logged_in = self.logged_in()
 		url = url[1:] # formats url 
 
@@ -391,8 +380,15 @@ class GuidePageHandler(BaseHandler):
 				        for bookmark in user.bookmark_list]):
 						bookmarked = True
 
+				# check if uploaded/deleteable
+				if user.username == result.user_created:
+					diff = datetime.datetime.now() - result.date_created 
+					if diff < datetime.timedelta(1):
+						deletable = True
+					diff = (datetime.timedelta(0, 86400) - diff).total_seconds()/3600 # convert to remaining time
+
 			self.render('guide_page.html', {'result':result, 'votes':votes, 'dl_link':dl_link, 'bookmarked':bookmarked, 
-											'logged_in':logged_in, 'reported':reported})
+											'logged_in':logged_in, 'reported':reported, 'deletable':deletable, 'diff':float(str(diff)[:5])})
 		else:
 			# site = url.lower().split('/')
 			# if site[0] != 'null':
@@ -684,7 +680,9 @@ class DeleteAccountHandler(BaseHandler):
 
 class DeleteGuideHandler(BaseHandler):
 	def post(self):
-		pass
+		key = self.rget('key')
+		delete_guide(key)
+		self.write("Successfully deleted!")
 
 class GoogleLoginHandler(BaseHandler):
 	'''Handles google login: /google_login'''
