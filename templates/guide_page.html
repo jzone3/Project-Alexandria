@@ -185,15 +185,17 @@
 	});
 
     $('#report').click(function() {
-    	$('#report').button('loading');
-    	$.ajax({
-    		type:'POST',
-    		url:'/report',
-    		data:'blob_key=' + '{{ result.blob_key }}',
-    		success: function(response) {
-    			$('#report').html(response)
-    		}
-    	});
+    	if (confirm("Are you sure you want to report this guide? Project Alexandria takes reporting seriously")) {
+    		$('#report').button('loading');
+	    	$.ajax({
+	    		type:'POST',
+	    		url:'/report',
+	    		data:'blob_key=' + '{{ result.blob_key }}',
+	    		success: function(response) {
+	    			$('#report').html(response)
+	    		}
+	    	});
+    	}
     });
 
 	</script>
