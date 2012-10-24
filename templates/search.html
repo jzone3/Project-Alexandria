@@ -37,7 +37,7 @@
 		{% if guides %}
 		<table class="table-hover">
 			<thead>
-				<tr>
+				<tr style="height:38px;">
 					<th>Title</th>
 					<th>Subject</th>
 					<th>Teacher</th>
@@ -47,7 +47,7 @@
 			</thead>
 			<tbody>
 			{% for guide in guides %}
-				<tr>
+				<tr style="height:38px;">
 					<td><a href="/guides/{{ guide.url }}">{{ guide.title }}</a></td>
 					<td>{{ guide.subject }}</td>
 					<td>{{ guide.teacher }}</td>

@@ -17,7 +17,15 @@
 
 			<div class="row-fluid">
 				<div class="span8">
-					<h1>{{ result.title }}</h1>
+					<h1>
+						{{ result.title }} 
+						{% if deletable %}
+						<button class="btn btn-inverse" id ="deletebtn" type="button">
+							<span id="deletetext">Delete Guide</span>
+						</button>
+						<span style='font-size: 12px;color: #BBB;'>There are {{ diff }} / 24 hours left to delete this guide <a href="about">(?)</a></span>
+						{% endif %}
+					</h1>
 					{% if result.user_created == '[deleted]' %}
 						<h3><em>by </em>{{ result.user_created }}</h3>
 					{% else %}
@@ -53,14 +61,17 @@
 					</div>
 					<div style="position:relative;top:90px;left:40px;text-align:right;text-shadow:1px 1px 1px #B6B6B6;"><h6 id="votes_{{ result.key() }}">{{ votes }} Votes</h6></div>
 					{% if signed_in %}
-					<button type="button" class="btn btn-danger btn-small" data-loading-text="Reporting..." style="position:relative;float:right;left:40px;top:85px;" id="report">
-						Report Guide <i class="icon-exclamation-sign"></i>
+					<button type="button" class="btn btn-danger btn-small" data-loading-text="Reporting..." style="position:relative;float:right;left:40px;top:85px;" id="reportbtn">
+						<span id="reporttext" rel="tooltip" data-placement="bottom" title="Is this guide cheating or plagiarism?<br> Let us know, you'll stay anonymous.">Report Guide</span>
 					</button>
+					<script>
+						$('#reporttext').tooltip();
+					</script>
 					{% endif %}
 					{% if reported %}
 					<script type="text/javascript">
-						$('#report').button('loading');
-						$('#report').html('Reported. Thank you!')
+						$('#reportbtn').button('loading');
+						$('#reportbtn').html('Reported. Thank you!')
 					</script>
 					{% endif %}
 				</div>
@@ -184,17 +195,52 @@
 		});
 	});
 
-    $('#report').click(function() {
-    	$('#report').button('loading');
-    	$.ajax({
-    		type:'POST',
-    		url:'/report',
-    		data:'blob_key=' + '{{ result.blob_key }}',
-    		success: function(response) {
-    			$('#report').html(response)
-    		}
-    	});
+    $('#reportbtn').click(function() {
+    	if ($('#reportbtn').hasClass('confirm')){
+ 			// if button already confirmed
+			$('#reportbtn').button('loading');
+	    	$.ajax({
+	    		type:'POST',
+	    		url:'/report',
+	    		data:'blob_key=' + '{{ result.blob_key }}',
+	    		success: function(response) {
+	    			$('#reportbtn').html(response)
+	    		}
+	    	});
+		} else {
+			// confirmation text
+			$('#reportbtn').addClass('confirm');
+			$('#reporttext').slideUp('slow', function (){
+				$('#reporttext').html('Are you sure?');
+			});
+			$('#reporttext').slideDown('slow');
+		}
     });
+</script>
 
-	</script>
+{% if deletable %}
+<script>    
+	$('#deletebtn').click(function() {
+		if ($('#deletebtn').hasClass('confirm')){
+			key = "{{ result.key() }}";
+			$.ajax({
+	    		type:'POST',
+	    		url:'/guide/delete',
+	    		data:'key=' + key,
+	    		success: function(response) {
+	    			alert(response);
+	    			window.location = "/guides";
+	    		}
+	    	});
+		} else {
+			$('#deletebtn').addClass('confirm');
+			$('#deletetext').slideUp('slow', function (){
+				$('#deletetext').html('Are you sure?');
+			});			
+			$('#deletetext').slideDown('slow');
+		}
+	});
+</script>
+{% endif %}
+
 {% endblock %}
