@@ -26,8 +26,9 @@ USER_RE = re.compile(r"^[a-zA-Z0-9_-]{3,20}$")
 PASS_RE = re.compile(r"^.{3,20}$")
 EMAIL_RE = re.compile(r"^[\S]+@[\S]+\.[\S]+$")
 SCHOOL_RE= re.compile(r"^[a-zA-Z0-9 _]{1,30}$")
-PAGE_RE = r'(/(?:[:\'\.a-zA-Z0-9_-]+/?)*)'
-PAGE_RE_COMPILED = re.compile(r'(/(?:[:\'\.a-zA-Z0-9_-]+/?)*)')
+TITLE_RE = re.compile(r'^[\'\.:a-zA-Z0-9_-]+$')
+PAGE_RE = r'(/(?:[\'\.:a-zA-Z0-9_-]+/?)*)'
+
 
 LOGIN_COOKIE_NAME = 'uohferrvnksj'
 
@@ -609,7 +610,7 @@ def get_url(filename, user):
 def upload_errors(title, subject, teacher, editable, headers):
 	title_error, subject_error, teacher_error, doc_url_error = '', '', '', ''
 	
-	if not True:#PAGE_RE_COMPILED.match(title):
+	if not TITLE_RE.match(title):
 		title_error = 'Invalid title. Try removing non-alphabet characters.'
 	elif not title:
 		title_error = 'Please provide a title.'
