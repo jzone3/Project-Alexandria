@@ -1053,4 +1053,6 @@ def vote(key, vote_type, username):
 	last_refresh[str(guide.school)] = 0
 	last_refresh['None'] = 0
 
+	logging.error(diff)
+
 	return diff

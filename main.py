@@ -778,8 +778,7 @@ class ExternalSignUp(BaseHandler):
 													 'email_error':result.get('email_error'),
 													 'username':username,
 													 'school':school,
-													 'email':email[:-11],
-													 'choice':year})
+													 'email':email[:-11]})
 		else:
 			self.redirect('/google_signup')
 

@@ -180,19 +180,19 @@
 		    url:'/vote', 
 		    data:'id=' + id + '&type=' + vote_type + '&username=' + "{{ username }}",
 		    success: function(response) {
-				if (response == 'False') {
+				if (response == 'voted') {
 					// if already voted
 					$("#tip_" + id).tooltip('show');
 				} else if (response == 'signin') {
 					$('#login').modal('show');
 				} else {
-					prev = parseInt($('#votes_' + id).text())
-					after = prev + parseInt(response)
-					$('#votes_' + id).html(str_votes(after) + ' Votes')
+					prev = parseInt($('#votes_' + id).text());
+					after = prev + parseInt(response);
+					$('#votes_' + id).html(str_votes(after) + ' Votes');
 					if (vote_type == 'up'){
-						$('#votes_' + id).css({'color':'#14BB14'})
+						$('#votes_' + id).css({'color':'#14BB14'});
 					} else {
-						$('#votes_' + id).css({'color':'red'})
+						$('#votes_' + id).css({'color':'red'});
 					}
 				}		        
 		    }
