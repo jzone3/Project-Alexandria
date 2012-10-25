@@ -79,10 +79,14 @@ def save_feedback(content, origin):
 	new_feedback.put()
 	feedback_type = ((content.split("<br")[0].strip())[8:])
 	feedback_to_compare = feedback_type.split(' ')
-	logging.error(feedback_type)
+	logging.error('SAVE FEEDBACK --------------------------------------------------------------')
+	user_email = get_user(origin).email
+
 	if "Problem" in feedback_to_compare:
+		global dev
 		mail.send_mail(sender="Project Alexandria <info@projectalexa.com>",
 						to=DEVS[dev],
+						reply_to=user_email,
 						subject="Feedback: %s" % feedback_type,
 						body=content)
 		if dev == 2:
@@ -90,8 +94,10 @@ def save_feedback(content, origin):
 		else:
 			dev += 1
 	else:
+		global person
 		mail.send_mail(sender="Project Alexandria <info@projectalexa.com>",
 						to=PEOPLE[person],
+						reply_to=user_email,
 						subject="Feedback: %s" % feedback_type,
 						body=content)
 		if person == 4:
@@ -603,7 +609,7 @@ def get_url(filename, user):
 def upload_errors(title, subject, teacher, editable, headers):
 	title_error, subject_error, teacher_error, doc_url_error = '', '', '', ''
 	
-	if not PAGE_RE_COMPILED.match(title):
+	if not True:#PAGE_RE_COMPILED.match(title):
 		title_error = 'Invalid title. Try removing non-alphabet characters.'
 	elif not title:
 		title_error = 'Please provide a title.'

@@ -819,9 +819,7 @@ class FeedbackHandler(BaseHandler):
 		content += '<br />'
 		content += message
 
-		# save to db
-		feedback = Feedback(origin=username, content=content)
-		feedback.put()
+		save_feedback(content, username)
 		
 		self.redirect('/')
 
