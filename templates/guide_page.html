@@ -146,7 +146,10 @@
 	
 
 	$('a.bookmarkbtn').click(function() {
-		if ("{{ logged_in }}" != "True") return;
+		if ("{{ signed_in }}" != "True") {
+			$('#login').modal('show');
+			return;
+		}
 		var id = $(this).attr('id');
 		
 		if ( $('a.bookmarkbtn').hasClass('bmd') ) {
