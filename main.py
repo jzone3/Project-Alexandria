@@ -521,6 +521,9 @@ class UploadHandler(BaseHandler):
 
 			key = str(guide.key())
 
+			memcache.delete('new-guides-None')
+			memcache.delete('new-guides-' + school)
+
 			# add guide to user's submitted guides cache
 			add_submitted(username,key)
 			

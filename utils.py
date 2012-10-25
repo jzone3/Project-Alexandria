@@ -1036,6 +1036,8 @@ def vote(key, vote_type, username):
 		guide.down_users.append(username)
 	guide.put()
 
+	memcache.delete('new-guides-None')
+	memcache.delete('new-guides-' + guide.school)
 	last_refresh[str(guide.school)] = 0
 	last_refresh['None'] = 0
 
