@@ -24,7 +24,7 @@ class JsonProperty(db.TextProperty):
 class Users(db.Model):
 	username       = db.StringProperty(required = True)
 	school         = db.StringProperty(required = True)
-	grade          = db.IntegerProperty(required = True)
+	grade          = db.IntegerProperty(required = False)
 	score          = db.IntegerProperty(required = True) 
 	confirmed      = db.BooleanProperty(required = True) 
 	password       = db.StringProperty(required = False)
@@ -70,17 +70,27 @@ class Subjects(db.Model):
 	school        = db.StringProperty(required = True)
 	subjects_list = db.StringListProperty(required = True)
 
+class ActiveTeachers(db.Model):
+	school        = db.StringProperty(required = True)
+	active_teachers_list = db.StringListProperty(required = True)
+
+class ActiveSubjects(db.Model):
+	school        = db.StringProperty(required = True)
+	active_subjects_list = db.StringListProperty(required = True)
+
 class Teacher_Subjects(db.Model):
 	'''List subjects for a teacher'''
 	school        = db.StringProperty(required = True)
 	teacher       = db.StringProperty(required = True)
 	subjects_list = db.StringListProperty(required = True)
+	is_guides     = db.BooleanProperty(required = False)
 
 class Subject_Teachers(db.Model):
 	'''List of teachers for a subject'''
 	school        = db.StringProperty(required = True)
 	subject       = db.StringProperty(required = True)
 	teachers_list = db.StringListProperty(required = True)
+	is_guides     = db.BooleanProperty(required = False)
 
 class Indexes(db.Model):
 	school = db.StringProperty(required = True)

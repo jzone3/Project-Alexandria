@@ -1,4 +1,6 @@
 ## import python modules
+import cgi
+import datetime
 import hashlib
 import hmac
 import jinja2
@@ -69,6 +71,10 @@ class BaseHandler(webapp2.RequestHandler):
 		return schools_list
 
 	def render(self, template, params={}):
+		if template == 'index.html':
+			params['main_page'] = True
+		elif template == '404.html':
+			params['not_found'] = True
 		params['signed_in'] = self.logged_in()
 		params['bg'] = self.request.cookies.get('bg', '')
 		if params['signed_in']:
@@ -97,23 +103,6 @@ class BaseHandler(webapp2.RequestHandler):
 
 		if template == 'prefs.html':
 			params['all_schools'] = self.get_schools_list()
-
-		from temp import email_list
-
-		if self.get_username():
-			user = get_user(self.get_username())
-			if user:
-				if user.bergen_mail:
-					email = user.bergen_mail
-				else:
-					email = user.email
-				if email not in email_list:
-					self.redirect('/beta')
-		elif not params['signed_in']:
-			if template != 'index.html' and template != 'about.html' and template != 'contact.html' and template != 'external_signup.html':
-				template = jinja_env.get_template('index.html')
-				self.response.out.write(template.render({'widget_html':params['widget_html'], 'blockbg':True, 'modal':'login'}))
-				return
 
 		template = jinja_env.get_template(template)
 		self.response.out.write(template.render(params))
@@ -145,6 +134,7 @@ class BaseHandler(webapp2.RequestHandler):
 		school = self.get_school_cookie()
 		if 'school' in params.keys():
 			del params['school']
+
 		new_params = {'email':email, 'email_verified':email_verified, 'school':school}
 		all_params = dict(new_params)
 		all_params.update(params)
@@ -218,11 +208,11 @@ class MainHandler(BaseHandler):
 				self.render('index.html', {'username': username, 'wrong': value, 'modal' : 'login', 'blockbg' : True})
 
 		elif formname == 'signup':
-			username, password, verify, school, year, agree, human, email = ('', '', '', '', '', '', '', '')
-			username_error, password_error, verify_error, school_error, year_error, agree_error, human_error, email_error = ('', '', '', '', '', '', '', '')
+			username, password, verify, school, agree, human, email = ('', '', '', '', '', '', '')
+			username_error, password_error, verify_error, school_error, agree_error, human_error, email_error = ('', '', '', '', '', '', '')
 
-			username, password, verify, school, year, agree, human, email = [self.rget(x) for x in ('username', 'password', 'verify', 'school', 'year', 'agree', 'session_secret', 'email')]
-			results = signup(username=username, password=password, verify=verify, school=school, year=year, agree=agree, human=human, email=email+'@bergen.org')
+			username, password, verify, school, agree, human, email = [self.rget(x) for x in ('username', 'password', 'verify', 'school', 'agree', 'session_secret', 'email')]
+			results = signup(username=username, password=password, verify=verify, school=school, agree=agree, human=human, email=email+'@bergen.org')
 			if results['success']:
 				add_school(school)
 				self.set_cookie(results['cookie'])
@@ -237,10 +227,8 @@ class MainHandler(BaseHandler):
 										   'password_error': get_error(results, 'password'),
 										   'verify_error': get_error(results, 'verify'),
 										   'school_error': get_error(results, 'school'),
-										   'year_error': get_error(results, 'year'),
 										   'agree_error': get_error(results, 'agree'),
 										   'human_error': get_error(results, 'human'),
-										   'choice' : int(year),
 										   'blockbg' : True,
 										   'modal': 'signup'})
 
@@ -267,12 +255,30 @@ class GuidesHandler(BaseHandler):
 		if self.rget('page'):
 			try:
 				page = int(self.rget('page'))
+				if page > 2:
+					self.error(404)
+					self.render('404.html')
 			except:
 				page = 0
 			if page < 0:
 				page = 0
 		else:
 			page = 0
+		
+		if self.rget('new_page'):
+			try:
+				new_page = int(self.rget('new_page'))
+				if new_page == 0:
+					new_page = 'zero'
+				elif page > 2:
+					self.error(404)
+					self.render('404.html')
+			except:
+				new_page = False
+			if new_page < 0:
+				new_page = False
+		else:
+			new_page = False
 		# check if user is logged in
 		# calculate variable top_guides
 		username = self.get_username()
@@ -284,18 +290,48 @@ class GuidesHandler(BaseHandler):
 			
 		page_offset = page * 25
 		
+		logged_in = self.logged_in()
+
 		# calculate subjects and teachers
-		if school:
-			subjects = get_all_subjects(school)
-			teachers = get_all_teachers(school)
-		else:
-			self.render('guides.html', {'top_guides':top_guides, 'page':page, 'page_offset':page_offset})
-			return
-		self.render('guides.html', {'top_guides':top_guides, 
+		if logged_in:
+			subjects = get_all_active_subjects(school)
+			teachers = get_all_active_teachers(school)
+
+			self.render('guides.html', {'top_guides':top_guides, 
 									'subjects':subjects, 
 									'teachers':teachers,
 									'page':page,
-									'page_offset':page_offset})
+									'page_offset':page_offset,
+									'school':school,
+									'new_page' : new_page,
+									'logged_in' : logged_in})
+		else:
+			self.render('guides.html', {'top_guides':top_guides, 
+										'page':page,
+										'page_offset':page_offset,
+										'new_page' : new_page,
+										'logged_in' : logged_in})
+
+class NewGuidesHandler(BaseHandler):
+	def get(self):
+		self.redirect('/guides')
+
+	def post(self):
+		school = self.rget('school')
+		if not school:
+			school = ''
+		try:
+			page = int(self.rget('new_page'))
+		except:
+			page = 0
+		
+		if self.logged_in():
+			username = self.get_username()
+		else:
+			username = ''
+
+		response = get_new_guides(school, page, username)
+		self.write(response)
 
 class DashboardHandler(BaseHandler):
 	'''Handlers dashboard: dashboard.html'''
@@ -320,57 +356,72 @@ class DashboardHandler(BaseHandler):
 class GuidePageHandler(BaseHandler):
 	'''Handlers custom guide pages: guide_page.html'''
 	def get(self, url):
-		# formats url
-		url = url[1:]
+		bookmarked, reported, deletable = False, False, False
+		logged_in = self.logged_in()
+		url = url[1:] # formats url 
+		diff = "12345"
+
 		# retrieve guide from db
 		q = Guides.all()
 		q.filter('url =', url.lower())
 		result = q.get()
-		bookmarked = False
-		username = ''
-		if self.logged_in() and result:
-			username = self.get_username()
-			user = get_user(username)
-			for bookmark in user.bookmark_list:
-				if bookmark.guide.blob_key == result.blob_key:
-					bookmarked = True
-		
-		# render page
+
+		# if guide exists, render page
 		if result:
 			votes = str_votes(result.votes)
 			dl_link = '/serve/' + result.blob_key
-			if username:
+
+			if logged_in:
+				# check if user reported
+				username = self.get_username()				
 				reported = (username in result.report_users)
-			else:
-				reported = False
+				# check if bookmarked
+				user = get_user(username)
+				if any([bookmark.guide.blob_key == result.blob_key \
+				        for bookmark in user.bookmark_list]):
+						bookmarked = True
+
+				# check if uploaded/deleteable
+				if user.username == result.user_created:
+					diff = datetime.datetime.now() - result.date_created 
+					if diff < datetime.timedelta(1):
+						deletable = True
+					diff = (datetime.timedelta(0, 86400) - diff).total_seconds()/3600 # convert to remaining time
+
 			self.render('guide_page.html', {'result':result, 'votes':votes, 'dl_link':dl_link, 'bookmarked':bookmarked, 
-											'logged_in':self.logged_in(), 'reported':reported})
+											'logged_in':logged_in, 'reported':reported, 'deletable':deletable, 'diff':float(str(diff)[:5])})
 		else:
-			site = url.lower().split('/')
-			if site[0] != 'null':
-				logging.error(site[0])
-				self.get('/null/' + site[1])
-			else:
-				self.error(404)
-				self.render('404.html', {'blockbg':True})
+			# site = url.lower().split('/')
+			# if site[0] != 'null':
+			# 	logging.error(site[0])
+			# 	self.get('/null/' + site[1])
+			# else:
+			self.error(404)
+			self.render('404.html', {'blockbg':True})
 
 class UserPageHandler(BaseHandler):
 	'''Handlers custom user pages: user_page.html'''
 	def get(self, url):
 		url = url[1:]
-		q = Users.all()
-		q.filter('username =', url)
-		result = q.get()
+		result = get_submitted(url)
 
-		if result:
-			guides = Guides.all().filter('user_created =', result.username)
-			count = guides.count()
-			score = str_votes(result.score)
-			grade = str_grade(result.grade)
-			self.render('user_page.html', {'result':result, 'grade':grade, 'score':score, 'count':count, 'guides':guides})
-		else:
+		if result == 5:
 			self.error(404)
 			self.render('404.html', {'blockbg':True})
+		else:
+			user = get_user(url)
+			if user is None:
+				self.error(404)
+				self.render('404.html', {'blockbg':True})
+				return
+			# guides = Guides.all().filter('user_created =', result.username)
+			count = len(result)
+			# total = 0
+			# for i in result:
+			# 	total += i['votes']
+			# score = str_votes(total)
+			score = 0
+			self.render('user_page.html', {'result':result, 'score':score, 'count':count, 'guides':result, 'school' : user.school, 'user' : url})
 
 class UploadHandler(BaseHandler):
 	def get(self):
@@ -416,9 +467,9 @@ class UploadHandler(BaseHandler):
 					  'editable':editable, 'tags':tags}
 			errors.update(fields)
 			self.render('/upload.html', errors)
-		else:
-			tags = get_tags(tags) + create_tags(title, subject, teacher)
+		else:			
 			username = self.get_username()
+			tags = get_tags(tags) + create_tags(title, subject, teacher, username)
 			filename = get_filename(title, username)
 			school = get_school(username)
 			edit_url = None
@@ -451,7 +502,7 @@ class UploadHandler(BaseHandler):
 				q.filter('subject =', subject)
 				si = q.get()
 				if not si: # if icon not in db
-					icon = 'backpack' ##! change to default icon later
+					icon = 'default_icon' ##! change to default icon later
 				else:
 					icon = si.icon
 
@@ -468,11 +519,15 @@ class UploadHandler(BaseHandler):
 			add_subject_to_teacher(school, teacher, subject)
 			add_teacher_to_subject(school, teacher, subject)
 
+			key = str(guide.key())
+
+			memcache.delete('new-guides-None')
+			memcache.delete('new-guides-' + school)
+
 			# add guide to user's submitted guides cache
-			add_submitted(username,str(blob_key))
+			add_submitted(username,key)
 			
 			# add guide to index
-			key = str(guide.key())
 			add_to_index(school, key, tags)
 			self.redirect('/guides/' + url)
 		
@@ -627,12 +682,29 @@ class DeleteAccountHandler(BaseHandler):
 		else:
 			self.redirect('/')
 
+class DeleteGuideHandler(BaseHandler):
+	def post(self):
+		key = self.rget('key')
+		delete_guide(key)
+		self.write("Successfully deleted!")
+
 class GoogleLoginHandler(BaseHandler):
 	'''Handles google login: /google_login'''
 	def google_login(self, user):
-		q = Users.all()
-		q.filter('email =', user.email())
-		account = q.get()
+
+		account = memcache.get('useremail-'+user.email())
+
+		if account:
+			logging.error('CACHE GLOGIN: '+user.email())
+		else:
+			logging.error('DB GLOGIN: '+user.email())
+			q = Users.all()
+			q.filter('email =', user.email())
+			account = q.get()
+
+			memcache.set('useremail-'+user.email(), account)
+			logging.error('CACHE set glogin useremail-'+user.email())
+
 		if account:
 			username = account.username
 			cookie = LOGIN_COOKIE_NAME + '=%s|%s; Expires=%s Path=/' % (str(username), hash_str(username), remember_me())
@@ -681,7 +753,6 @@ class ExternalSignUp(BaseHandler):
 		if user:
 			username = self.rget('username')
 			school = self.rget('school')
-			year = self.rget('year')
 			agree = self.rget('agree')
 
 			if school == 'Bergen County Academies':
@@ -691,7 +762,7 @@ class ExternalSignUp(BaseHandler):
 				email = user.email()
 				ext_email = ''
 
-			result = signup_ext(username, school, year, agree, email, ext_email)
+			result = signup_ext(username, school, agree, email, ext_email)
 
 			if result['success']:
 				# set user cookie
@@ -703,13 +774,11 @@ class ExternalSignUp(BaseHandler):
 			else:
 				self.render('external_signup.html', {'username_error':result.get('username_error'),
 													 'school_error':result.get('school_error'),
-													 'year_error':result.get('year_error'),
 													 'agree_error':result.get('agree_error'),
 													 'email_error':result.get('email_error'),
 													 'username':username,
 													 'school':school,
-													 'email':email[:-11],
-													 'choice':year})
+													 'email':email[:-11]})
 		else:
 			self.redirect('/google_signup')
 
@@ -749,9 +818,7 @@ class FeedbackHandler(BaseHandler):
 		content += '<br />'
 		content += message
 
-		# save to db
-		feedback = Feedback(origin=username, content=content)
-		feedback.put()
+		save_feedback(content, username)
 		
 		self.redirect('/')
 
@@ -820,7 +887,7 @@ class ReportHandler(BaseHandler):
 class SubjectsHandler(BaseHandler):
 	'''receives AJAX request for the second page on guides->subject'''
 	def post(self):
-		subject = self.rget('subject')
+		subject = cgi.escape(self.rget('subject'))
 		school = self.get_school_cookie()
 		teachers = get_teachers_for_subject(school, subject)
 
@@ -830,36 +897,44 @@ class SubjectsHandler(BaseHandler):
 		  <li><a href="#" onclick="subtoggle1()">Subjects</a> <span class="divider">/</span></li>
 		  <li class="active">%s</li>		  
 		</ul>
-		<ul>"""%subject
+		<div class="row-fluid">"""%subject
 
 		# script must be initialized AFTER the html is in place, so we send it through AJAX
 		script = """
 		<script>
 		$('.subjects2').click(function (e) {
       		teacher = this.id;
-      		$('#'+teacher+'load2').show()
+      		$(document.getElementById('t_'+teacher+'load2')).show();
       		e.preventDefault();
       		$.ajax({
 	            type:'POST', 
 	            url:'/subjects2', 
-	            data:'teacher=' + teacher + '&subject=%s', 
+	            data:'teacher=' + teacher + "&subject=%s", 
 	            success: function(response) {
-	            	$('#'+teacher+'load2').hide()
+	            	$(document.getElementById('t_'+teacher+'load2')).hide();
 	            	$('#subjectlist2').hide();
 	            	$('#subjectlist3').html(response);
 	            	$('#subjectlist3').show();                
 	            }
         	});
       	})
-
 		</script>
 		"""%subject
 
-		for teacher in teachers:
-			html += '<li><a href="#" class="subjects2" id="%s">'%teacher + teacher + '</a>&nbsp;&nbsp;<img src="../static/img/ajax-loader.gif" id="%sload2" style="display:none;"/></li>'%teacher
+		for i in range(len(teachers)):
+			teacher = teachers[i]
+
+			if i % 3 == 0:
+				html += """</div><div class="row-fluid">"""
+
+			html += """<div class="span4 hoverspn4">
+				<a href="#" class="subjects2" id="%s">%s</a>
+				&nbsp;&nbsp;<img src="../static/img/ajax-loader.gif" id="t_%sload2" style="display:none;"/>
+				</div>
+				"""%(teacher,teacher,teacher)
 
 		# send this html back to jquery/ajax
-		self.write(html+'</li>'+script)
+		self.write(html+'</div>'+script)
 
 class SubjectsHandler2(BaseHandler):
 	'''receives AJAX request for the third page on guides->subject'''
@@ -911,7 +986,7 @@ class SubjectsHandler2(BaseHandler):
 class TeachersHandler(BaseHandler):
 	'''receives AJAX request for the second page on guides->teacher'''
 	def post(self):
-		teacher = self.rget('teacher')
+		teacher = cgi.escape(self.rget('teacher'))
 		school = self.get_school_cookie()
 		subjects = get_subjects_for_teacher(school, teacher)
 
@@ -921,21 +996,21 @@ class TeachersHandler(BaseHandler):
 		  <li><a href="#" onclick="teachtoggle1()">Teachers</a> <span class="divider">/</span></li>
 		  <li class="active">%s</li>		  
 		</ul>
-		<ul>"""%teacher
+		<div class="row-fluid">"""%teacher
 
 		# script must be initialized AFTER the html is in place, so we send it through AJAX
 		script = """
 		<script>
 		$('.teachers2').click(function (e) {
       		subject = this.id;
-      		$('#'+subject+'load2').show()
+      		$(document.getElementById('s_'+subject+'load2')).show();
       		e.preventDefault();
       		$.ajax({
 	            type:'POST', 
 	            url:'/teachers2', 
 	            data:'subject=' + subject + '&teacher=%s', 
 	            success: function(response) {
-	            	$('#'+teacher+'load2').hide()
+	            	$(document.getElementById('s_'+subject+'load2')).hide();
 	            	$('#teacherlist2').hide();
 	            	$('#teacherlist3').html(response);
 	            	$('#teacherlist3').show();                
@@ -946,11 +1021,17 @@ class TeachersHandler(BaseHandler):
 		</script>
 		"""%teacher
 
-		for subject in subjects:
-			html += '<li><a href="#" class="teachers2" id="%s">'%subject + subject + '</a>&nbsp;&nbsp;<img src="../static/img/ajax-loader.gif" id="%sload2" style="display:none;"/></li>'%subject
+		for i in range(len(subjects)):
+			subject = subjects[i]
+			if i % 3 == 0:
+				html += """</div><div class="row-fluid">"""
+			html += """<div class="span4 hoverspn4">
+				<a href="#" class="teachers2" id="%s">%s</a>
+				&nbsp;&nbsp;<img src="../static/img/ajax-loader.gif" id="s_%sload2" style="display:none;"/>
+			</div>"""%(subject,subject,subject)
 
 		# send this html back to jquery/ajax
-		self.write(html+'</li>'+script)
+		self.write(html+'</div>'+script)
 
 class TeachersHandler2(BaseHandler):
 	'''receives AJAX request for the third page on guides->teacher'''
@@ -1036,14 +1117,36 @@ class ToSHandler(BaseHandler):
 
 class BetaHandler(BaseHandler):
 	def get(self):
+		if not self.logged_in():
+			self.redirect('/')
 		username = self.get_username()
+		if username is None:
+			self.redirect('/')
+		user = get_user(username)
+		if user is None:
+			self.redirect('/')
+		try:
+			if user.email in email_list:
+				self.redirect('/dashboard/')
+		except AttributeError:
+			template = jinja_env.get_template('beta.html')
+			self.response.out.write(template.render({'username':username, 'signed_in':True, 'beta':True}))
 		template = jinja_env.get_template('beta.html')
 		self.response.out.write(template.render({'username':username, 'signed_in':True, 'beta':True}))
+
+# class ModHandler(BaseHandler):
+# 	def get(self):
+# 		if self.logged_in() and self.get_username() in ['jzone3', 'ksong', 'mattlotocki', 'nitsuj', 'airrick213']:
+# 			self.render('mod.html', mod_page_vars())
+# 		else:
+# 			self.error(404)
+# 			self.render('404.html',{'blockbg':True})
 
 app = webapp2.WSGIApplication([('/?', MainHandler),
 							   ('/about/?', AboutHandler),
 							   ('/logout/?', LogoutHandler),
 							   ('/guides/?', GuidesHandler),
+							   ('/newguides/?', NewGuidesHandler),
 							   ('/contact/?', ContactHandler),
 							   ('/team/?', TeamHandler),
 							   ('/dashboard/?', DashboardHandler),
@@ -1076,5 +1179,7 @@ app = webapp2.WSGIApplication([('/?', MainHandler),
 							   ('/notifications/?', NotificationHandler),
 							   ('/feedback/?', FeedbackHandler),
 							   ('/beta/?', BetaHandler),
+							   ('/guide/delete/?', DeleteGuideHandler),
+							   # ('/mod/?', ModHandler),
 							   ('/.*', NotFoundHandler),
 							   ], debug=True)

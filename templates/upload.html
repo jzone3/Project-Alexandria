@@ -30,7 +30,7 @@
 						File
 						<a rel="tooltip" data-placement="right" title="We currently support .pdf, .docx, .doc, .rtf, and .txt formats. Maximum file size is 2mb." class="tooltips"><i class="icon-question-sign"></i></a>
 					</div>
-					<div class="span4"><input name="file" type="filepicker-dragdrop" data-fp-apikey="AlMIHDT2tQ5KhESQdBkelz" data-fp-option-services="COMPUTER,DROPBOX,GOOGLE_DRIVE" data-fp-mimetypes ="
+					<div class="span4"><input name="file" type="filepicker-dragdrop" data-fp-apikey="AlMIHDT2tQ5KhESQdBkelz" data-fp-option-services="COMPUTER,DROPBOX,GOOGLE_DRIVE,EVERNOTE" data-fp-mimetypes ="
 application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf,text/plain,application/rtf" data-fp-button-class="btn btn-inverse"  data-fp-drag-class="bigupload"/></div>						<div class="alert alert-error span4" {% if not file_error %}style="display: none;"{% endif %}>{{file_error}}</div>
 				</div>
 
@@ -84,13 +84,13 @@ application/msword,application/vnd.openxmlformats-officedocument.wordprocessingm
 						Subject
 						<a rel="tooltip" data-placement="right" title="Be specific!<br/>Instead of 'History' write 'World History'" class="tooltips"><i class="icon-question-sign"></i></a>
 					</div>
-					<div class="span4"><input id="subject_box" class="input-xlarge" type="text" name="subject" data-provide="typeahead" value="{{subject}}" placeholder="e.g. AP Calculus BC"></div>
+					<div class="span4"><input id="subject_box" class="input-xlarge" type="text" name="subject" data-provide="typeahead" value="{{subject}}" placeholder="e.g. AP Calculus BC" autocomplete="off"></div>
 					<div class="alert alert-error span4" {% if not subject_error %}style="display: none;"{% endif %}>{{subject_error}}</div>
 				</div>
 				
 	        	<div class="row">
 					<div class="span2">Teacher</div>
-					<div class="span4"><input id="teacher_box" class="input-xlarge" type="text" name="teacher" data-provide="typeahead" value="{{teacher}}" placeholder="Just the last name"></div>
+					<div class="span4"><input id="teacher_box" class="input-xlarge" type="text" name="teacher" data-provide="typeahead" value="{{teacher}}" placeholder="Just the last name" autocomplete="off"></div>
 					<div class="alert alert-error span4" {% if not teacher_error %}style="display: none;"{% endif %}>{{teacher_error}}</div>
 				</div>
 				
@@ -108,9 +108,7 @@ application/msword,application/vnd.openxmlformats-officedocument.wordprocessingm
 					</div>
 				</div>
 			</form>
-			<script>
-				
-			
+			<script>		
 				$('.tooltips').tooltip();
 				subject_array = [];
 				teacher_array = [];

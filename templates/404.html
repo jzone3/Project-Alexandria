@@ -18,15 +18,14 @@
 	<div class="errorblock">
 		<h1 style="color: white;text-shadow: 2px 1px 1px #6B6B6B;font-size: 70px;margin-bottom: 42px;">Error: 404</h1>
 		{% if signed_in %}
-			<p style="text-shadow: 1px 1px 2px #6B6B6B;color:white;margin-bottom:50px;">I'm sorry {{ username }}, I'm afraid I can't do that</p>
-			<p style="text-shadow: 1px 1px 2px #6B6B6B;color:white;margin-bottom:25px;font-size:23px;">You broke our site! Just kidding, we couldn't find this page.</p>
+			<p style="text-shadow: 1px 1px 2px #6B6B6B;color:white;margin-bottom:50px;">I'm sorry {{ username }}, I'm afraid I can't do that.</p>
 		{% else %}
-			<p style="text-shadow: 1px 1px 2px #6B6B6B;color:white;margin-bottom:50px;">You broke our site! Just kidding, we couldn't find this page.</p>
+			<p style="text-shadow: 1px 1px 2px #6B6B6B;color:white;margin-bottom:50px;">Page not found.</p>
 		{% endif %}
 		<p style="text-shadow: 1px 1px 2px #6B6B6B;color:white;font-size:20px;margin-bottom:4px;">There may be a typo in the URL, or this page has been deleted or moved.</p>
-		<p style="text-shadow: 1px 1px 2px #6B6B6B;color:white;font-size:20px;margin-bottom:21px;">Try searching, or contact us if you think this is a bug.</p>
+		<p style="text-shadow: 1px 1px 2px #6B6B6B;color:white;font-size:20px;margin-bottom:21px;">Try searching below, or <a href="/contact" class="link404">contact us</a> if you think this is a bug.</p>
 		<form class="form" method="get" action="/search">
-			<input type="text" name="q" id="search" class="input-xlarge search-query" placeholder="Search for any study guide">
+			<input type="text" name="q" id="search" class="input-xlarge search-query" placeholder="Search for any study guide" autofocus="autofocus">
 			<button type="submit" class="btn btn-primary"><i class="icon-search"></i></button>
 		</form>
 	</div>

@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}{{ result.username }} - Project Alexandria{% endblock %}
+{% block title %}{{ username }} - Project Alexandria{% endblock %}
 
 {% block nav_links %}
 	<li><a href="/">Home</a></li>
@@ -18,17 +18,17 @@
 				<img src="/static/img/avatar.png" style="width:100px;height:100px;float:left;">
 				<div style="margin-left:120px;">
 					<div class="inline">
-						<h1>{{ result.username }}</h1>
-						{% if score > 0 %}
+						<h1>{{ user }}</h1>
+						<!-- {% if score > 0 %}
 							<span class="userupvotes" style="color: #25C29C;">{{ score }} score</span>
 						{% elif score == 0 %}
 							<span class="userupvotes">&nbsp;&nbsp;{{ score }} score</span>
 						{% else %}
 							<span class="userupvotes" style="color: #FF0066">&nbsp;&nbsp;{{ score }} score</span>
-						{% endif %}
+						{% endif %} -->
 					</div>
 
-					<h6>{{ grade }} at {{ result.school }}</h6> 
+					<h6>Student at {{ school }}</h6> 
 					<!-- <h5>
 						<a href="#">Private Message</a> 
 						 |  
@@ -40,7 +40,7 @@
 			<hr>
 			<center><h3>Uploaded Guides ({{ count }})</h3></center>
 			<div class="row-fluid">
-				{% for guide in guides %}
+				{% for guide in result %}
 					<!-- Start a new row every 3 span4's -->
 					{% if loop.index0 is divisibleby(3) %} 
 						</div>
@@ -52,7 +52,7 @@
 							<h4><a href="/guides/{{ guide.url }}">{{ guide.title }}</a></h4>
 							<div>{{ guide.subject }}</div>
 							<div>{{ guide.teacher }}</div>
-							<div><em>{{ guide.votes }} Votes</em></div>
+							<!-- <div><em>{{ guide.votes }} Votes</em></div> -->
 						</span>
 					</div>
 				{% endfor %}

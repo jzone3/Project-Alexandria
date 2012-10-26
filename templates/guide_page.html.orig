@@ -20,11 +20,10 @@
 					<h1>
 						{{ result.title }} 
 						{% if deletable %}
-						<br/>
 						<button class="btn btn-inverse" id ="deletebtn" type="button">
 							<span id="deletetext">Delete Guide</span>
 						</button>
-						<span style='font-size: 12px;color: #BBB;'>There are {{ diff }} / 24 hours left to delete this guide <a href="/about">(?)</a></span>
+						<span style='font-size: 12px;color: #BBB;'>There are {{ diff }} / 24 hours left to delete this guide <a href="about">(?)</a></span>
 						{% endif %}
 					</h1>
 					{% if result.user_created == '[deleted]' %}
@@ -147,10 +146,7 @@
 	
 
 	$('a.bookmarkbtn').click(function() {
-		if ("{{ signed_in }}" != "True") {
-			$('#login').modal('show');
-			return;
-		}
+		if ("{{ logged_in }}" != "True") return;
 		var id = $(this).attr('id');
 		
 		if ( $('a.bookmarkbtn').hasClass('bmd') ) {
@@ -180,34 +176,41 @@
 		    url:'/vote', 
 		    data:'id=' + id + '&type=' + vote_type + '&username=' + "{{ username }}",
 		    success: function(response) {
-				if (response == 'voted') {
+				if (response == 'False') {
 					// if already voted
 					$("#tip_" + id).tooltip('show');
 				} else if (response == 'signin') {
 					$('#login').modal('show');
 				} else {
-					prev = parseInt($('#votes_' + id).text());
-					after = prev + parseInt(response);
-					$('#votes_' + id).html(str_votes(after) + ' Votes');
+					prev = parseInt($('#votes_' + id).text())
+					after = prev + parseInt(response)
+					$('#votes_' + id).html(str_votes(after) + ' Votes')
 					if (vote_type == 'up'){
-						$('#votes_' + id).css({'color':'#14BB14'});
+						$('#votes_' + id).css({'color':'#14BB14'})
 					} else {
-						$('#votes_' + id).css({'color':'red'});
+						$('#votes_' + id).css({'color':'red'})
 					}
 				}		        
 		    }
 		});
 	});
 
+<<<<<<< HEAD
     $('#reportbtn').click(function() {
     	if ($('#reportbtn').hasClass('confirm')){
  			// if button already confirmed
 			$('#reportbtn').button('loading');
+=======
+    $('#report').click(function() {
+    	if (confirm("Are you sure you want to report this guide? Project Alexandria takes reporting seriously")) {
+    		$('#report').button('loading');
+>>>>>>> 03060df3a6d17717982406ce69a6a5332df49a2e
 	    	$.ajax({
 	    		type:'POST',
 	    		url:'/report',
 	    		data:'blob_key=' + '{{ result.blob_key }}',
 	    		success: function(response) {
+<<<<<<< HEAD
 	    			$('#reportbtn').html(response)
 	    		}
 	    	});
@@ -219,6 +222,12 @@
 			});
 			$('#reporttext').slideDown('slow');
 		}
+=======
+	    			$('#report').html(response)
+	    		}
+	    	});
+    	}
+>>>>>>> 03060df3a6d17717982406ce69a6a5332df49a2e
     });
 </script>
 

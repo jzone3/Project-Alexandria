@@ -13,16 +13,23 @@ from google.appengine.ext import db
 from google.appengine.ext import blobstore
 from google.appengine.api import memcache
 from google.appengine.api import mail
+from google.appengine.ext.db import stats
 
 import secret
 from database import *
 from activation import make_activation_email
+from new_guides import make_new_guides
+
+from google.appengine.api import memcache
 
 USER_RE = re.compile(r"^[a-zA-Z0-9_-]{3,20}$")
 PASS_RE = re.compile(r"^.{3,20}$")
 EMAIL_RE = re.compile(r"^[\S]+@[\S]+\.[\S]+$")
 SCHOOL_RE= re.compile(r"^[a-zA-Z0-9 _]{1,30}$")
-PAGE_RE = r'(/(?:[a-zA-Z0-9_-]+/?)*)'
+TITLE_RE = re.compile(r'^[\'\.: a-zA-Z0-9_-]+$')
+PAGE_RE = r'(/(?:[\'\.:a-zA-Z0-9_-]+/?)*)'
+
+
 LOGIN_COOKIE_NAME = 'uohferrvnksj'
 
 GET_USER = db.GqlQuery("SELECT * FROM Users WHERE username = :username LIMIT 1")
@@ -31,23 +38,15 @@ GET_GUIDES_BY_BLOB_KEY = db.GqlQuery("SELECT * FROM Guides WHERE blob_key = :blo
 
 ############################### misc. functions ###############################
 
+# def mod_page_vars():
+# 	global_stat = stats.GlobalStat.all().get()
+# 	return {'total_data' : global_stat.bytes / 1048576.0}
+
 def str_votes(votes):
 	if votes > 0:
 		return '+' + str(votes)
 	else:
 		return str(votes)
-
-def str_grade(grade):
-	if grade == 9:
-		return 'Freshman'
-	elif grade == 10:
-		return 'Sophomore'
-	elif grade == 11:
-		return 'Junior'
-	elif grade == 12:
-		return 'Senior'
-	else:
-		return 'Alumnus'
 
 def get_schools():
 	lst = memcache.get('all_schools')
@@ -69,37 +68,73 @@ def add_school(new_school):
 		current_schools.append(new_school)
 	memcache.set('all_schools', current_schools)
 
+# http://www.google.com/a/projectalexa.com
+PEOPLE = ['jared@projectalexa.com', 'kenny@projectalexa.com', 'matthew@projectalexa.com', 'eric@projectalexa.com', 'justin@projectalexa.com']
+person = 0
+
+DEVS = ['jared@projectalexa.com', 'kenny@projectalexa.com', 'matthew@projectalexa.com']
+dev = 0
+
 def save_feedback(content, origin):
 	new_feedback = Feedback(content = content, origin = origin)
 	new_feedback.put()
+	feedback_type = ((content.split("<br")[0].strip())[8:])
+	feedback_to_compare = feedback_type.split(' ')
+	logging.error('SAVE FEEDBACK --------------------------------------------------------------')
+	user_email = get_user(origin).email
 
-def add_submitted(username, blob_key):
+	if "Problem" in feedback_to_compare:
+		global dev
+		mail.send_mail(sender="Project Alexandria <info@projectalexa.com>",
+						to=DEVS[dev],
+						reply_to=user_email,
+						subject="Feedback: %s" % feedback_type,
+						body=content)
+		if dev == 2:
+			dev = 0
+		else:
+			dev += 1
+	else:
+		global person
+		mail.send_mail(sender="Project Alexandria <info@projectalexa.com>",
+						to=PEOPLE[person],
+						reply_to=user_email,
+						subject="Feedback: %s" % feedback_type,
+						body=content)
+		if person == 4:
+			person = 0
+		else:
+			person += 1
+
+def add_submitted(username, key):
 	cached_items = memcache.get(username + '_submitted')
-	submission = db.GqlQuery("SELECT * FROM Guides WHERE blob_key = :blob_key", blob_key=blob_key).get()
+	submission = Guides.get(key)
+	new_guide = [{'title' : submission.title, 'subject' : submission.subject, 'teacher' : submission.teacher, 'date_created' : submission.date_created, 'key' : key, 'icon' : submission.icon}]
 	if not cached_items is None:
-		new_guide = [{'title' : submission.title, 'subject' : submission.subject, 'votes' : submission.votes, 'date_created' : submission.date_created}]
 		try:
 			cached_items = new_guide.append(cached_items)
 			memcache.set(username + '_submitted', cached_items)
 		except:
 			memcache.set(username + '_submitted', new_guide)
+	else:
+		memcache.set(username + '_submitted', new_guide)
 
 def get_submitted(username):
 	from_cache = memcache.get(username + '_submitted')
-	to_return = []
 	if from_cache is None:
 		GET_USER_GUIDES.bind(username = username)
 		guides = GET_USER_GUIDES
-		logging.error(username + '_submitted db read')
+		if guides is None:
+			return 5
+		logging.error('DB get_submitted(): '+username)
+		to_return = []
 		for submission in guides:
-			to_return.append({'title' : submission.title, 'subject' : submission.subject, 'votes' : submission.votes, 'date_created' : submission.date_created, 'blob_key' : submission.blob_key})
-		memcache.set(username + '_submitted', [x['blob_key'] for x in to_return])
+			to_return.append({'title' : submission.title, 'subject' : submission.subject, 'teacher' : submission.teacher, 'date_created' : submission.date_created, 'key' : submission.key(), 'icon' : submission.icon, 'url' : submission.url})
+		memcache.set(username + '_submitted', to_return)
+		logging.error('CACHE set: '+username+'_submitted')
 	else:
-		for submission in from_cache:
-			GET_GUIDES_BY_BLOB_KEY.bind(blob_key = submission)
-			guide = GET_GUIDES_BY_BLOB_KEY.get()
-			to_return.append({'title' : guide.title, 'subject' : guide.subject, 'votes' : guide.votes, 'date_created' : guide.date_created, 'blob_key' : submission})
-
+		logging.error('CACHE get_submitted(): '+username)
+		return from_cache
 	return to_return
 
 def get_submitted_guide_names(username):
@@ -108,11 +143,14 @@ def get_submitted_guide_names(username):
 		GET_USER_GUIDES.bind(username = username)
 		guides = GET_USER_GUIDES
 		# guides = db.GqlQuery("SELECT * FROM Guides WHERE user_created = '" + username.replace("'", "&lsquo;") + "' ORDER BY date_created DESC")
-		logging.error(username + '_submitted db read')
+		logging.error('DB get_submitted_guide_names(): '+username)
 		to_return = []
 		for submission in guides:
-			to_return.append({'title' : submission.title, 'subject' : submission.subject, 'votes' : submission.votes, 'date_created' : submission.date_created})
+			to_return.append({'title' : submission.title, 'subject' : submission.subject, 'votes' : submission.votes, 'date_created' : submission.date_created, 'url' : submission.url})
 		memcache.set(username + '_submitted', to_return)
+		logging.error('CACHE set: '+username+'_submitted')
+	else:
+		logging.error('CACHE get_submitted_guide_names(): '+username)
 	return to_return
 
 def send_report_mail(blob_key):
@@ -182,8 +220,20 @@ def get_error(results, error):
 		return None
 
 def get_user(username):
-	GET_USER.bind(username = username)
-	return GET_USER.get()
+	user = memcache.get('user-'+username)
+	if user:
+		logging.error('CACHE GET_USER: '+username)
+		return user
+	else:
+		logging.error('DB GET_USER: '+username)
+		GET_USER.bind(username = username)
+		user = GET_USER.get()
+
+		memcache.set('user-'+username, user)
+		logging.error('CACHE set user-'+username)
+
+		return user
+
 
 def get_school(username):
 	'''gets school from db from username'''
@@ -219,12 +269,18 @@ def check_login(username, password):
 
 	correct = False
 
-	if username != '' and password != '':
-		GET_USER.bind(username = username)
-		accounts = GET_USER.get()
-		# accounts = db.GqlQuery("SELECT * FROM Users WHERE username = '" + username.replace("'", "&lsquo;") + "'")
-		# accounts = accounts.get()
-		logging.error("DB QUERY - check_login()")
+	if username != '' and password != '':		
+		accounts = memcache.get('user-'+username)
+		if accounts:
+			logging.error("CACHE LOGIN check_login(): "+username)
+		else:
+			logging.error("DB LOGIN check_login(): "+username)
+			GET_USER.bind(username = username)
+			accounts = GET_USER.get()
+
+			memcache.set('user-'+username, accounts)
+			logging.error("CACHE set user-"+username)
+
 		if accounts is None:
 			return [False, 'Username does not exist']
 
@@ -234,9 +290,10 @@ def check_login(username, password):
 
 		if salted_hash(password, salt) == db_password:
 			return [True, '%s=%s|%s;' % (LOGIN_COOKIE_NAME, str(username), str(hash_str(username)))]
+
 	return [False, 'Invalid username or password!']
 
-def signup(username='', password='', verify='', school='', year='', agree='', human='', email=''):
+def signup(username='', password='', verify='', school='', agree='', human='', email=''):
 	"""Signs up user
 
 	Returns:
@@ -270,10 +327,6 @@ def signup(username='', password='', verify='', school='', year='', agree='', hu
 	if not SCHOOL_RE.match(school):
 		to_return['school'] = "That is not a valid school name"
 	
-	if year == '':
-		to_return['year'] = "Please enter a year"
-	if not int(year) in [9,10,11,12]:
-		to_return['year'] = "That is not a valid grade level"
 	
 	if agree != 'on':
 		to_return['agree'] = "You must agree to the Terms of Service to create an account"
@@ -296,7 +349,7 @@ def signup(username='', password='', verify='', school='', year='', agree='', hu
 				hashed = salted_hash(password, salt)
 				hashed_pass = hashed + '|' + salt
 
-				account = Users(username = username, password = hashed_pass, school = school, grade = int(year), score = 0, confirmed = False, email = email)
+				account = Users(username = username, password = hashed_pass, school = school, score = 0, confirmed = False, email = email)
 				account.put()
 				#put welcome notification
 				notification = Notification(username=username, is_new=True, name="welcome")
@@ -319,7 +372,7 @@ def signup(username='', password='', verify='', school='', year='', agree='', hu
 
 	return to_return
 
-def signup_ext(username='', school='', year='', agree='', email='', ext_email=''):
+def signup_ext(username='', school='', agree='', email='', ext_email=''):
 	"""Signs up user from google/facebook"""
 
 	to_return = {'success' : False}
@@ -333,11 +386,6 @@ def signup_ext(username='', school='', year='', agree='', email='', ext_email=''
 		to_return['school_error'] = "Please enter a school"
 	if not SCHOOL_RE.match(school):
 		to_return['school_error'] = "That is not a valid school name"
-	
-	if year == '':
-		to_return['year_error'] = "Please enter a year"
-	if not int(year) in [9,10,11,12]:
-		to_return['year_error'] = "That is not a valid grade level"
 	
 	if agree != 'on':
 		to_return['agree_error'] = "You must agree to the Terms of Service to create an account"
@@ -353,9 +401,9 @@ def signup_ext(username='', school='', year='', agree='', email='', ext_email=''
 	if len(to_return) == 1:
 		# username.replace("'", "&lsquo;")
 		if school == 'Bergen County Academies':
-			account = Users(username = username, school = school, grade = int(year), score = 0, confirmed = False, bergen_mail=email, email=ext_email)
+			account = Users(username = username, school = school, score = 0, confirmed = False, bergen_mail=email, email=ext_email)
 		else:
-			account = Users(username = username, school = school, grade = int(year), score = 0, confirmed = False, email=email)
+			account = Users(username = username, school = school, score = 0, confirmed = False, email=email)
 		account.put()
 
 		#put welcome notification
@@ -433,6 +481,11 @@ def change_password(old, new, verify, username):
 
 		user.password = hashed_pass
 		user.put()
+
+		memcache.set('user-'+username, user)
+		memcache.set('useremail-'+str(user.email), user)
+		logging.error('CACHE set user-'+username)
+		logging.error('CACHE set useremail-'+str(user.email))
 
 		cookie = LOGIN_COOKIE_NAME + '=%s|%s; Expires=%s Path=/' % (str(username), hash_str(username), remember_me())
 		return [True, cookie]
@@ -548,11 +601,18 @@ def get_url(filename, user):
 	'''Creates url: user/guidename from filename and uploading user'''
 	user = user.lower()
 	filename = filename[:filename.rfind('_')]
+	filename = filename.replace("'",'')
+	filename = filename.replace("/",'')
+	filename = filename.replace("\\",'')
+	filename = filename.replace(".",'')
 	return user + '/' + filename
 
 def upload_errors(title, subject, teacher, editable, headers):
 	title_error, subject_error, teacher_error, doc_url_error = '', '', '', ''
-	if not title:
+	
+	if not TITLE_RE.match(title):
+		title_error = 'Invalid title. Try removing non-alphabet characters.'
+	elif not title:
 		title_error = 'Please provide a title.'
 	if not subject:
 		subject_error = 'Please provide a subject.'
@@ -592,6 +652,70 @@ last_refresh = {}
 
 from database import *
 from django.utils import simplejson
+
+def delete_all_test_guides(school='Bergen County Academies'):
+	# delete guide, index entries, etc.
+	q = Guides.all()
+	q.filter('tags =', 'deletethis')
+	for g in q.run():
+		delete_guide(str(g.key()))
+
+	# delete from active subjects
+	q = ActiveSubjects.all()
+	q.filter('school =', school)
+	result = q.get()
+	l = result.active_subjects_list
+	result.active_subjects_list = [x for x in l if x not in ["Subject", "subject"]]
+	result.put()
+
+	# delete from active teachers
+	q = ActiveTeachers.all()
+	q.filter('school =', school)
+	result = q.get()
+	l = result.active_teachers_list
+	result.active_teachers_list = [x for x in l if x not in ["Teacher", "teacher"]]
+	result.put()
+
+	# delete from Subjects
+	q = Subjects.all()
+	q.filter('school =', school)
+	result = q.get()
+	l = result.subjects_list
+	result.subjects_list = [x for x in l if x not in ["Subject", "subject"]]
+	result.put()
+
+	# delete from Teachers
+	q = Teachers.all()
+	q.filter('school =', school)
+	result = q.get()
+	l = result.teachers_list
+	result.teachers_list = [x for x in l if x not in ["Teacher", "teacher"]]
+	result.put()
+
+	# delete from Subject_Teachers
+	q = Subject_Teachers.all()
+	q.filter('subject =', 'Subject')
+	result = q.get()
+	if result:
+		result.delete()
+	q = Subject_Teachers.all()
+	q.filter('subject =', 'subject')
+	result = q.get()
+	if result:
+		result.delete()
+
+	# delete from Teacher_Subjects
+	q = Teacher_Subjects.all()
+	q.filter('teacher =', 'Teacher')
+	result = q.get()
+	if result:
+		result.delete()
+
+	q = Teacher_Subjects.all()
+	q.filter('teacher =', 'teacher')
+	result = q.get()
+	if result:
+		result.delete()
 
 def delete_guide(guide_key):
 	# delete guide
@@ -639,13 +763,47 @@ def top_guides_from_db(school, page=0):
 	if school: # i.e. if user is logged in (school cookie)
 		q.filter('school =', school)
 	q.order('-votes')
-	results = q.run(limit=25, offset=page*25)
 
+	results = q.run(limit=25, offset=page*25)
 	# logging
 	if school:
-		logging.error('DB HIT: top guides for '+school)
+		logging.error('DB top_guides_from_db: '+school)
 	else:
-		logging.error('DB HIT: top guides for ALL')
+		logging.error('DB top_guides_from_db: ALL')
+
+	return results
+
+def get_new_guides(school, page=0, username=''):
+	if page == 'zero':
+		page = 0
+	results = get_new_guides_from_db(school, page)
+	return make_new_guides(results, page, username)
+
+def get_new_guides_from_db(school='', page=0):
+	if page == 0:
+		results = memcache.get('new-guides-' + str(school))
+	else: 
+		results = None
+		
+	if results:
+		logging.error('CACHE get_new_guides_from_db() :'+str(school))
+	else:
+		q = Guides.all()
+		if school: # i.e. if user is logged in (school cookie)
+			q.filter('school =', school)
+		q.order('-date_created')
+		results = q.run(limit=25, offset=page*25)
+
+		lst = []
+		for i in results:
+			lst.append(i)
+		if page == 0:
+			memcache.set('new-guides-' + str(school), lst)
+		results = lst
+
+		# logging
+		logging.error('DB new_guides_from_db: '+school)
+
 
 	return results
 
@@ -666,6 +824,26 @@ def add_subject(school, subject):
 		result = Subjects(school=school, subjects_list=[subject])
 	result.put()
 
+	## add to active subjects list
+	r = ActiveSubjects.all()
+	r.filter('school =', school)
+	result = r.get()
+
+	if result:
+		subjects = result.active_subjects_list 
+		if subject not in subjects:
+			subjects.append(subject)
+		result.active_subjects_list = subjects
+	else:
+		result = ActiveSubjects(school=school, active_subjects_list=[subject])
+
+	memcache.set('activesubjects-'+school, sorted(result.active_subjects_list))
+	logging.error('CACHE set from upload activesubjects: '+school)
+		
+	result.put()
+
+
+
 def add_teacher(school, teacher):
 	'''adds/updates a teacher to Teachers'''
 	q = Teachers.all()
@@ -684,6 +862,71 @@ def add_teacher(school, teacher):
 		logging.error('new')
 		result = Teachers(school=school, teachers_list=[teacher])
 	result.put()
+
+	## add to active teachers list
+	r = ActiveTeachers.all()
+	r.filter('school =', school)
+	result = r.get()
+
+	if result:
+		teachers = result.active_teachers_list 
+		if teacher not in teachers:
+			teachers.append(teacher)
+		result.active_teachers_list = teachers
+	else:
+		result = ActiveTeachers(school=school, active_teachers_list=[teacher])
+
+	memcache.set('activeteachers-'+school, sorted(result.active_teachers_list))
+	logging.error('CACHE set from upload activesubjects: '+school)
+
+	result.put()
+
+
+
+def get_all_active_teachers(school=''):
+	'''gets list of all active teachers from ActiveTeachers model'''
+	if not school:
+		school = "Bergen County Academies"
+
+	result = memcache.get('activeteachers-'+school)
+	if result:
+		logging.error('CACHE get_all_active_teachers(): '+school)
+		return result
+
+	logging.error('DB get_all_active_teachers(): '+school)
+	q = ActiveTeachers.all()
+	q.filter('school =', school)
+	result = q.get()
+	if result:
+		logging.error('CACHE set get_all_active_teachers(): '+school)
+		x = sorted(result.active_teachers_list)
+		memcache.set('activeteachers-'+school, x)
+		return x
+	else:
+		return []
+
+def get_all_active_subjects(school=''):
+	'''gets list of all active subjects from ActiveSubjects model'''
+	if not school:
+		school = "Bergen County Academies"
+		
+	result = memcache.get('activesubjects-'+school)
+	if result:
+		logging.error('CACHE get_all_active_subjects(): '+school)
+		return result
+
+	logging.error('DB get_all_active_subjects(): '+school)
+	q = ActiveSubjects.all()
+	q.filter('school =', school)
+	result = q.get()
+	if result:
+		logging.error('CACHE set get_all_active_subjects(): '+school)
+		x = sorted(result.active_subjects_list)
+		memcache.set('activesubjects-'+school, x)
+		return x
+
+	else:
+		return []
 
 def get_all_subjects(school):
 	'''gets list of all subjects from Subjects model'''
@@ -805,7 +1048,11 @@ def vote(key, vote_type, username):
 		guide.down_users.append(username)
 	guide.put()
 
+	memcache.delete('new-guides-None')
+	memcache.delete('new-guides-' + guide.school)
 	last_refresh[str(guide.school)] = 0
 	last_refresh['None'] = 0
+
+	logging.error(diff)
 
 	return diff

@@ -6,7 +6,6 @@
 	<link type="text/css" rel="stylesheet" href="/static/css/bootstrap.css">
 	<link type ="text/css" rel="stylesheet" href="/static/css/font-awesome.css">
 	<link type ="text/css" rel="stylesheet" href="/static/css/custom.css">
-	<link type ="text/css" rel="stylesheet" href="/static/css/auth-buttons.css">
 	<link type ="text/css" rel="stylesheet" href="/static/css/bootstrap-toggle-buttons.css">
 	<link href='http://fonts.googleapis.com/css?family=Junge' rel='stylesheet' type='text/css'>
 	<script src="/static/js/jquery.js"></script>
@@ -155,16 +154,12 @@
 		        <div class="modal-body">
 		        	<div class="row" style="min-height:0;margin-left:0px;">
 		        		<center>
-			    			<a class="btn-auth btn-google" href="/google_signup">
-							    Sign Up with <b>Google</b>
-							</a>
-			    			<a class="btn-auth btn-facebook" href="#">
-							    Sign Up with <b>Facebook</b>
-							</a>
+			    			<a href="/google_signup"><img src="/static/img/g_signin.png"></a>
+							<img src="/static/img/fb_signin.png" style="opacity:0.3;">
 							<div class="alert alert-error" style="{% if not ext_duplicate_error %}display: none{% endif %};margin-bottom: -8px;margin-top: 11px;">{{ext_duplicate_error|safe}}</div>
 		        		</center>
 		   			</div>
-		   			<hr />
+		   			<hr style="margin-top:15px"/>
 		   			<center><h4 style="margin-bottom:15px;">Don't have Facebook or Google? <a href="#" onClick="$('#form').show('slow');">Sign up <i class="icon-hand-down"></i></a></h4></center>
 		   			<div id="form" {% if not (modal == 'signup') %}style="display:none;"{% endif %}>
 		   				<div class="row">
@@ -210,34 +205,21 @@
 						</div>
 						<div class="alert alert-error" {% if not verify_error %}style="display: none;"{% endif %}>{{verify_error}}</div>
 						
-						<div class="row">
-							<div class="span2">Grade</div>
-							<div class="span3">
-								<div class="btn-group" data-toggle="buttons-radio" data-toggle-name="year">
-									{% for i in [9, 10, 11, 12] %}
-										{% if (choice and choice == i) or (not choice and i == 9): %}
-											<button type="button" class="btn active" value="{{i}}">{{i}}th</button>
-										{% else %}
-											<button type="button" class="btn" value="{{i}}">{{i}}th</button>
-										{% endif %}
-									{% endfor %}
-									<!-- <button type="button" class="btn active" value="9">9th</button>
-									<button type="button" class="btn" value="10">10th</button>
-									<button type="button" class="btn" value="11">11th</button>
-									<button type="button" class="btn" value="12">12th</button> -->
-								</div>
-								{% if choice %}
-									<input type="hidden" name="year" value="{{choice}}">
-								{% else %}
-									<input type="hidden" name="year" value="9">
-								{% endif %}
-							</div>
-						</div>
 						<div class="alert alert-error" {% if not year_error %}style="display: none;"{% endif %}>{{year_error}}</div>
 						<br />
 						<label class="checkbox">
-							<input type="checkbox" name="agree"> I agree to the Project Alexandria <a href="tos" target="_blank">Terms of Service</a>
+							<input type="checkbox" name="agree"> I agree to the <a href="#" onmouseover="$('#honorcode').show('slow')">PA Honor Code</a> and <a href="tos" target="_blank">Terms of Service</a>
 						</label>
+						<div id="honorcode" class="row" style="display:none;">
+							<div class="well" style="width:460px;margin-left:36px;margin-top:15px;margin-bottom:5px;padding-bottom:10px;">
+								<h4 style="font-family:Junge;text-align:center;margin-bottom:8px;">Project Alexandria Honor Code</h4>
+								<ul style="font-family:Junge;">
+									<li>This site is solely to help me study and perform well academically.</li>
+									<li>I will not use the materials on this site to plagiarize, cheat, or do any other form of academic dishonesty.</li>
+									<li>I understand that these rules are enforced by my own school.</li>
+								</ul>
+							</div>						
+						</div>
 						<div class="alert alert-error" {% if not agree_error %}style="display: none;"{% endif %}>{{agree_error}}</div>
 						<div id="human" class="row">
 							<div class="span4" style="margin-left:104px;margin-top:15px;">
@@ -269,12 +251,8 @@
 		        <div class="modal-body">
 		        	<div class="row" style="min-height:0;margin-left:0px;">
 		        		<center>
-			    			<a class="btn-auth btn-google" href="/google_login">
-							    Log In with <b>Google</b>
-							</a>
-			    			<a class="btn-auth btn-facebook" href="#">
-							    Log In with <b>Facebook</b>
-							</a>
+			    			<a href="/google_login"><img src="/static/img/g_signin.png"></a>
+							<img src="/static/img/fb_signin.png" style="opacity:0.3;">
 		        		</center>
 		   			</div>
 		   			<div class="row" style="min-height:0;margin-top:18px;{% if not google_error %}display:none;{% endif %}">
@@ -282,7 +260,7 @@
 		   					{{ google_error | safe}}
 		   				</div>	
 		   			</div>
-		   			<hr />
+		   			<hr style="margin-top:15px"/>
 					<div class="row">
 						<div class="span2">Username</div>
 						<div class="span3"><input name="username" type="text" value="{{username}}"></div>
@@ -328,18 +306,25 @@
 	</div>
 
 	<!-- Footer -->
+	{% if main_page %}
 	<div class="sticky-footer" style="color: gray;">
 		Copyright 2012 All Rights Reserved | 
 		<a href="/tos" class="footerlinks" style="color:gray;">Terms of Service</a> | 
 		<a href="/team" class="footerlinks" style="color:gray;">Team</a>
 	</div>
-	{% if signed_in %}
+	{% else %}
+	<div class="sticky-footer" style="color: #CFCFCF;">
+		Copyright 2012 All Rights Reserved | 
+		<a href="/tos" class="footerlinks" style="color:#CFCFCF;">Terms of Service</a> | 
+		<a href="/team" class="footerlinks" style="color:#CFCFCF;">Team</a>
+	</div>
+	{% endif %}
+	{% if signed_in and not not_found %}
 	<div class="sticky-footer bg_switcher" style="color: gray;">
 		<img src="/static/img/thumb1.png" width="40px" id="bg1" class="bglink">
-		<img src="/static/img/thumb2.png" width="40px" id="bg2" class="bglink">
 		<img src="/static/img/thumb3.png" width="40px" id="i3" class="bglink">
-		<img src="/static/img/thumb5.png" width="40px" id="ti2" class="bglink">
-		<img src="/static/img/thumb4.png" width="40px" id="bg4" class="bglink">
+		<img src="/static/img/bg12.png" width="40px" id="bg12" class="bglink">
+		<img src="/static/img/bg7.png" width="40px" id="bg7" class="bglink">
 	</div>
 	<script>
 	$('.bglink').click(function() {
@@ -368,10 +353,10 @@
 	        <div class="modal-body">
 	        	<textarea name="message" style="width:510px;" placeholder="Write your message here.."></textarea>
 	        	<h5>Is your feedback:</h5>
-				<input type="checkbox" name="Idea" value="Idea">  Idea&nbsp;&nbsp;&nbsp;
-				<input type="checkbox" name="Question" value="Question">  Question&nbsp;&nbsp;&nbsp;
-				<input type="checkbox" name="Problem" value="Problem">  Problem&nbsp;&nbsp;&nbsp;
-				<input type="checkbox" name="Praise" value="Praise">  Praise&nbsp;&nbsp;&nbsp;
+				<label style="float:left;"><input type="checkbox" name="Idea" value="Idea">  Idea&nbsp;&nbsp;&nbsp;</label>
+				<label style="float:left;"><input type="checkbox" name="Question" value="Question">  Question&nbsp;&nbsp;&nbsp;</label>
+				<label style="float:left;"><input type="checkbox" name="Problem" value="Problem">  Problem&nbsp;&nbsp;&nbsp;</label>
+				<label style="float:left;"><input type="checkbox" name="Praise" value="Praise">  Praise&nbsp;&nbsp;&nbsp;</label>
         	</div>
 	        <div class="modal-footer">
 	        	<input class="btn btn-warning" type="submit" value="Thank you!"> 
