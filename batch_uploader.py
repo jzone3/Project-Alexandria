@@ -1,13 +1,14 @@
+import sys
 
+#sys.path.append('C:\\Program Files\\Google\google_appengine')
+#sys.path.append('C:\\Program Files\\Google\google_appengine\\lib')
 import hashlib
 import hmac
-import jinja2
 import logging
 import os
 import re
 import urllib
 import urllib2
-import webapp2
 
 import externals.ayah
 import gdata.gauth
