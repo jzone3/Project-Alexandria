@@ -210,10 +210,10 @@
 
 <script>
 	subject_array = [];
-	{% for i in subjects %} subject_array.push('"{{ i }}"'); {% endfor %}
+	{% for i in subjects %} subject_array.push('"{{ i|safe }}"'); {% endfor %}
 	$('#subject_box').attr('data-source', "[" + subject_array + "]");
 	teacher_array = [];
-	{% for i in teachers %} teacher_array.push('"{{ i }}"'); {% endfor %}
+	{% for i in teachers %} teacher_array.push('"{{ i|safe }}"'); {% endfor %}
 	$('#teacher_box').attr('data-source', "[" + teacher_array + "]");
 </script>
 
