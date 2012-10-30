@@ -29,12 +29,17 @@ SCHOOL_RE= re.compile(r"^[a-zA-Z0-9 _]{1,30}$")
 TITLE_RE = re.compile(r'^[\'\.: a-zA-Z0-9_-]+$')
 PAGE_RE = r'(/(?:[\'\.:a-zA-Z0-9_-]+/?)*)'
 
-
 LOGIN_COOKIE_NAME = 'uohferrvnksj'
 
 GET_USER = db.GqlQuery("SELECT * FROM Users WHERE username = :username LIMIT 1")
 GET_USER_GUIDES = db.GqlQuery("SELECT * FROM Guides WHERE user_created = :username ORDER BY date_created DESC")
 GET_GUIDES_BY_BLOB_KEY = db.GqlQuery("SELECT * FROM Guides WHERE blob_key = :blob_key LIMIT 1")
+
+CONTENT_TYPE_EXTS = {'application/msword':'.doc',
+					'application/vnd.openxmlformats-officedocument.wordprocessingml.document':'.docx',
+					'application/pdf':'.pdf',
+					'text/plain':'.txt',
+					'application/rtf':'.rtf'}
 
 ############################### misc. functions ###############################
 
@@ -585,17 +590,18 @@ def get_tags(string):
 			tags.append(tag)
 	return tags
 
-def get_filename(title, user):
+def get_filename(title, user, content_type):
 	'''Makes a filename from the guide title and uploading user'''
 	title = title.lower()
 	user = user.lower()
-	new_title = ''
+	extension = CONTENT_TYPE_EXTS[content_type]
+	new_title = ''	
 	for char in title:
 		if char != ' ':
 			new_title += char
 		else:
 			new_title += '_'
-	return new_title + '_' + user
+	return new_title + '_' + user + extension
 
 def get_url(filename, user):
 	'''Creates url: user/guidename from filename and uploading user'''
@@ -626,11 +632,7 @@ def upload_errors(title, subject, teacher, editable, headers):
 	if size > 2097152:
 		file_error = 'File size too big. '
 
-	if (mime_type != 'application/msword' and
-		mime_type != 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' and
-		mime_type != 'application/pdf' and
-		mime_type != 'text/plain' and
-		mime_type != 'application/rtf'):
+	if mime_type not in CONTENT_TYPE_EXTS:
 		file_error += 'Wrong file format.'
 
 	if not editable:		
