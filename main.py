@@ -828,9 +828,11 @@ class CommentHandler(BaseHandler):
 				temp_comment = Comments(user=user, guide=guide, comment=comment)
 				temp_comment.put()
 			else:
+				self.write('False')
 				return None
-			self.write('True')
+			self.write(username+','+str(temp_comment.date_created))
 		else:
+			self.write('False')
 			return None
 
 class FeedbackHandler(BaseHandler):

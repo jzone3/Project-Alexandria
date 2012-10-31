@@ -97,27 +97,33 @@
 			
 			<script src="/static/js/Date.min.js"></script>
 			<div style="float:left;width:500px;">
-				<h4>Comments</h4>
-				<br/>			
-				{% if not comments %}
-					<h5 style="font-weight:normal;"><em>No comments here!<em></h5>
-					<br/>
-				{% else %}
-					{% for comment in comments %}
-					<div style="word-break:normal;">
-						<a href="/user/{{comment.user.username}}">{{comment.user.username}}</a>: 
-						{{comment.comment}}
-					</div>
-					<p>
-						<div class="datetime" id="{{comment.date_created}}"></div>
-					</p>
-					{% endfor %}
-				{% endif %}
-				<form>
+				<div id="comments">
+					<h4>Comments</h4>
+					<br/>			
+					{% if not comments %}
+						<h5 style="font-weight:normal;"><em>No comments here!<em></h5>
+						<br/>
+					{% else %}
+						{% for comment in comments %}
+						<div style="word-break:normal;">
+							<a href="/user/{{comment.user.username}}">{{comment.user.username}}</a>: 
+							{{comment.comment}}
+						</div>
+						<p>
+							<div class="datetime" id="{{comment.date_created}}"></div>
+						</p>
+						{% endfor %}
+					{% endif %}
+				</div>
+
+				<form style="float:left;">
 					<textarea id="comment" placeholder="Write a comment" style="height:70px;"></textarea>
+					<br/>
 					<button type="button" class="btn" id="commentsubmit">Submit</button>
 				</form>
 			</div>
+
+		
 		</div> 
 	</div>
 
@@ -250,8 +256,27 @@
 		    url:'/comment', 
 		    data:'key={{result.key()}}' + '&comment=' + comment,
 		    success: function(response) {
-		    	if (response == 'True'){
+		    	if (response != 'False') {
 					$('#comment').val('');
+					var username = response.split(',')[0];
+					var dt_str = response.split(',')[1];
+					var dt = new Date(dt_str);
+
+					// get timezone offset in minutes
+					min_offset = dt.getTimezoneOffset()*60000;
+					// subtract offset and recreate date object
+					dt -= min_offset;
+					var dt = new Date(dt);
+					// format time and date string
+					var time = dt.strftime('%#I:%M%p').toLowerCase();
+					var date = dt.strftime('%b %e%o, %Y');
+
+					// construct html for the comment and date
+					var link = '<div style="word-break:normal;"><a href="/user/'+username+'">'+username+'</a>: '+comment+'</div>'
+					var dt = '<p><div class="datetime" style="font-style:italic;font-weight:normal;font-size:12px;">'+time+' '+date+'</div></p>'
+
+					// print to page
+					$('#comments').append(link+dt);
 		    	}				
 		    }
 		});
