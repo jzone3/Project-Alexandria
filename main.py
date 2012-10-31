@@ -470,7 +470,7 @@ class UploadHandler(BaseHandler):
 		else:			
 			username = self.get_username()
 			tags = get_tags(tags) + create_tags(title, subject, teacher, username)
-			filename = get_filename(title, username, content_type=headers['content-type'])
+			filename = get_filename(title, username, headers['content-type'])
 			school = get_school(username)
 			edit_url = None
 

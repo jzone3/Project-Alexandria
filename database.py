@@ -46,9 +46,10 @@ class Guides(db.Model):
 	icon         = db.StringProperty(required = True)
 	report_users = db.StringListProperty(required = True)
 	date_created = db.DateTimeProperty(auto_now_add = True)
-	votes      = db.IntegerProperty(required = True)
-	up_users   = db.StringListProperty()
-	down_users = db.StringListProperty()
+	votes        = db.IntegerProperty(required = True)
+	up_users     = db.StringListProperty()
+	down_users   = db.StringListProperty()
+	misc         = db.StringProperty(required = False)
 
 class Email_Verification(db.Model):
 	username      = db.StringProperty(required = True)
