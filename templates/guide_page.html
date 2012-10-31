@@ -248,7 +248,7 @@
     });
 
     $('#commentsubmit').click(function() {
-    	comment = escape($('#comment').val());
+    	comment = $('#comment').val();
 	    $.ajax({
 		    type:'POST', 
 		    url:'/comment', 
@@ -269,12 +269,14 @@
 					var time = dt.strftime('%#I:%M%p').toLowerCase();
 					var date = dt.strftime('%b %e%o, %Y');
 
+					var comment_id = 'comment_' + Date.parse(Date())
 					// construct html for the comment and date
-					var link = '<div style="word-break:normal;"><a href="/user/'+username+'">'+username+'</a>: '+comment+'</div>'
-					var dt = '<p><div class="datetime" style="font-style:italic;font-weight:normal;font-size:12px;">'+time+' '+date+'</div></p>'
+					var link = '<div style="word-break:normal;"><a href="/user/'+username+'">'+username+'</a>: <span id="'+comment_id+'"></span></div>'
+					var dt = '<div class="datetime" style="font-style:italic;font-weight:normal;font-size:12px;">'+time+' '+date+'</div>'
 
 					// print to page
 					$('#comments').append(link+dt);
+					$('#'+comment_id).text(comment);
 		    	}				
 		    }
 		});
