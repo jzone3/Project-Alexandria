@@ -98,18 +98,21 @@
 			<script src="/static/js/Date.min.js"></script>
 			<div style="float:left;width:500px;">
 				<h4>Comments</h4>
-
-				<br/>
-				{% for comment in comments %}
-				<div style="word-break:normal;">
-					<a href="/user/{{comment.user.username}}">{{comment.user.username}}</a>: 
-					{{comment.comment}}
-				</div>
-				<p>
-					<div class="datetime" id="{{comment.date_created}}"></div>
-				</p>
-				{% endfor %}
-
+				<br/>			
+				{% if not comments %}
+					<h5 style="font-weight:normal;"><em>No comments here!<em></h5>
+					<br/>
+				{% else %}
+					{% for comment in comments %}
+					<div style="word-break:normal;">
+						<a href="/user/{{comment.user.username}}">{{comment.user.username}}</a>: 
+						{{comment.comment}}
+					</div>
+					<p>
+						<div class="datetime" id="{{comment.date_created}}"></div>
+					</p>
+					{% endfor %}
+				{% endif %}
 				<form>
 					<textarea id="comment" placeholder="Write a comment" style="height:70px;"></textarea>
 					<button type="button" class="btn" id="commentsubmit">Submit</button>

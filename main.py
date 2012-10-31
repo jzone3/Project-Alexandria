@@ -378,7 +378,8 @@ class GuidePageHandler(BaseHandler):
 
 			# get comments
 			comments = result.comments_list
-
+			if not comments.get():
+				comments = False
 			if logged_in:
 				# check if user reported
 				username = self.get_username()				
