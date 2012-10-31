@@ -4917,3 +4917,7 @@ input[type=checkbox]{
 .link404:hover{
   color: white;
 }
+
+.datetime{
+  margin: 1px 0 4px;
+}
