@@ -66,6 +66,9 @@ def delete_orphan_subteach(school='Bergen County Academies'):
 		if not ts:
 			del_teachers.append(teacher)
 			continue
+		elif not ts.subjects_list:
+			del_teachers.append(teacher)
+			continue
 		else:
 			# if has subjects, clean up subjects if needed
 			del_teacher_subjects = []
@@ -99,6 +102,10 @@ def delete_orphan_subteach(school='Bergen County Academies'):
 		st = q.get()
 		if not st:
 			del_subjects.append(subject)
+			continue
+		elif not st.teachers_list:
+			del_subjects.append(subject)
+			continue
 		else:
 			# if has teachers, clean up each teachers if needed
 			del_subject_teachers = []
