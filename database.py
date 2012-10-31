@@ -97,6 +97,11 @@ class Indexes(db.Model):
 	school = db.StringProperty(required = True)
 	index  = JsonProperty()
 
+class Comments(db.Model):
+	comment = db.TextProperty(required = True)
+	guide = db.ReferenceProperty(Guides, collection_name='comments_list')
+	username = db.ReferenceProperty(Users)	
+
 class Notification(db.Model):
 	username     = db.StringProperty(required = True)
 	is_new       = db.BooleanProperty(required = True)

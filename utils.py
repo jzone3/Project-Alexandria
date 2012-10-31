@@ -47,92 +47,6 @@ CONTENT_TYPE_EXTS = {'application/msword':'.doc',
 # 	global_stat = stats.GlobalStat.all().get()
 # 	return {'total_data' : global_stat.bytes / 1048576.0}
 
-def delete_orphan_subteach(school='Bergen County Academies'):
-	'''Cleans up the Subject and Teacher tab
-	Use sparingly, this takes a lot of db reads and writes.
-	'''
-	act_teachers = ActiveTeachers.all().filter('school =', school).get()
-	act_subjects = ActiveSubjects.all().filter('school =', school).get()
-	act_teachers_list = act_teachers.active_teachers_list
-	act_subjects_list = act_subjects.active_subjects_list
-
-	del_teachers = []
-	for teacher in act_teachers_list:
-		# test if teacher has subjects		
-		q = Teacher_Subjects.all()
-		q.filter('school =', school)
-		q.filter('teacher =', teacher)
-		ts = q.get()
-		if not ts:
-			del_teachers.append(teacher)
-			continue
-		elif not ts.subjects_list:
-			del_teachers.append(teacher)
-			continue
-		else:
-			# if has subjects, clean up subjects if needed
-			del_teacher_subjects = []
-			for subject in ts.subjects_list:
-				q = Guides.all()
-				q.filter('school =', school)
-				q.filter('teacher =', teacher)
-				q.filter('subject =', subject)
-				g = q.get()
-				if not g:
-					del_teacher_subjects.append(subject)
-			
-			# remove empty subjects		
-			subs = filter(lambda x: x not in del_teacher_subjects, ts.subjects_list)
-			ts.subjects_list = subs
-			ts.put()
-			logging.error('removed '+repr(del_teacher_subjects)+' from '+teacher)
-
-	# remove empty teachers
-	teachers = filter(lambda x: x not in del_teachers, act_teachers_list)
-	act_teachers.active_teachers_list = teachers
-	act_teachers.put()
-	logging.error('removed '+repr(del_teachers)+' from ActiveTeachers')
-
-	del_subjects = []
-	for subject in act_subjects_list:
-		# test if subject has teachers
-		q = Subject_Teachers.all()
-		q.filter('school =', school)
-		q.filter('subject =', subject)
-		st = q.get()
-		if not st:
-			del_subjects.append(subject)
-			continue
-		elif not st.teachers_list:
-			del_subjects.append(subject)
-			continue
-		else:
-			# if has teachers, clean up each teachers if needed
-			del_subject_teachers = []
-			for teacher in st.teachers_list:
-				q = Guides.all()
-				q.filter('school =', school)
-				q.filter('subject =', subject)
-				q.filter('teacher =', teacher)
-				g = q.get()
-				if not g:
-					del_subject_teachers.append(teacher)
-
-			# remove empty teachers
-			teachers = filter(lambda x: x not in del_subject_teachers, st.teachers_list)
-			st.teachers_list = teachers
-			st.put()
-			logging.error('removed '+repr(del_subject_teachers)+' from '+subject)
-
-	# remove empty subjects
-	subjects = filter(lambda x: x not in del_subjects, act_subjects_list)
-	act_subjects.active_subjects_list = subjects
-	act_subjects.put()
-	logging.error('removed '+repr(del_subjects)+' from ActiveSubjects')
-
-
-
-
 def str_votes(votes):
 	if votes > 0:
 		return '+' + str(votes)
@@ -741,6 +655,89 @@ last_refresh = {}
 from database import *
 from django.utils import simplejson
 
+def delete_orphan_subteach(school='Bergen County Academies'):
+	'''Cleans up the Subject and Teacher tab
+	Use sparingly, this takes a lot of db reads and writes.
+	'''
+	act_teachers = ActiveTeachers.all().filter('school =', school).get()
+	act_subjects = ActiveSubjects.all().filter('school =', school).get()
+	act_teachers_list = act_teachers.active_teachers_list
+	act_subjects_list = act_subjects.active_subjects_list
+
+	del_teachers = []
+	for teacher in act_teachers_list:
+		# test if teacher has subjects		
+		q = Teacher_Subjects.all()
+		q.filter('school =', school)
+		q.filter('teacher =', teacher)
+		ts = q.get()
+		if not ts:
+			del_teachers.append(teacher)
+			continue
+		elif not ts.subjects_list:
+			del_teachers.append(teacher)
+			continue
+		else:
+			# if has subjects, clean up subjects if needed
+			del_teacher_subjects = []
+			for subject in ts.subjects_list:
+				q = Guides.all()
+				q.filter('school =', school)
+				q.filter('teacher =', teacher)
+				q.filter('subject =', subject)
+				g = q.get()
+				if not g:
+					del_teacher_subjects.append(subject)
+			
+			# remove empty subjects		
+			subs = filter(lambda x: x not in del_teacher_subjects, ts.subjects_list)
+			ts.subjects_list = subs
+			ts.put()
+			logging.error('removed '+repr(del_teacher_subjects)+' from '+teacher)
+
+	# remove empty teachers
+	teachers = filter(lambda x: x not in del_teachers, act_teachers_list)
+	act_teachers.active_teachers_list = teachers
+	act_teachers.put()
+	logging.error('removed '+repr(del_teachers)+' from ActiveTeachers')
+
+	del_subjects = []
+	for subject in act_subjects_list:
+		# test if subject has teachers
+		q = Subject_Teachers.all()
+		q.filter('school =', school)
+		q.filter('subject =', subject)
+		st = q.get()
+		if not st:
+			del_subjects.append(subject)
+			continue
+		elif not st.teachers_list:
+			del_subjects.append(subject)
+			continue
+		else:
+			# if has teachers, clean up each teachers if needed
+			del_subject_teachers = []
+			for teacher in st.teachers_list:
+				q = Guides.all()
+				q.filter('school =', school)
+				q.filter('subject =', subject)
+				q.filter('teacher =', teacher)
+				g = q.get()
+				if not g:
+					del_subject_teachers.append(teacher)
+
+			# remove empty teachers
+			teachers = filter(lambda x: x not in del_subject_teachers, st.teachers_list)
+			st.teachers_list = teachers
+			st.put()
+			logging.error('removed '+repr(del_subject_teachers)+' from '+subject)
+
+	# remove empty subjects
+	subjects = filter(lambda x: x not in del_subjects, act_subjects_list)
+	act_subjects.active_subjects_list = subjects
+	act_subjects.put()
+	logging.error('removed '+repr(del_subjects)+' from ActiveSubjects')
+
 def delete_all_test_guides(school='Bergen County Academies'):
 	# delete guide, index entries, etc.
 	q = Guides.all()
@@ -930,8 +927,6 @@ def add_subject(school, subject):
 		
 	result.put()
 
-
-
 def add_teacher(school, teacher):
 	'''adds/updates a teacher to Teachers'''
 	q = Teachers.all()
@@ -968,8 +963,6 @@ def add_teacher(school, teacher):
 	logging.error('CACHE set from upload activesubjects: '+school)
 
 	result.put()
-
-
 
 def get_all_active_teachers(school=''):
 	'''gets list of all active teachers from ActiveTeachers model'''
