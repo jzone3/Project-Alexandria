@@ -362,10 +362,9 @@ class DashboardHandler(BaseHandler):
 class GuidePageHandler(BaseHandler):
 	'''Handlers custom guide pages: guide_page.html'''
 	def get(self, url):
-		bookmarked, reported, deletable = False, False, False
+		bookmarked, reported, deletable, diff = False, False, False, False
 		logged_in = self.logged_in()
 		url = url[1:] # formats url 
-		diff = "12345"
 
 		# retrieve guide from db
 		q = Guides.all()
@@ -376,6 +375,9 @@ class GuidePageHandler(BaseHandler):
 		if result:
 			votes = str_votes(result.votes)
 			dl_link = '/serve/' + result.blob_key
+
+			# get comments
+			comments = result.comments_list
 
 			if logged_in:
 				# check if user reported
@@ -392,10 +394,11 @@ class GuidePageHandler(BaseHandler):
 					diff = datetime.datetime.now() - result.date_created 
 					if diff < datetime.timedelta(1):
 						deletable = True
-					diff = (datetime.timedelta(0, 86400) - diff).total_seconds()/3600 # convert to remaining time
+					diff = float(str((datetime.timedelta(0, 86400) - diff).total_seconds()/3600)[:5]) # convert to remaining time
 
 			self.render('guide_page.html', {'result':result, 'votes':votes, 'dl_link':dl_link, 'bookmarked':bookmarked, 
-											'logged_in':logged_in, 'reported':reported, 'deletable':deletable, 'diff':float(str(diff)[:5])})
+											'logged_in':logged_in, 'reported':reported, 'deletable':deletable, 'diff':diff,
+											'comments':comments})
 		else:
 			# site = url.lower().split('/')
 			# if site[0] != 'null':
@@ -811,6 +814,24 @@ class AddBookmarkHandler(BaseHandler):
 				temp_bookmark.put()
 		#self.redirect('/guides')
 
+class CommentHandler(BaseHandler):
+	def post(self):
+		key = self.rget('key')
+		comment = self.rget('comment')
+		username = self.get_username(secure=True)
+
+		if comment and key and username:
+			guide = Guides.get(key)
+			user = get_user(username)
+			if guide and user:
+				temp_comment = Comments(user=user, guide=guide, comment=comment)
+				temp_comment.put()
+			else:
+				return None
+			self.write('True')
+		else:
+			return None
+
 class FeedbackHandler(BaseHandler):
 	def post(self):
 		message = self.rget('message')
@@ -1187,6 +1208,7 @@ app = webapp2.WSGIApplication([('/?', MainHandler),
 							   ('/feedback/?', FeedbackHandler),
 							   ('/beta/?', BetaHandler),
 							   ('/guide/delete/?', DeleteGuideHandler),
+							   ('/comment/?', CommentHandler),
 							   # ('/mod/?', ModHandler),
 							   ('/.*', NotFoundHandler),
 							   ], debug=True)

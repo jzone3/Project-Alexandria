@@ -100,7 +100,8 @@ class Indexes(db.Model):
 class Comments(db.Model):
 	comment = db.TextProperty(required = True)
 	guide = db.ReferenceProperty(Guides, collection_name='comments_list')
-	username = db.ReferenceProperty(Users)	
+	user = db.ReferenceProperty(Users)
+	date_created = db.DateTimeProperty(auto_now_add = True)
 
 class Notification(db.Model):
 	username     = db.StringProperty(required = True)

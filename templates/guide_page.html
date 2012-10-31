@@ -12,8 +12,8 @@
 {% endblock %}
 
 {% block page_content %}
-	<div class="container">
-		<div class="well">
+	<div class="container" >
+		<div class="well" style="overflow:hidden;">
 
 			<div class="row-fluid">
 				<div class="span8">
@@ -78,7 +78,10 @@
 				</div>
 			</div>
 			<hr>
-			<div style="position:relative;right:10px;">
+
+			
+
+			<div style="float:right">
 				<script type="text/javascript"><!--
 					google_ad_client = "ca-pub-1213608668776384";
 					/* Ad1 */
@@ -92,39 +95,50 @@
 				</script>
 			</div>
 			
-			<span style="float:left;">
+			<script src="/static/js/Date.min.js"></script>
+			<div style="float:left;width:500px;">
 				<h4>Comments</h4>
 
 				<br/>
-				{% if false %}
+				{% for comment in comments %}
+				<div style="word-break:normal;">
+					<a href="/user/{{comment.user.username}}">{{comment.user.username}}</a>: 
+					{{comment.comment}}
+				</div>
 				<p>
-					<strong>spez: </strong>
-					this study guide is awesome!
+					<div class="datetime" id="{{comment.date_created}}"></div>
 				</p>
-				<p>
-					<h6 style="font-weight:normal;"><em>10:51pm Sept 12, 2012</em></h6>
-				</p>
-				<p>
-					<strong>jarson95: </strong>
-					@spez this study guide helps so much!
-				</p>
-				
-				<p>
-					<h6 style="font-weight:normal;"><em>10:51pm Sept 12, 2012</em></h6>
-				</p>
-				{% endif %}
-				<form method="post">
-					<div><textarea name="comment" placeholder="Write a comment"></textarea></div>
-					<div><input type="button" class="btn" value="Submit"></div>
-				</form>
-			</span>
+				{% endfor %}
 
+				<form>
+					<textarea id="comment" placeholder="Write a comment" style="height:70px;"></textarea>
+					<button type="button" class="btn" id="commentsubmit">Submit</button>
+				</form>
+			</div>
 		</div> 
 	</div>
 
 
 	<script type="text/javascript">
-	
+	// print all dates for comments
+	$(document).ready(function() {
+		$('.datetime').each(function(index){
+			var dt = new Date($('.datetime')[index].id);
+			// get timezone offset in minutes
+			min_offset = dt.getTimezoneOffset()*60000;
+			// subtract offset and recreate date object
+			dt -= min_offset;
+			var dt = new Date(dt);
+			// format time and date string
+			var time = dt.strftime('%#I:%M%p').toLowerCase();
+			var date = dt.strftime('%b %e%o, %Y');
+			// print to page
+			$(this).html(time+' '+date);
+			$(this).css({'font-style':'italic', 'font-weight':'normal', 'font-size':'12px'})
+		})
+	});
+
+
 	function toggleBookmark() {
 		$('a.bookmarkbtn').toggleClass('bmd');
 		if ( $('a.bookmarkbtn').hasClass('bmd') ) {
@@ -225,6 +239,20 @@
 			$('#reporttext').slideDown('slow');
 		}
     });
+
+    $('#commentsubmit').click(function() {
+    	comment = escape($('#comment').val());
+	    $.ajax({
+		    type:'POST', 
+		    url:'/comment', 
+		    data:'key={{result.key()}}' + '&comment=' + comment,
+		    success: function(response) {
+		    	if (response == 'True'){
+					$('#comment').val('');
+		    	}				
+		    }
+		});
+	});
 </script>
 
 {% if deletable %}
