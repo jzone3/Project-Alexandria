@@ -46,11 +46,17 @@ class BaseHandler(webapp2.RequestHandler):
 	def rget(self, name):
 		return self.request.get(name)
 
-	def get_username(self):
-		username = self.request.cookies.get(LOGIN_COOKIE_NAME, '')
-		if username and not username == '':
-			return username.split("|")[0]
-		return None
+	def get_username(self, secure=False):
+		user_cookie = self.request.cookies.get(LOGIN_COOKIE_NAME, '')
+		if not user_cookie:
+			return None
+		elif not secure:
+			return user_cookie.split("|")[0]
+		# secure check	
+		if self.logged_in():
+			return user_cookie.split("|")[0]
+		else:
+			return None
 
 	def list_to_str(self, lst):
 		to_return = '['
@@ -1089,7 +1095,7 @@ class VoteHandler(BaseHandler):
 	def post(self):
 		key = self.rget('id')
 		vote_type = self.rget('type')
-		username = self.rget('username')
+		username = self.get_username(secure=True)
 		
 		response = vote(key, vote_type, username)
 
