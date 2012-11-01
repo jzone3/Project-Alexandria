@@ -101,7 +101,7 @@
 					<h4 style="margin-bottom:12px;">Comments</h4>
 		
 					{% if not comments %}
-						<h5 style="font-weight:normal;"><em>No comments here!<em></h5>
+						<h5 style="font-weight:normal;" id="nocomments"><em>No comments here!<em></h5>
 						<br/>
 					{% else %}
 						{% for comment in comments %}
@@ -269,12 +269,14 @@
 					var time = dt.strftime('%#I:%M%p').toLowerCase();
 					var date = dt.strftime('%b %e%o, %Y');
 
+					// comment_id needed to add comment with $.text() later
 					var comment_id = 'comment_' + Date.parse(Date())
 					// construct html for the comment and date
 					var link = '<div style="word-break:normal;"><a href="/user/'+username+'">'+username+'</a>: <span id="'+comment_id+'"></span></div>'
 					var dt = '<div class="datetime" style="font-style:italic;font-weight:normal;font-size:12px;">'+time+' '+date+'</div>'
 
 					// print to page
+					$('#nocomments').hide();
 					$('#comments').append(link+dt);
 					$('#'+comment_id).text(comment);
 		    	}				
