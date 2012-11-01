@@ -1096,7 +1096,7 @@ def find_guides_ts(school, teacher, subject):
 ############################### voting functions ###############################
 
 def vote(key, vote_type, username):
-	if username == "":
+	if not username:
 		return 'signin'
 
 	guide = Guides.get(key)

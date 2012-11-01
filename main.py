@@ -821,6 +821,10 @@ class CommentHandler(BaseHandler):
 		comment = self.rget('comment')
 		username = self.get_username(secure=True)
 
+		if not username:
+			self.write('signin')
+			return None
+
 		if comment and key and username:
 			guide = Guides.get(key)
 			user = get_user(username)

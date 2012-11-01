@@ -254,7 +254,7 @@
 		    url:'/comment', 
 		    data:'key={{result.key()}}' + '&comment=' + comment,
 		    success: function(response) {
-		    	if (response != 'False') {
+		    	if (response != 'False' && response != 'signin') {
 					$('#comment').val('');
 					var username = response.split(',')[0];
 					var dt_str = response.split(',')[1];
@@ -276,9 +276,11 @@
 					var dt = '<div class="datetime" style="font-style:italic;font-weight:normal;font-size:12px;">'+time+' '+date+'</div>'
 
 					// print to page
-					$('#nocomments').hide();
+					$('#nocomments').hide('slow');
 					$('#comments').append(link+dt);
 					$('#'+comment_id).text(comment);
+		    	} else if (response == 'signin') {
+		    		$('#login').modal('show');
 		    	}				
 		    }
 		});
