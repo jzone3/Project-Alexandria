@@ -91,18 +91,31 @@ def get_rankings(query, index):
 	query = filt_query(query)
 	query_words = query.split()
 	rankings = dict()
+
+	# check if query contains usernames
+	usernames = []
+	for word in query_words:
+		q = Guides.all().filter('user_created =', word)
+		if q.count() > 0:
+			usernames.append(word)
+
 	for key in index:
 		tags = index[key]
 		rank = 0
 		for tag in tags:
 			if tag in query:
-				# this way partial words can be matched
+				# full word match				
 				if tag in query_words:	
 					rank += 1
-				else:
+				# partial word match	
+				elif len(tag) > 3:
 					rank += 0.5
-		rankings[key] = rank
-
+				# username match
+				g = Guides.get(key)
+				for username in usernames:
+					if g.user_created == username:
+						rank += 0.5
+		rankings[key] = rank		
 	return rankings
 
 # highest level function!
