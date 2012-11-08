@@ -94,7 +94,7 @@ def save_feedback(content, origin):
 						to=DEVS[dev],
 						reply_to=user_email,
 						subject="Feedback: %s" % feedback_type,
-						body=content)
+						body=content + "\n- " + origin)
 		if dev == 2:
 			dev = 0
 		else:
@@ -105,7 +105,7 @@ def save_feedback(content, origin):
 						to=PEOPLE[person],
 						reply_to=user_email,
 						subject="Feedback: %s" % feedback_type,
-						body=content)
+						body=content + "\n- " + origin)
 		if person == 4:
 			person = 0
 		else:
