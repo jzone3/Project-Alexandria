@@ -19,6 +19,7 @@ import secret
 from database import *
 from activation import make_activation_email
 from new_guides import make_new_guides
+from submitted import make_submitted
 
 from google.appengine.api import memcache
 
@@ -123,6 +124,9 @@ def add_submitted(username, key):
 			memcache.set(username + '_submitted', new_guide)
 	else:
 		memcache.set(username + '_submitted', new_guide)
+
+def get_submitted_html(username):
+	return make_submitted(get_submitted(username), username)
 
 def get_submitted(username):
 	from_cache = memcache.get(username + '_submitted')

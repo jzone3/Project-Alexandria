@@ -63,40 +63,9 @@
 
 				<!-- Tab Submitted -->
 				<div class="tab-pane fade" id="submitted">
-					{% if submitted %}
-						<form class="form-inline" style="float:right;">
-								Sort by:
-								<a href="#" class="btn btn-info btn-mini">Date</a>
-								<a href="#" class="btn btn-primary btn-mini">Downloads</a>
-								<a href="#" class="btn btn-warning btn-mini">Bookmarks</a>
-								<a href="#" class="btn btn-success btn-mini">Teacher</a>
-						</form><br><br>
-						<table class="table table-hover">
-							<thead>
-								<th>Title</th>
-								<th>Subject</th>
-								<th>Date Uploaded</th>
-								<th>Votes</th>
-								<!-- <th>Bookmarks</th> -->
-								<!-- <th>Downloads</th> -->
-							</thead>
-							<tbody>
-								{% for i in submitted %}
-									<tr>
-										<td><a href="/guides/{{username}}/{{ i['title'].replace(' ', '_').lower()}}">{{i['title']}}</a></td>
-										<td>{{i['subject']}}</td>
-										<td>{{i['date_created'].strftime("%B %d, %Y")}}</td>
-										<td>{{i['teacher']}}</td>
-									</tr>
-								{% endfor %}
-							</tbody>
-						</table>
-					{% else %}
-						<center>
-							<h2>You haven't submitted anything yet!</h2>
-							<h3><a href="/upload">Upload</a> a study guide!</h3>
-						</center>
-					{% endif %}
+					<div id="submitted_results">
+						<img style="display:block; margin-left:auto; margin-right:auto;" src="../static/img/large-ajax-loader.gif"/>
+					</div>
 				</div>
 				<!-- End Tab Submitted -->
 
@@ -131,7 +100,22 @@
 		$.post("/removebookmark", {id: id} );
 		$(this).parent().parent().fadeOut(500);
 	});
-	
+
+	alreadyDone = false;
+  	// Submitted tab
+	$('#submittedlink').click(function (e) {
+		if (!alreadyDone) {
+			$.ajax({
+			    type:'POST', 
+			    url:'/submitted',
+			    success: function(response) {
+			    	$('#submitted_results').html(response);
+			    }
+			});
+			alreadyDone = true;
+		}
+	})
+
 	</script>
 	
 	{% if tour %}
@@ -185,6 +169,7 @@
 			});
 			tour.start(true);
 		});
+
 		</script>
 	{% endif %}
 {% endblock %}

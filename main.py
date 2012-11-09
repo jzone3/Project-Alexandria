@@ -339,6 +339,17 @@ class NewGuidesHandler(BaseHandler):
 		response = get_new_guides(school, page, username)
 		self.write(response)
 
+class SubmittedHandler(BaseHandler):
+	def get(self):
+		self.redirect('/guides')
+
+	def post(self):
+		if self.logged_in():
+			username = self.get_username()
+			self.write(get_submitted_html(username))
+		else:
+			self.error(404)
+
 class DashboardHandler(BaseHandler):
 	'''Handlers dashboard: dashboard.html'''
 	def get(self):
@@ -354,7 +365,6 @@ class DashboardHandler(BaseHandler):
 			user = get_user(self.get_username())
 			bookmark_list=list(user.bookmark_list)
 			self.render('dashboard.html', {'bookmark_list':bookmark_list, 
-										   'submitted':get_submitted(self.get_username()), 
 										   'tour':tour})
 		else:
 			self.redirect('/')
@@ -1182,6 +1192,7 @@ app = webapp2.WSGIApplication([('/?', MainHandler),
 							   ('/logout/?', LogoutHandler),
 							   ('/guides/?', GuidesHandler),
 							   ('/newguides/?', NewGuidesHandler),
+							   ('/submitted/?', SubmittedHandler),
 							   ('/contact/?', ContactHandler),
 							   ('/team/?', TeamHandler),
 							   ('/dashboard/?', DashboardHandler),
