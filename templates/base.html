@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>{% block title %}{% endblock %} - Project Alexandria</title>
-	<link rel="shortcut icon" href="/static/img/fav_small.png" />
+	<title>{% if index %}Project Alexandria - {% endif %}{% block title %}{% endblock %}{% if not index %} - Project Alexandria{% endif %}</title>
+	<link rel="shortcut icon" type="image/x-icon" href="/static/img/favicon.ico" />
 	<link type="text/css" rel="stylesheet" href="/static/css/bootstrap.css">
 	<link type ="text/css" rel="stylesheet" href="/static/css/font-awesome.css">
 	<link type ="text/css" rel="stylesheet" href="/static/css/custom.css">
@@ -15,7 +15,7 @@
 
 	<!-- Google Analytics -->
 	<script type="text/javascript">
-
+	
 	var _gaq = _gaq || [];
 	_gaq.push(['_setAccount', 'UA-35582025-1']);
 	_gaq.push(['_trackPageview']);

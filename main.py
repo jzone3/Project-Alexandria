@@ -191,9 +191,8 @@ class MainHandler(BaseHandler):
 
 		if logged_in:
 			self.redirect('/dashboard/')
-			#self.render('dashboard.html', {'submitted' : get_submitted(self.get_username())})			
 		else:
-			self.render('index.html', {'blockbg':True})
+			self.render('index.html', {'blockbg':True, 'index':True})
 
 	def post(self):
 		formname = self.rget('formname')
@@ -211,7 +210,7 @@ class MainHandler(BaseHandler):
 				self.set_school_cookie(get_school(username))
 				self.redirect('/')
 			else:
-				self.render('index.html', {'username': username, 'wrong': value, 'modal' : 'login', 'blockbg' : True})
+				self.render('index.html', {'username': username, 'wrong': value, 'modal' : 'login', 'blockbg' : True, 'index': True})
 
 		elif formname == 'signup':
 			username, password, verify, school, agree, human, email = ('', '', '', '', '', '', '')
@@ -236,7 +235,8 @@ class MainHandler(BaseHandler):
 										   'agree_error': get_error(results, 'agree'),
 										   'human_error': get_error(results, 'human'),
 										   'blockbg' : True,
-										   'modal': 'signup'})
+										   'modal': 'signup',
+										   'index': True})
 
 		else:
 			self.redirect('/')
