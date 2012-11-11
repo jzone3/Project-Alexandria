@@ -48,7 +48,7 @@
 							{% endif %}
 							<div class="span4 hoverspn4">
 								<span class="removebtnspn"><a class="removebtn" href="#" id="{{ bookmark.guide.blob_key }}">&times;</a></span>
-								<span style="float:left;"><img src="/static/img/{{ bookmark.guide.icon }}.png" style="width:100px;"></span>
+								<a href="../guides/{{ bookmark.guide.url }}"><span style="float:left;"><img src="/static/img/{{ bookmark.guide.icon }}.png" style="width:100px;"></span></a>
 								<span style="text-align:right;">
 									<h4><a href="../guides/{{ bookmark.guide.url }}">{{ bookmark.guide.title }}</a></h4>
 									<div>{{ bookmark.guide.subject }}</div>
