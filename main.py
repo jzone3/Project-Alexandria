@@ -154,7 +154,7 @@ class BaseHandler(webapp2.RequestHandler):
 				return True
 			else:
 				self.delete_cookie(LOGIN_COOKIE_NAME)
-				self.delete_cookie(school)
+				self.delete_cookie('school')
 				return False
 		else:
 			return False		
