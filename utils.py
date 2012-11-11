@@ -86,7 +86,7 @@ def save_feedback(content, origin):
 	new_feedback.put()
 	feedback_type = ((content.split("<br")[0].strip())[8:])
 	feedback_to_compare = feedback_type.split(' ')
-	logging.error('SAVE FEEDBACK --------------------------------------------------------------')
+	logging.error('SAVE FEEDBACK')
 	user_email = get_user(origin).email
 
 	if "Problem" in feedback_to_compare:
@@ -500,6 +500,13 @@ def change_password(old, new, verify, username):
 		return [True, cookie]
 	else:
 		return [False, {'current_password_error' : 'Incorrect current password'}]
+
+def is_google_account(username):
+	GET_USER.bind(username = username)
+	user = GET_USER.get()
+	if user.password == None:
+		return True
+	return False
 
 def delete_user_account(username):
 	GET_USER.bind(username = username)

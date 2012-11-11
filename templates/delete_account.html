@@ -21,6 +21,7 @@
 			</center>
 			<br/>
 			<form action="/delete_account" method="post">
+				{% if not google_account %}
 				<div class="row">
 					<br/>
 					<div class="span3">
@@ -30,6 +31,7 @@
 						<input type="password" name="current_password">
 					</div>
 				</div>
+				{% endif %}
 				<div class="row">
 					<div class="span3">
 						Why are you leaving? <i>(optional)</i><br/>

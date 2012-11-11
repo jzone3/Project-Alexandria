@@ -146,7 +146,7 @@ class BaseHandler(webapp2.RequestHandler):
 		all_params.update(params)
 		self.render('prefs.html', all_params)
 
-	def logged_in(self):
+	def logged_in(self, username = None):
 		username = self.request.cookies.get(LOGIN_COOKIE_NAME, '')
 		if username and not username == '':
 			name, hashed_name = username.split("|")
@@ -684,25 +684,34 @@ class DeleteEmailVerification(BaseHandler):
 class DeleteAccountHandler(BaseHandler):
 	def get(self):
 		if self.logged_in():
-			self.render('delete_account.html')
+			self.render('delete_account.html', {'google_account' : is_google_account(self.get_username())})
 		else:
 			self.redirect('/')
 
 	def post(self):
 		if self.logged_in():
-			password = self.rget('password')
-			if check_login(self.get_username(), password):
-				feedback = self.rget('feedback')
-				if feedback:
-					save_feedback(feedback, 'delete_account')
-				delete_user_account(self.get_username())
-				self.delete_cookie(LOGIN_COOKIE_NAME)
-				self.delete_cookie('school')
-				self.redirect('/')
+			username = self.get_username()
+			logging.error('username = ' + username)
+			if is_google_account(username):
+				self.delete_account(username)
 			else:
-				self.render('/delete_account')
+				password = self.rget('password')
+				if check_login(username, password):
+					feedback = self.rget('feedback')
+					self.delete_account(username)
+				else:
+					self.render('/delete_account')
 		else:
 			self.redirect('/')
+
+	def delete_account(self, username):
+		feedback = self.rget('feedback')
+		if feedback:
+			save_feedback(feedback, username)
+		delete_user_account(username)
+		self.delete_cookie(LOGIN_COOKIE_NAME)
+		self.delete_cookie('school')
+		self.redirect('/')
 
 class DeleteGuideHandler(BaseHandler):
 	def post(self):
