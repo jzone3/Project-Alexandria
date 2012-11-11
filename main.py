@@ -405,7 +405,8 @@ class GuidePageHandler(BaseHandler):
 					diff = datetime.datetime.now() - result.date_created 
 					if diff < datetime.timedelta(1):
 						deletable = True
-					diff = float(str((datetime.timedelta(0, 86400) - diff).total_seconds()/3600)[:5]) # convert to remaining time
+					diff = "%0.1f" % ((datetime.timedelta(0, 86400) - diff).total_seconds()/3600) # convert to remaining time
+
 
 			self.render('guide_page.html', {'result':result, 'votes':votes, 'dl_link':dl_link, 'bookmarked':bookmarked, 
 											'logged_in':logged_in, 'reported':reported, 'deletable':deletable, 'diff':diff,

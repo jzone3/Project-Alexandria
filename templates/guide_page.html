@@ -24,7 +24,7 @@
 						<button class="btn btn-inverse" id ="deletebtn" type="button">
 							<span id="deletetext">Delete Guide</span>
 						</button>
-						<span style='font-size: 12px;color: #BBB;'>There are {{ diff }} / 24 hours left to delete this guide <a href="/about">(?)</a></span>
+						<span style='font-size: 12px;color: #BBB;'>There are {{ diff }} / 24 hours left to delete this guide <a rel="tooltip" data-placement="right" title="You only have 24 hours to delete your guide. After 24 hours, you will not be able to remove your study guide from Project Alexandria." class="tooltips"> <i class="icon-question-sign"></i></a></span>
 						{% endif %}
 					</h1>
 					{% if result.user_created == '[deleted]' %}
