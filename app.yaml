@@ -23,7 +23,11 @@ handlers:
 - url: /admin
   script: main.app
 
-- url: /admin_page/.*
+- url: /cron
+  script: main.app
+  login: admin
+
+- url: /admin_console/.*
   script: google.appengine.ext.admin.application
   login: admin
 

@@ -112,3 +112,9 @@ class Notification(db.Model):
 class SubjectIcons(db.Model):
 	subject = db.StringProperty(required = True)
 	icon    = db.StringProperty(required = True)
+
+class Data(db.Model):
+	date_created = db.DateTimeProperty(auto_now_add = True)
+	name = db.StringProperty()
+	value = db.IntegerProperty()
+	misc = db.StringProperty()

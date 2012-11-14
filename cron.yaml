@@ -1,0 +1,4 @@
+cron:
+- description: 12 hour user/guide count
+  url: /cron/admin_counts
+  schedule: every 12 hours

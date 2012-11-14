@@ -1210,6 +1210,19 @@ class AdminHandler(BaseHandler):
 			'guide_count':guide_count,'new_guides':new_guides, 'new_comments':new_comments,
 			'feedback':feedback})
 
+class CronCountHandler(BaseHandler):
+	def get(self):
+		user_count =  Users.all().count()
+		guide_count = Guides.all().count()
+
+		d1 = Data(name="user_count", value=user_count)
+		d2 = Data(name="guide_count", value=guide_count)
+
+		d1.put()
+		d2.put()
+
+		logging.error('CRON logged user_count & guide_count')
+		self.write('CRON logged user_count & guide_count')
 
 
 app = webapp2.WSGIApplication([('/?', MainHandler),
@@ -1253,6 +1266,7 @@ app = webapp2.WSGIApplication([('/?', MainHandler),
 							   ('/guide/delete/?', DeleteGuideHandler),
 							   ('/comment/?', CommentHandler),
 							   ('/admin/?', AdminHandler),
+							   ('/cron/admin_counts/?', CronCountHandler),
 							   # ('/mod/?', ModHandler),
 							   ('/.*', NotFoundHandler),
 							   ], debug=True)
