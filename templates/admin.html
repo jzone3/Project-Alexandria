@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block title %}Admin{% endblock %}
+
+{% block nav_links %}
+	<li><a href="/">Home</a></li>
+	<li><a href="/guides">Guides</a></li>
+	{% if signed_in %}
+		<li><a href="/upload">Upload</a></li>
+	{% endif %}
+	<li><a href="#">About</a></li>
+	<li><a href="/contact">Contact</a></li>
+	<li class="active"><a href="#">Admin</a></li>
+{% endblock %}
+
+{% block page_content %}
+	<div class="container">
+		<div class="well" style="overflow:hidden;">
+			<center><h1>Admin Page</h1></center>
+			<hr>
+			<div class="span11">
+				<div class="span6" style="margin-left:0;">
+					<h2>Users</h2>
+					<h3 style="color:#C93A34;">{{ user_count }}</h3>
+					<em style="color: gray;font-size: 11px;">Graph coming soon!</em>
+				</div>
+
+				<div class="span4" style="margin-left:0;">
+					<h2>Newest Users</h2>
+					<ol>
+					{% for user in new_users %}				
+						<li><a href="\user\{{user.username}}">{{ user.username }}</a></li>				
+					{% endfor %}
+					</ol>
+				</div>
+
+			</div>
+
+			<div class="span11">
+				<hr>
+			</div>
+
+			<div class="span11">
+				<div class="span6" style="margin-left:0;">
+					<h2>Guides</h2>
+					<h3 style="color:#C93A34;">{{ guide_count }}</h3>
+					<em style="color: gray;font-size: 11px;">Graph coming soon!</em>
+				</div>
+
+				<div class="span4" style="margin-left:0;">
+					<h2>Newest Guides</h2>
+					<ol>
+					{% for guide in new_guides %}				
+						<li><a href="/guides/{{url}}">{{ guide.title }}</a></li>				
+					{% endfor %}
+					</ol>
+				</div>
+			</div>
+
+			<div class="span11">
+				<hr>
+			</div>
+
+			<div class="span11">
+				<h2>Latest Comments</h2>
+				<em style="color: gray;font-size: 11px;position: relative;bottom: 15px;">Deleting coming soon!</em>
+				{% for comment in new_comments %}				
+					<p>
+						<a href="/user/{{comment.user.username}}">{{ comment.user.username }}</a>:
+						{{ comment.comment }}
+					</p>
+					<p><em>
+						on <a href="/guide/{{comment.guide.url}}">{{comment.guide.title}}</a>,
+						{{ comment.date_created }}
+					</em></p>				
+				{% endfor %}
+
+			</div>
+
+			<div class="span11">
+				<hr>
+			</div>
+
+			<div class="span11">
+				<h2>Latest Feedback</h2>
+				<em style="color: gray;font-size: 11px;position: relative;bottom: 15px;">Tracking coming soon!</em>
+				{% for fb in feedback %}				
+					<p>{{ fb.content | safe }}</p>
+					<p><em>by <a href="/user/{{fb.origin}}">{{ fb.origin }}</a></em></p>				
+				{% endfor %}
+
+			</div>
+
+		</div>
+	</div>
+
+{% endblock %}

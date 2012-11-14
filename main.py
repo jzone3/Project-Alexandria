@@ -1197,6 +1197,21 @@ class BetaHandler(BaseHandler):
 # 			self.error(404)
 # 			self.render('404.html',{'blockbg':True})
 
+class AdminHandler(BaseHandler):
+	def get(self):
+		user_count =  Users.all().count()
+		new_users = Users.all().order('-date_created').run(limit=10)
+		guide_count = Guides.all().count()
+		new_guides = Guides.all().order('-date_created').run(limit=10)
+		new_comments = Comments.all().order('-date_created').run(limit=10)
+		feedback = Feedback.all().run(limit=5)
+
+		self.render('admin.html', {'user_count':user_count, 'new_users':new_users,
+			'guide_count':guide_count,'new_guides':new_guides, 'new_comments':new_comments,
+			'feedback':feedback})
+
+
+
 app = webapp2.WSGIApplication([('/?', MainHandler),
 							   ('/about/?', AboutHandler),
 							   ('/logout/?', LogoutHandler),
@@ -1237,6 +1252,7 @@ app = webapp2.WSGIApplication([('/?', MainHandler),
 							   ('/beta/?', BetaHandler),
 							   ('/guide/delete/?', DeleteGuideHandler),
 							   ('/comment/?', CommentHandler),
+							   ('/admin/?', AdminHandler),
 							   # ('/mod/?', ModHandler),
 							   ('/.*', NotFoundHandler),
 							   ], debug=True)

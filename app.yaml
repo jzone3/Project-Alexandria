@@ -20,7 +20,10 @@ handlers:
   static_files: static/channel.html
   upload: static/channel.html
 
-- url: /admin/.*
+- url: /admin
+  script: main.app
+
+- url: /admin_page/.*
   script: google.appengine.ext.admin.application
   login: admin
 
