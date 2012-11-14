@@ -42,6 +42,8 @@ CONTENT_TYPE_EXTS = {'application/msword':'.doc',
 					'text/plain':'.txt',
 					'application/rtf':'.rtf'}
 
+FAKE_USERS = ["emanresu", "shyguy", "shaneybo","saucey","pikachun","lartple","coldshoulder","distargirl","jarson5","weakev","jonhar", "oxacuk", "ollypop", "zfinter", "korile1", "sinkra", "jojo", "bert95", "mickey", "ghost_man"]
+
 ############################### misc. functions ###############################
 
 # def mod_page_vars():

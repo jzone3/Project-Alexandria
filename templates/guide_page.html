@@ -119,6 +119,13 @@
 				<form style="float:left;margin-top:10px;">
 					<textarea id="comment" placeholder="Write a comment" style="height:70px;"></textarea>
 					<br/>
+					{% if admin %}
+						<select name="comment_user" id="comment_user">
+							{% for user in fake_users %}
+							<option value="{{user}}">{{user}}</option>
+							{% endfor %}
+						</select>
+					{% endif %}
 					<button type="button" class="btn" id="commentsubmit">Submit</button>
 				</form>
 			</div>
@@ -251,10 +258,17 @@
 
     $('#commentsubmit').click(function() {
     	comment = $('#comment').val();
+
+    	// admin username selection
+    	{% if admin %}
+    		user = $('#comment_user').val();
+    	{% endif %}
+    	// end admin 
+
 	    $.ajax({
 		    type:'POST', 
 		    url:'/comment', 
-		    data:'key={{result.key()}}' + '&comment=' + comment,
+		    data:'key={{result.key()}}' + '&comment=' + comment {% if admin %}+'&user='+user{% endif %},
 		    success: function(response) {
 		    	if (response != 'False' && response != 'signin') {
 					$('#comment').val('');
@@ -273,6 +287,7 @@
 
 					// comment_id needed to add comment with $.text() later
 					var comment_id = 'comment_' + Date.parse(Date())
+
 					// construct html for the comment and date
 					var link = '<div style="word-break:normal;"><a href="/user/'+username+'">'+username+'</a>: <span id="'+comment_id+'"></span></div>'
 					var dt = '<div class="datetime" style="font-style:italic;font-weight:normal;font-size:12px;">'+time+' '+date+'</div>'

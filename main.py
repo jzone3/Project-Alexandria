@@ -387,6 +387,7 @@ class GuidePageHandler(BaseHandler):
 			dl_link = '/serve/' + result.blob_key
 
 			# get comments
+			admin = False
 			comments = result.comments_list
 			if not comments.get():
 				comments = False
@@ -407,10 +408,12 @@ class GuidePageHandler(BaseHandler):
 						deletable = True
 					diff = "%0.1f" % ((datetime.timedelta(0, 86400) - diff).total_seconds()/3600) # convert to remaining time
 
+				# check for admin access
+				admin = (user.username == "admin")
 
 			self.render('guide_page.html', {'result':result, 'votes':votes, 'dl_link':dl_link, 'bookmarked':bookmarked, 
 											'logged_in':logged_in, 'reported':reported, 'deletable':deletable, 'diff':diff,
-											'comments':comments})
+											'comments':comments, 'admin':admin, 'fake_users':['admin']+FAKE_USERS})
 		else:
 			# site = url.lower().split('/')
 			# if site[0] != 'null':
@@ -840,6 +843,10 @@ class CommentHandler(BaseHandler):
 		key = self.rget('key')
 		comment = self.rget('comment')
 		username = self.get_username(secure=True)
+
+		admin_user = self.rget('user')
+		if admin_user and username == 'admin':
+			username = admin_user
 
 		if not username:
 			self.write('signin')
