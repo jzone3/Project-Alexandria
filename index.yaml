@@ -64,3 +64,8 @@ indexes:
   - name: user_created
   - name: date_created
     direction: desc
+
+- kind: Comments
+  properties:
+  - name: guide
+  - name: date_created
