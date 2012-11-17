@@ -96,6 +96,7 @@
 			</div>
 			
 			<script src="/static/js/Date.min.js"></script>
+			<script src="/static/js/date.format.js"></script>
 			<div style="float:left;width:500px;">
 				<div id="comments">
 					<h4 style="margin-bottom:12px;">Comments</h4>
@@ -137,19 +138,27 @@
 
 	<script type="text/javascript">
 	// print all dates for comments
+		
+	function parseDate(date) {
+		var array1 = date.split("-");
+		var d = new Date();
+		d.setUTCFullYear(parseInt(array1[0]));
+		d.setUTCMonth(parseInt(array1[1])-1);
+		var array2 = array1[2].split(" ");
+		d.setUTCDate(parseInt(array2[0]));
+		var array3 = array2[1].split(":");
+		d.setUTCHours(parseInt(array3[0]));
+		d.setUTCMinutes(parseInt(array3[1].split(".")[0]));
+		return d;
+	}
+		
 	$(document).ready(function() {
 		$('.datetime').each(function(index){
-			var dt = new Date($('.datetime')[index].id);
-			// get timezone offset in minutes
-			min_offset = dt.getTimezoneOffset()*60000;
-			// subtract offset and recreate date object
-			dt -= min_offset;
-			var dt = new Date(dt);
+			var dt = parseDate($('.datetime')[index].id);
 			// format time and date string
-			var time = dt.strftime('%#I:%M%p').toLowerCase();
-			var date = dt.strftime('%b %e%o, %Y');
+			var time = dateFormat(dt, "h:MMTT mmm dS, yyyy");
 			// print to page
-			$(this).html(time+' '+date);
+			$(this).html(time);
 			$(this).css({'font-style':'italic', 'font-weight':'normal', 'font-size':'12px'})
 		})
 	});

@@ -391,6 +391,7 @@ class GuidePageHandler(BaseHandler):
 			comments = result.comments_list
 			if not comments.get():
 				comments = False
+			comments.order('date_created').run()
 			if logged_in:
 				# check if user reported
 				username = self.get_username()				
