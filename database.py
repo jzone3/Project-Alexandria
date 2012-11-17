@@ -98,10 +98,14 @@ class Indexes(db.Model):
 	index  = JsonProperty()
 
 class Comments(db.Model):
-	comment = db.TextProperty(required = True)
-	guide = db.ReferenceProperty(Guides, collection_name='comments_list')
-	user = db.ReferenceProperty(Users)
-	date_created = db.DateTimeProperty(auto_now_add = True)
+	comment       = db.TextProperty(required = True)
+	guide         = db.ReferenceProperty(Guides, collection_name='comments_list')
+	user          = db.ReferenceProperty(Users)
+	date_created  = db.DateTimeProperty(auto_now_add = True)
+	votes         = db.IntegerProperty()
+	up_users      = db.StringListProperty()
+	down_users    = db.StringListProperty()
+	flagged_users = db.StringListProperty()
 
 class Notification(db.Model):
 	username     = db.StringProperty(required = True)

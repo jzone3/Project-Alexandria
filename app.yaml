@@ -21,6 +21,7 @@ handlers:
   upload: static/channel.html
 
 - url: /admin
+  login: admin
   script: main.app
 
 - url: /cron
