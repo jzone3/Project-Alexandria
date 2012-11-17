@@ -283,23 +283,17 @@
 					$('#comment').val('');
 					var username = response.split(',')[0];
 					var dt_str = response.split(',')[1];
-					var dt = new Date(dt_str);
+					var dt = parseDate(dt_str);
 
-					// get timezone offset in minutes
-					min_offset = dt.getTimezoneOffset()*60000;
-					// subtract offset and recreate date object
-					dt -= min_offset;
-					var dt = new Date(dt);
 					// format time and date string
-					var time = dt.strftime('%#I:%M%p').toLowerCase();
-					var date = dt.strftime('%b %e%o, %Y');
+					var time = dateFormat(dt, "h:MMTT mmm dS, yyyy");
 
 					// comment_id needed to add comment with $.text() later
 					var comment_id = 'comment_' + Date.parse(Date())
 
 					// construct html for the comment and date
 					var link = '<div style="word-break:normal;"><a href="/user/'+username+'">'+username+'</a>: <span id="'+comment_id+'"></span></div>'
-					var dt = '<div class="datetime" style="font-style:italic;font-weight:normal;font-size:12px;">'+time+' '+date+'</div>'
+					var dt = '<div class="datetime" style="font-style:italic;font-weight:normal;font-size:12px;">'+time+'</div>'
 
 					// print to page
 					$('#nocomments').hide('slow');
