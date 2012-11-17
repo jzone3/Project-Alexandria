@@ -4921,3 +4921,22 @@ input[type=checkbox]{
 .datetime{
   margin: 1px 0 4px;
 }
+
+.comment_btns{
+  font-size: 11px;
+  color: gray;
+}
+
+.comment_btns a{
+  color: gray;
+}
+
+a .icon-caret-up:hover{
+  text-decoration: none;
+  color: #14BB14;
+}
+
+a .icon-caret-down:hover{
+  text-decoration: none;
+  color: red;
+}

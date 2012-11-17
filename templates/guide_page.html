@@ -102,17 +102,29 @@
 					<h4 style="margin-bottom:12px;">Comments</h4>
 		
 					{% if not comments %}
-						<div id="nocomments">
+						<div id="nocomments" style="height:30px;">
 							<h5 style="font-weight:normal;"><em>No comments here!<em></h5>
 							<br/>
 						</div>
 					{% else %}
 						{% for comment in comments %}
-						<div style="word-break:normal;">
-							<a href="/user/{{comment.user.username}}">{{comment.user.username}}</a>: 
-							{{comment.comment}}
+						<div>
+							<div style="word-break:normal;">
+								<a href="/user/{{comment.user.username}}">{{comment.user.username}}</a>: 
+								{{comment.comment}}
+							</div>
+							<div style="width:100%;">
+								<span class="datetime" id="{{comment.date_created}}"></span>
+								<span class="comment_btns" style="float:right;">
+									<a href="#" class="comment_plus" id="{{comment.key()}}"><i class="icon-caret-up"></i></a> | 
+									<a href="#" class="comment_minus" id="{{comment.key()}}"><i class="icon-caret-down"></i></a>
+									{% if user.key() == comment.user.key() %}
+									 | 
+									<a href="#" class="comment_delete" id="{{comment.key()}}">Delete</a>
+									{% endif %}
+								</span>
+							</div>
 						</div>
-						<div class="datetime" id="{{comment.date_created}}"></div>
 						{% endfor %}
 					{% endif %}
 				</div>
@@ -137,8 +149,30 @@
 
 
 	<script type="text/javascript">
-	// print all dates for comments
-		
+	
+	$('a.comment_delete').click(function() {
+
+		var id = $(this).attr('id');
+		if ($(this).hasClass('confirm')) {
+			// delete
+			var th = $(this);
+			$.ajax({
+			    type:'POST', 
+			    url:'/delete_comment', 
+			    data:'id=' + id,
+			    success: function(response) {
+					th.parent().parent().parent().hide('slow');
+			    }
+			});
+
+		} else {
+			// confirmation
+			$(this).html('Confirm delete?');
+			$(this).addClass('confirm');
+		}
+
+	});
+			
 	function parseDate(date) {
 		var array1 = date.split("-");
 		var d = new Date();
@@ -153,6 +187,7 @@
 	}
 		
 	$(document).ready(function() {
+		// print all dates for comments
 		$('.datetime').each(function(index){
 			var dt = parseDate($('.datetime')[index].id);
 			// format time and date string

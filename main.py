@@ -372,7 +372,7 @@ class DashboardHandler(BaseHandler):
 class GuidePageHandler(BaseHandler):
 	'''Handlers custom guide pages: guide_page.html'''
 	def get(self, url):
-		bookmarked, reported, deletable, diff = False, False, False, False
+		bookmarked, reported, deletable, diff, user = (False,)*5
 		logged_in = self.logged_in()
 		url = url[1:] # formats url 
 
@@ -415,7 +415,7 @@ class GuidePageHandler(BaseHandler):
 
 			self.render('guide_page.html', {'result':result, 'votes':votes, 'dl_link':dl_link, 'bookmarked':bookmarked, 
 											'logged_in':logged_in, 'reported':reported, 'deletable':deletable, 'diff':diff,
-											'comments':comments, 'admin':admin, 'fake_users':['admin']+FAKE_USERS})
+											'comments':comments, 'admin':admin, 'fake_users':['admin']+FAKE_USERS, 'user':user})
 		else:
 			# site = url.lower().split('/')
 			# if site[0] != 'null':
@@ -1233,6 +1233,17 @@ class CronCountHandler(BaseHandler):
 		logging.error('CRON logged user_count & guide_count')
 		self.write('CRON logged user_count & guide_count')
 
+class DeleteCommentHandler(BaseHandler):
+	def post(self):
+		key = self.rget('id')
+		comment = Comments.get(key)
+
+		user = get_user(self.get_username())
+		if user and user.key() == comment.user.key():
+			comment.delete()
+			self.write('True')
+		else:
+			self.write('False') # this isn't really used
 
 app = webapp2.WSGIApplication([('/?', MainHandler),
 							   ('/about/?', AboutHandler),
@@ -1276,6 +1287,7 @@ app = webapp2.WSGIApplication([('/?', MainHandler),
 							   ('/comment/?', CommentHandler),
 							   ('/admin/?', AdminHandler),
 							   ('/cron/admin_counts/?', CronCountHandler),
+							   ('/delete_comment/?', DeleteCommentHandler),
 							   # ('/mod/?', ModHandler),
 							   ('/.*', NotFoundHandler),
 							   ], debug=True)
