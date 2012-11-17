@@ -859,6 +859,9 @@ class CommentHandler(BaseHandler):
 			user = get_user(username)
 			if guide and user:
 				temp_comment = Comments(user=user, guide=guide, comment=comment)
+				notificationStr = username + " commented on your guide '" + guide.title + "'"
+				notif = Notification(username = guide.user_created, is_new = True, name = "New Comment", notification = notificationStr)
+				notif.put()
 				temp_comment.put()
 			else:
 				self.write('False')
@@ -892,12 +895,11 @@ class GoogleSignupHandler(BaseHandler):
 
 class NotificationHandler(BaseHandler):
 	def post(self):
-		username = self.rget('username')
+		username = self.get_username()
 		q = Notification.all()
 		q.filter('username =', username)
 		q.filter('is_new =', True)
-		notif = q.get()
-		if notif:
+		for notif in q:
 			notif.is_new = False
 			notif.put()
 
