@@ -10,6 +10,11 @@ indexes:
 # automatically uploaded to the admin console when you next deploy
 # your application using appcfg.py.
 
+- kind: Comments
+  properties:
+  - name: guide
+  - name: date_created
+
 - kind: Guides
   properties:
   - name: blob_key
@@ -64,8 +69,3 @@ indexes:
   - name: user_created
   - name: date_created
     direction: desc
-
-- kind: Comments
-  properties:
-  - name: guide
-  - name: date_created
