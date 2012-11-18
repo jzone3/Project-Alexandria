@@ -561,10 +561,22 @@ class UploadHandler(BaseHandler):
 		
 class ServeHandler(blobstore_handlers.BlobstoreDownloadHandler):
 	def get(self, resource):
-		resource = str(urllib.unquote(resource))
-		blob_info = blobstore.BlobInfo.get(resource)
-		self.send_blob(blob_info, save_as=blob_info.filename, content_type=blob_info.content_type)
-		#self.send_blob(blob_info, save_as=blob_info.filename, content_type='application/pdf')
+		guide = Guides.all().filter('blob_key =', resource).get()
+		if guide:
+			guide.downloads += 1
+			guide.put()
+
+			resource = str(urllib.unquote(resource))
+			blob_info = blobstore.BlobInfo.get(resource)
+			self.send_blob(blob_info, save_as=blob_info.filename, content_type=blob_info.content_type)
+			
+		else:
+			self.error(404)
+
+
+
+
+
 
 class NotFoundHandler(BaseHandler):
 	def get(self):

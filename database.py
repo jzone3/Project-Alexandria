@@ -49,6 +49,7 @@ class Guides(db.Model):
 	votes        = db.IntegerProperty(required = True)
 	up_users     = db.StringListProperty()
 	down_users   = db.StringListProperty()
+	downloads    = db.IntegerProperty()
 	misc         = db.StringProperty(required = False)
 
 class Email_Verification(db.Model):
