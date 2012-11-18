@@ -415,7 +415,8 @@ class GuidePageHandler(BaseHandler):
 				# check for admin access
 				admin = (user.username == "admin")
 				if admin:
-					deleteable = True
+					deletable = True
+					
 			self.render('guide_page.html', {'guide':guide, 'votes':votes, 'dl_link':dl_link, 'bookmarked':bookmarked, 
 											'logged_in':logged_in, 'reported':reported, 'deletable':deletable, 'diff':diff,
 											'comments':comments, 'admin':admin, 'fake_users':['admin']+FAKE_USERS, 'user':user})
