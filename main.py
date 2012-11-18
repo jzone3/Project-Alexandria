@@ -287,7 +287,7 @@ class GuidesHandler(BaseHandler):
 			new_page = False
 		# check if user is logged in
 		# calculate variable top_guides
-		username = self.get_username()
+		username = self.get_username(secure=True)
 		school = get_school(username)
 		if username:
 			top_guides = get_top_guides(school, page)
@@ -309,14 +309,16 @@ class GuidesHandler(BaseHandler):
 									'page':page,
 									'page_offset':page_offset,
 									'school':school,
-									'new_page' : new_page,
-									'logged_in' : logged_in})
+									'new_page':new_page,
+									'logged_in':logged_in,
+									'username':username})
 		else:
 			self.render('guides.html', {'top_guides':top_guides, 
 										'page':page,
 										'page_offset':page_offset,
-										'new_page' : new_page,
-										'logged_in' : logged_in})
+										'new_page':new_page,
+										'logged_in':logged_in,
+										'username':username})
 
 class NewGuidesHandler(BaseHandler):
 	def get(self):
@@ -1026,6 +1028,7 @@ class SubjectsHandler2(BaseHandler):
 					<th>Title</th>
 					<th>Subject</th>
 					<th>Teacher</th>
+					<th>Uploader</th>
 					<th>Votes</th>
 				</tr>
 			</thead>
@@ -1033,16 +1036,11 @@ class SubjectsHandler2(BaseHandler):
 			"""% (subject, teacher)
 
 		for result in results:
-			html += """<tr>
-					<td>
-						<div class="btn-group btn-group btn-group-vertical">
-							<button class="btn btn-mini"><i class="icon-caret-up"></i></button>
-							<button class="btn btn-mini"><i class="icon-caret-down"></i></button>
-						</div></td>"""
-
+			html += """<tr style="height:38px;"><td>&nbsp;</td>"""
 			html += """<td><a href="/guides/%s">%s</a></td>"""%(result.url, result.title)
 			html += """<td>%s</td>"""%result.subject
 			html += """<td>%s</td>"""%result.teacher
+			html += """<td>%s</td>"""%result.user_created
 			html += """<td>%s</td>"""%result.votes
 			html += """</tr>"""
 
@@ -1123,6 +1121,7 @@ class TeachersHandler2(BaseHandler):
 					<th>Title</th>
 					<th>Subject</th>
 					<th>Teacher</th>
+					<th>Uploader</th>
 					<th>Votes</th>
 				</tr>
 			</thead>
@@ -1130,16 +1129,11 @@ class TeachersHandler2(BaseHandler):
 			"""% (teacher, subject)
 
 		for result in results:
-			html += """<tr>
-					<td>
-						<div class="btn-group btn-group btn-group-vertical">
-							<button class="btn btn-mini"><i class="icon-caret-up"></i></button>
-							<button class="btn btn-mini"><i class="icon-caret-down"></i></button>
-						</div></td>"""
-
+			html += """<tr style="height:38px;"><td>&nbsp;</td>"""
 			html += """<td><a href="/guides/%s">%s</a></td>"""%(result.url, result.title)
 			html += """<td>%s</td>"""%result.subject
 			html += """<td>%s</td>"""%result.teacher
+			html += """<td>%s</td>"""%result.user_created			
 			html += """<td>%s</td>"""%result.votes
 			html += """</tr>"""
 

@@ -20,9 +20,9 @@ def make_new_guides(guides, page=0, username=''):
 		table += """<tr>
 						<td>
 							<div class="btn-group btn-group btn-group-vertical new-answer" data-toggle="buttons-radio" id="{0[key]}">
-								<button class="btn btn-mini vote up"><i class="icon-caret-up"></i></button>
+								<button class="btn btn-mini vote up {0[up]}"><i class="icon-caret-up"></i></button>
 								<span rel="tooltip" id="new-tip_{0[key]}" class="tooltips" title="You already voted for this guide. <a href='#' class='tiplink' onclick=&quot;$('#new-tip_{0[key]}').tooltip('hide')&quot;>&times;</a>" data-placement="right" style="float:right;"></span>
-								<button class="btn btn-mini vote down"><i class="icon-caret-down"></i></button>											
+								<button class="btn btn-mini vote down {0[down]}"><i class="icon-caret-down"></i></button>											
 							</div>
 						</td>
 						<td>{0[x]}</td>
@@ -32,7 +32,8 @@ def make_new_guides(guides, page=0, username=''):
 						<td>{0[teacher]}</td>
 						<td id="new-votes_{0[key]}">{0[votes]}</td>
 					</tr>
-				""".format({'key':str(i.key()), 'url':i.url, 'title':i.title, 'subject':i.subject, 'user_created':user, 'teacher':i.teacher, 'votes':str_votes(i.votes), 'x':str(x)})
+				""".format({'key':str(i.key()), 'url':i.url, 'title':i.title, 'subject':i.subject, 'user_created':user, 'teacher':i.teacher, 'votes':str_votes(i.votes), 'x':str(x),
+							'up':'active' if (username in i.up_users) else '', 'down':'active' if (username in i.down_users) else ''})
 	
 	pg = ''
 	if page > 0:

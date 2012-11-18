@@ -71,9 +71,9 @@
 								<tr>
 									<td>
 										<div class="btn-group btn-group btn-group-vertical answer" data-toggle="buttons-radio" id="{{ guide.key() }}">
-											<button class="btn btn-mini vote up"><i class="icon-caret-up"></i></button>
+											<button class="btn btn-mini vote up {%if username and username in guide.up_users%}active{%endif%}"><i class="icon-caret-up"></i></button>
 											<span rel="tooltip" id="tip_{{ guide.key()}}" class="tooltips" title="You already voted for this guide. <a href='#' class='tiplink' onclick=&quot;$('#tip_{{guide.key()}}').tooltip('hide')&quot;>&times;</a>" data-placement="right" style="float:right;"></span>
-											<button class="btn btn-mini vote down"><i class="icon-caret-down"></i></button>											
+											<button class="btn btn-mini vote down {%if username and username in guide.down_users%}active{%endif%}"><i class="icon-caret-down"></i></button>											
 										</div>
 									</td>
 									<td>{{ loop.index + page_offset }}</td>
