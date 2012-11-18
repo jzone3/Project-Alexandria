@@ -573,11 +573,6 @@ class ServeHandler(blobstore_handlers.BlobstoreDownloadHandler):
 		else:
 			self.error(404)
 
-
-
-
-
-
 class NotFoundHandler(BaseHandler):
 	def get(self):
 		self.error(404)
