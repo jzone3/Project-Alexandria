@@ -858,11 +858,15 @@ class CommentHandler(BaseHandler):
 			guide = Guides.get(key)
 			user = get_user(username)
 			if guide and user:
+<<<<<<< HEAD
 				temp_comment = Comments(user=user, guide=guide, comment=comment, upvotes=0, 
 										downvotes=0, up_users=[], down_users=[], flagged_users=[])
+=======
+				temp_comment = Comments(user=user, guide=guide, comment=comment)
 				notificationStr = username + " commented on your guide '" + guide.title + "'"
 				notif = Notification(username = guide.user_created, is_new = True, name = "New Comment", notification = notificationStr)
 				notif.put()
+>>>>>>> 1511326c587d9d3b738a0ed3e1b115f237edbf59
 				temp_comment.put()
 			else:
 				self.write('False')

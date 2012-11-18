@@ -821,6 +821,9 @@ def delete_guide(guide_key):
 	school = guide.school
 	memcache.delete(guide.user_created + "_submitted")
 	db.delete(guide_key)
+	for comment in guide.comments_list:
+		comment.delete()
+	
 	
 
 	# delete from bookmarks
