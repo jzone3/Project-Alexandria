@@ -69,3 +69,17 @@ indexes:
   - name: user_created
   - name: date_created
     direction: desc
+
+- kind: Guides
+  properties:
+  - name: school
+  - name: subject
+  - name: votes
+    direction: desc
+
+- kind: Guides
+  properties:
+  - name: school
+  - name: teacher
+  - name: votes
+    direction: desc

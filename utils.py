@@ -1105,8 +1105,10 @@ def find_guides_ts(school, teacher, subject):
 	'''retrieves a list of guides based on school, teacher, and subject'''
 	q = Guides.all()
 	q.filter('school =', school)
-	q.filter('teacher =', teacher)
-	q.filter('subject =', subject)
+	if teacher != None:
+		q.filter('teacher =', teacher)
+	if subject != None:
+		q.filter('subject =', subject)
 	q.order('-votes')
 	results = q.run(limit=1000)
 	return results

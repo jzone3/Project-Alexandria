@@ -869,7 +869,7 @@ class CommentHandler(BaseHandler):
 			if guide and user:
 				temp_comment = Comments(user=user, guide=guide, comment=comment, upvotes=0, 
 										downvotes=0, up_users=[], down_users=[], flagged_users=[])
-				if (guide.user_created != username):
+				if guide.user_created != username:
 					notificationStr = username + " commented on your guide '" + guide.title + "'"
 					notif = Notification(username = guide.user_created, is_new = True, name = "New Comment", notification = notificationStr)
 					notif.put()
@@ -967,6 +967,7 @@ class SubjectsHandler(BaseHandler):
 		subject = cgi.escape(self.rget('subject'))
 		school = self.get_school_cookie()
 		teachers = get_teachers_for_subject(school, subject)
+		teachers.append("View All")
 
 		# construct return HTML
 		html = """
@@ -1020,7 +1021,11 @@ class SubjectsHandler2(BaseHandler):
 		subject = self.rget('subject')
 
 		school = self.get_school_cookie()
-		results = find_guides_ts(school, teacher, subject)
+		
+		if teacher == "View All":
+			results = find_guides_ts(school, None, subject)
+		else:
+			results = find_guides_ts(school, teacher, subject)
 
 		# construct return HTML
 		html = """
@@ -1062,6 +1067,7 @@ class TeachersHandler(BaseHandler):
 		teacher = cgi.escape(self.rget('teacher'))
 		school = self.get_school_cookie()
 		subjects = get_subjects_for_teacher(school, teacher)
+		subjects.append("View All")
 
 		# construct return HTML
 		html = """
@@ -1113,7 +1119,11 @@ class TeachersHandler2(BaseHandler):
 		subject = self.rget('subject')
 
 		school = self.get_school_cookie()
-		results = find_guides_ts(school, teacher, subject)
+		
+		if subject == "View All":
+			results = find_guides_ts(school, teacher, None)
+		else:
+			results = find_guides_ts(school, teacher, subject)
 
 		# construct return HTML
 		html = """
