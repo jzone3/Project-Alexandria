@@ -858,7 +858,8 @@ class CommentHandler(BaseHandler):
 			guide = Guides.get(key)
 			user = get_user(username)
 			if guide and user:
-				temp_comment = Comments(user=user, guide=guide, comment=comment)
+				temp_comment = Comments(user=user, guide=guide, comment=comment, upvotes=0, 
+										downvotes=0, up_users=[], down_users=[], flagged_users=[])
 				temp_comment.put()
 			else:
 				self.write('False')
@@ -1245,6 +1246,16 @@ class DeleteCommentHandler(BaseHandler):
 		else:
 			self.write('False') # this isn't really used
 
+class CommentVoteHandler(BaseHandler):
+	def post(self):
+		key = self.rget('id')
+		vote_type = self.rget('type')
+		username = self.get_username(secure=True)
+		
+		response = comment_vote(key, vote_type, username)
+
+		self.write(response)
+
 app = webapp2.WSGIApplication([('/?', MainHandler),
 							   ('/about/?', AboutHandler),
 							   ('/logout/?', LogoutHandler),
@@ -1288,6 +1299,6 @@ app = webapp2.WSGIApplication([('/?', MainHandler),
 							   ('/admin/?', AdminHandler),
 							   ('/cron/admin_counts/?', CronCountHandler),
 							   ('/delete_comment/?', DeleteCommentHandler),
-							   # ('/mod/?', ModHandler),
+							   ('/comment_vote/?', CommentVoteHandler),
 							   ('/.*', NotFoundHandler),
 							   ], debug=True)

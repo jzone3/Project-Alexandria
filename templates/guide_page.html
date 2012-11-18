@@ -116,9 +116,18 @@
 							<div style="width:100%;">
 								<span class="datetime" id="{{comment.date_created}}"></span>
 								<span class="comment_btns" style="float:right;">
-									<a href="#" class="comment_plus" id="{{comment.key()}}"><i class="icon-caret-up"></i></a> | 
-									<a href="#" class="comment_minus" id="{{comment.key()}}"><i class="icon-caret-down"></i></a>
-									{% if user.key() == comment.user.key() %}
+									<span><!-- Left blank intentionally --></span> 
+									<span>
+										<span>{{comment.upvotes}}</span>
+										<span><a href="#" class="comment_plus" id="{{comment.key()}}"><i class="icon-caret-up"></i></a></span>
+									</span>
+									 | 
+									<span>
+										<span>{{comment.downvotes}}</span>
+										<span><a href="#" class="comment_minus" id="{{comment.key()}}"><i class="icon-caret-down"></i></a></span>
+									</span>
+
+									{% if user and user.key() == comment.user.key() %}
 									 | 
 									<a href="#" class="comment_delete" id="{{comment.key()}}">Delete</a>
 									{% endif %}
@@ -149,9 +158,65 @@
 
 
 	<script type="text/javascript">
-	
-	$('a.comment_delete').click(function() {
+	$('.comment_plus').click(function(e) {
+		e.preventDefault();
 
+	    var id = $(this).attr('id');
+	    var vote_type = 'up';
+	    var th = $(this);
+	    var p_up = parseInt(th.parent().prev().text());
+	    var p_down = parseInt(th.parent().parent().next().text());
+
+	    $.ajax({
+		    type:'POST', 
+		    url:'/comment_vote', 
+		    data:'id=' + id + '&type=' + vote_type,
+		    success: function(response) {
+				if (response == 'voted') {
+					th.parent().parent().prev().html('You already upvoted.');
+				} else if (response == 'signin') {
+					$('#login').modal('show');
+				} else if (response == 'up') {
+					th.parent().prev().html(p_up + 1);
+				} else if (response == 'double_up') {
+					th.parent().prev().html(p_up + 1);
+					// selects the adjacent downvotes number
+					th.parent().parent().next().children(':first-child').html(p_down - 1);
+				}		        
+		    }
+		});
+	});
+
+	$('.comment_minus').click(function(e) {
+		e.preventDefault();
+
+	    var id = $(this).attr('id');
+	    var vote_type = 'down';
+	    var th = $(this);
+	    var p_down = parseInt(th.parent().prev().text());
+	    var p_up = parseInt(th.parent().parent().prev().text());
+
+	    $.ajax({
+		    type:'POST', 
+		    url:'/comment_vote', 
+		    data:'id=' + id + '&type=' + vote_type,
+		    success: function(response) {
+				if (response == 'voted') {
+					th.parent().parent().prev().prev().html('You already downvoted.');
+				} else if (response == 'signin') {
+					$('#login').modal('show');
+				} else if (response == 'down') {
+					th.parent().prev().html(p_down + 1);
+				} else if (response == 'double_down') {
+					th.parent().prev().html(p_down + 1);
+					// selects the adjacent upvotes number
+					th.parent().parent().prev().children(':first-child').html(p_up - 1);
+				}		        
+		    }
+		});
+	});
+
+	$('a.comment_delete').click(function() {
 		var id = $(this).attr('id');
 		if ($(this).hasClass('confirm')) {
 			// delete
@@ -164,7 +229,6 @@
 					th.parent().parent().parent().hide('slow');
 			    }
 			});
-
 		} else {
 			// confirmation
 			$(this).html('Confirm delete?');
@@ -328,11 +392,12 @@
 
 					// construct html for the comment and date
 					var link = '<div style="word-break:normal;"><a href="/user/'+username+'">'+username+'</a>: <span id="'+comment_id+'"></span></div>'
-					var dt = '<div class="datetime" style="font-style:italic;font-weight:normal;font-size:12px;">'+time+'</div>'
+					var dt = '<div class="width:100%"><span class="datetime" style="font-style:italic;font-weight:normal;font-size:12px;">'+time+'</span>'
+					var refresh = '<span class="comment_btns" style="float:right"><a href="#" onclick="location.reload()">Refresh</a></span></div>'
 
 					// print to page
 					$('#nocomments').hide('slow');
-					$('#comments').append(link+dt);
+					$('#comments').append(link+dt+refresh);
 					$('#'+comment_id).text(comment);
 		    	} else if (response == 'signin') {
 		    		$('#login').modal('show');
