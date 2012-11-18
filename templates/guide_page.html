@@ -118,13 +118,21 @@
 								<span class="comment_btns" style="float:right;">
 									<span><!-- Left blank intentionally --></span> 
 									<span>
-										<span>{{comment.upvotes}}</span>
-										<span><a href="#" class="comment_plus" id="{{comment.key()}}"><i class="icon-caret-up"></i></a></span>
+										<span {%if user and user.username in comment.up_users%}style="color:#14BB14"{%endif%}>{{comment.upvotes}}</span>
+										<span>
+											<a href="#" class="comment_plus" id="{{comment.key()}}" {%if user and user.username in comment.up_users%}style="color:#14BB14"{%endif%}>
+												<i class="icon-caret-up"></i>
+											</a>
+										</span>
 									</span>
 									 | 
 									<span>
-										<span>{{comment.downvotes}}</span>
-										<span><a href="#" class="comment_minus" id="{{comment.key()}}"><i class="icon-caret-down"></i></a></span>
+										<span {%if user and user.username in comment.down_users%}style="color:red"{%endif%}>{{comment.downvotes}}</span>
+										<span>
+											<a href="#" class="comment_minus" id="{{comment.key()}}" {%if user and user.username in comment.down_users%}style="color:red"{%endif%}>
+												<i class="icon-caret-down"></i>
+											</a>
+										</span>
 									</span>
 
 									{% if user and user.key() == comment.user.key() %}
@@ -178,10 +186,20 @@
 					$('#login').modal('show');
 				} else if (response == 'up') {
 					th.parent().prev().html(p_up + 1);
+
+					th.css({'color':'#14BB14'}); // make arrow green
+					th.parent().prev().css({'color':'#14BB14'}); // make number green
+					th.parent().parent().next().children(':first-child').css({'color':'gray'}) // ensure down number is gray
+					th.parent().parent().next().children(':nth-child(2)').css({'color':'gray'})// ensure down arrow is gray
 				} else if (response == 'double_up') {
 					th.parent().prev().html(p_up + 1);
-					// selects the adjacent downvotes number
+					// decreases the adjacent downvotes number
 					th.parent().parent().next().children(':first-child').html(p_down - 1);
+
+					th.css({'color':'#14BB14'}); // make arrow green
+					th.parent().prev().css({'color':'#14BB14'}); // make number green
+					th.parent().parent().next().children(':first-child').css({'color':'gray'}) // ensure down number is gray
+					th.parent().parent().next().children(':nth-child(2)').children().css({'color':'gray'})// ensure down arrow is gray
 				}		        
 		    }
 		});
@@ -207,10 +225,21 @@
 					$('#login').modal('show');
 				} else if (response == 'down') {
 					th.parent().prev().html(p_down + 1);
+
+					th.css({'color':'red'}); // make arrow red
+					th.parent().prev().css({'color':'red'}); // make number red
+					th.parent().parent().prev().children(':first-child').css({'color':'gray'}) // ensure up number is gray
+					th.parent().parent().prev().children(':nth-child(2)').children().css({'color':'gray'})// ensure up arrow is gray
+
 				} else if (response == 'double_down') {
 					th.parent().prev().html(p_down + 1);
-					// selects the adjacent upvotes number
+					// decreases the adjacent upvotes number
 					th.parent().parent().prev().children(':first-child').html(p_up - 1);
+
+					th.css({'color':'red'}); // make arrow red
+					th.parent().prev().css({'color':'red'}); // make number red
+					th.parent().parent().prev().children(':first-child').css({'color':'gray'}) // ensure up number is gray
+					th.parent().parent().prev().children(':nth-child(2)').children().css({'color':'gray'})// ensure up arrow is gray
 				}		        
 		    }
 		});
@@ -395,7 +424,7 @@
 					// construct html for the comment and date
 					var link = '<div style="word-break:normal;"><a href="/user/'+username+'">'+username+'</a>: <span id="'+comment_id+'"></span></div>'
 					var dt = '<div class="width:100%"><span class="datetime" style="font-style:italic;font-weight:normal;font-size:12px;">'+time+'</span>'
-					var refresh = '<span class="comment_btns" style="float:right"><a href="#" onclick="location.reload()">Refresh</a></span></div>'
+					var refresh = '<span class="comment_btns" style="float:right"><a href="#" onclick="location.reload()">Please refresh</a></span></div>'
 
 					// print to page
 					$('#nocomments').hide('slow');
