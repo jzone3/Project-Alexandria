@@ -140,7 +140,7 @@ def get_submitted(username):
 		logging.error('DB get_submitted(): '+username)
 		to_return = []
 		for submission in guides:
-			to_return.append({'title' : submission.title, 'subject' : submission.subject, 'teacher' : submission.teacher, 'date_created' : submission.date_created, 'key' : submission.key(), 'icon' : submission.icon, 'url' : submission.url})
+			to_return.append({'url': submission.url, 'title' : submission.title, 'subject' : submission.subject, 'teacher' : submission.teacher, 'date_created' : submission.date_created, 'key' : submission.key(), 'icon' : submission.icon, 'url' : submission.url})
 		memcache.set(username + '_submitted', to_return)
 		logging.error('CACHE set: '+username+'_submitted')
 	else:
@@ -1155,3 +1155,52 @@ def vote(key, vote_type, username):
 	logging.error(diff)
 
 	return diff
+
+def comment_vote(key, vote_type, username):
+	if not username:
+		return 'signin'
+
+	comment = Comments.get(key)
+
+	if vote_type == 'up':
+		if username in comment.up_users:
+			return 'voted'
+		elif username in comment.down_users:
+			diff = 2
+			comment.down_users.remove(username)
+			response = 'double_up'
+		else:
+			diff = 1
+			response = 'up'
+	elif vote_type == 'down':
+		if username in comment.down_users:
+			return 'voted'
+		elif username in comment.up_users:
+			diff = -2
+			response = 'double_down'
+			comment.up_users.remove(username)
+		else:
+			diff = -1
+			response = 'down'
+	else:
+		return False
+
+	# record changes in comment
+	if diff == 1:
+		comment.upvotes += 1
+		comment.up_users.append(username)
+	elif diff == 2:
+		comment.upvotes += 1
+		comment.downvotes -= 1
+		comment.up_users.append(username)
+	elif diff == -1:
+		comment.downvotes += 1
+		comment.down_users.append(username)
+	elif diff == -2:
+		comment.upvotes -= 1
+		comment.downvotes += 1
+		comment.down_users.append(username)
+
+	comment.put()
+
+	return response

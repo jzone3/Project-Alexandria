@@ -379,16 +379,16 @@ class GuidePageHandler(BaseHandler):
 		# retrieve guide from db
 		q = Guides.all()
 		q.filter('url =', url.lower())
-		guide = q.get()
+		result = q.get()
 
 		# if guide exists, render page
-		if guide:
-			votes = str_votes(guide.votes)
-			dl_link = '/serve/' + guide.blob_key
+		if result:
+			votes = str_votes(result.votes)
+			dl_link = '/serve/' + result.blob_key
 
 			# get comments
 			admin = False
-			comments = guide.comments_list
+			comments = result.comments_list
 			if not comments.get():
 				comments = False
 			else:
@@ -396,16 +396,16 @@ class GuidePageHandler(BaseHandler):
 			if logged_in:
 				# check if user reported
 				username = self.get_username()				
-				reported = (username in guide.report_users)
+				reported = (username in result.report_users)
 				# check if bookmarked
 				user = get_user(username)
-				if any([bookmark.guide.blob_key == guide.blob_key \
+				if any([bookmark.guide.blob_key == result.blob_key \
 				        for bookmark in user.bookmark_list]):
 						bookmarked = True
 
 				# check if uploaded/deleteable
-				if user.username == guide.user_created:
-					diff = datetime.datetime.now() - guide.date_created 
+				if user.username == result.user_created:
+					diff = datetime.datetime.now() - result.date_created 
 					if diff < datetime.timedelta(1):
 						deletable = True
 					diff = "%0.1f" % ((datetime.timedelta(0, 86400) - diff).total_seconds()/3600) # convert to remaining time
@@ -413,7 +413,7 @@ class GuidePageHandler(BaseHandler):
 				# check for admin access
 				admin = (user.username == "admin")
 
-			self.render('guide_page.html', {'guide':guide, 'votes':votes, 'dl_link':dl_link, 'bookmarked':bookmarked, 
+			self.render('guide_page.html', {'result':result, 'votes':votes, 'dl_link':dl_link, 'bookmarked':bookmarked, 
 											'logged_in':logged_in, 'reported':reported, 'deletable':deletable, 'diff':diff,
 											'comments':comments, 'admin':admin, 'fake_users':['admin']+FAKE_USERS, 'user':user})
 		else:
@@ -858,12 +858,15 @@ class CommentHandler(BaseHandler):
 			guide = Guides.get(key)
 			user = get_user(username)
 			if guide and user:
+<<<<<<< HEAD
 				temp_comment = Comments(user=user, guide=guide, comment=comment, upvotes=0, 
 										downvotes=0, up_users=[], down_users=[], flagged_users=[])
-				if (guide.user_created != username):
-					notificationStr = username + " commented on your guide '" + guide.title + "'"
-					notif = Notification(username = guide.user_created, is_new = True, name = "New Comment", notification = notificationStr)
-					notif.put()
+=======
+				temp_comment = Comments(user=user, guide=guide, comment=comment)
+				notificationStr = username + " commented on your guide '" + guide.title + "'"
+				notif = Notification(username = guide.user_created, is_new = True, name = "New Comment", notification = notificationStr)
+				notif.put()
+>>>>>>> 1511326c587d9d3b738a0ed3e1b115f237edbf59
 				temp_comment.put()
 			else:
 				self.write('False')

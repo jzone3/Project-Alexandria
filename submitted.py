@@ -23,11 +23,11 @@ def make_submitted(guides, username):
 	for i in guides:
 		to_return += """
 								<tr>
-										<td><a href="/guides/%s/%s">%s</a></td>
+										<td><a href="/guides/%s">%s</a></td>
 										<td>%s</td>
 										<td>%s</td>
 										<td>%s</td>
-									</tr>""" % (username, i['title'].replace(' ', '_').lower(), i['title'], i['subject'], i['teacher'], i['date_created'].strftime("%B %d, %Y"))
+									</tr>""" % (i['url'], i['title'], i['subject'], i['teacher'], i['date_created'].strftime("%B %d, %Y"))
 	to_return += """
 							</tbody>
 						</table>"""
