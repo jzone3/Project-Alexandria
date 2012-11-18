@@ -140,7 +140,7 @@ def get_submitted(username):
 		logging.error('DB get_submitted(): '+username)
 		to_return = []
 		for submission in guides:
-			to_return.append({'title' : submission.title, 'subject' : submission.subject, 'teacher' : submission.teacher, 'date_created' : submission.date_created, 'key' : submission.key(), 'icon' : submission.icon, 'url' : submission.url})
+			to_return.append({'url': submission.url, 'title' : submission.title, 'subject' : submission.subject, 'teacher' : submission.teacher, 'date_created' : submission.date_created, 'key' : submission.key(), 'icon' : submission.icon, 'url' : submission.url})
 		memcache.set(username + '_submitted', to_return)
 		logging.error('CACHE set: '+username+'_submitted')
 	else:
