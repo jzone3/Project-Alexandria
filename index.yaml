@@ -55,6 +55,20 @@ indexes:
 - kind: Guides
   properties:
   - name: school
+  - name: subject
+  - name: votes
+    direction: desc
+
+- kind: Guides
+  properties:
+  - name: school
+  - name: teacher
+  - name: votes
+    direction: desc
+
+- kind: Guides
+  properties:
+  - name: school
   - name: votes
     direction: desc
 
@@ -70,16 +84,15 @@ indexes:
   - name: date_created
     direction: desc
 
-- kind: Guides
+- kind: Notification
   properties:
-  - name: school
-  - name: subject
-  - name: votes
+  - name: is_new
+  - name: username
+  - name: date_created
     direction: desc
 
-- kind: Guides
+- kind: Notification
   properties:
-  - name: school
-  - name: teacher
-  - name: votes
+  - name: username
+  - name: date_created
     direction: desc

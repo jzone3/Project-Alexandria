@@ -114,6 +114,7 @@ class Notification(db.Model):
 	is_new       = db.BooleanProperty(required = True)
 	name         = db.StringProperty(required = False)
 	notification = db.StringProperty(required = False)
+	date_created = db.DateTimeProperty(auto_now_add = True)
 
 class SubjectIcons(db.Model):
 	subject = db.StringProperty(required = True)

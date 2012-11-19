@@ -44,11 +44,19 @@ CONTENT_TYPE_EXTS = {'application/msword':'.doc',
 
 FAKE_USERS = ["emanresu", "shyguy", "shaneybo","saucey","pikachun","lartple","coldshoulder","distargirl","jarson5","weakev","jonhar", "oxacuk", "ollypop", "zfinter", "korile1", "sinkra", "jojo", "bert95", "mickey", "ghost_man"]
 
+WELCOME_NOTIF = """<div><span style='font-family:Junge;'>Hey %s!<br><br> We hope you love using Project Alexandria as much as we loved building it. This is a community-based site so make sure to upload or help edit study guides! Feel free to <a href='\contact'>contact us</a> if you have any questions.<br><br>-The PA Team</span>"""
+
 ############################### misc. functions ###############################
 
 # def mod_page_vars():
 # 	global_stat = stats.GlobalStat.all().get()
 # 	return {'total_data' : global_stat.bytes / 1048576.0}
+
+def comment_preview(comment):
+	if len(comment) > 28:
+		comment = comment[:28]
+	return comment + '...'
+
 
 def str_votes(votes):
 	if votes > 0:
@@ -230,6 +238,32 @@ def get_error(results, error):
 	else:
 		return None
 
+def get_notifications(username):
+	'''Returns latest 6 notifications and if any are new'''
+	q = Notification.all()
+	q.filter('username =', username)
+	q.order('-date_created')
+	notifications = q.run(limit=6)
+
+	if q.filter('is_new =', True).get():
+		is_new = True
+	else:
+		is_new = False
+
+	return notifications, is_new
+
+def get_notification_html(notification_list):
+	html = ''
+	for notif in notification_list:
+		if notif.name == 'welcome':
+			html += notif.notification
+			html += """<a href='#' id='%s' onclick='deletenotif("%s")' style='float:right;font-size:10px;position:relative;top:1px;'>Delete</a></div>"""%(str(notif.key()),str(notif.key()))
+		elif notif.name == 'comment':
+			html += "<div>%s"%notif.notification
+			html += """<a href='#' id='%s' onclick='deletenotif("%s")' style='float:right;font-size:10px;position:relative;top:1px;'>Delete</a></div><hr>"""%(str(notif.key()),str(notif.key()))
+
+	return html
+
 def get_user(username):
 	user = memcache.get('user-'+username)
 	if user:
@@ -363,7 +397,7 @@ def signup(username='', password='', verify='', school='', agree='', human='', e
 				account = Users(username = username, password = hashed_pass, school = school, score = 0, confirmed = False, email = email)
 				account.put()
 				#put welcome notification
-				notification = Notification(username=username, is_new=True, name="welcome")
+				notification = Notification(username=username, is_new=True, name="welcome", notification=WELCOME_NOTIF%username)
 				notification.put()
 
 				# make initial bookmarks
@@ -418,7 +452,7 @@ def signup_ext(username='', school='', agree='', email='', ext_email=''):
 		account.put()
 
 		#put welcome notification
-		notification = Notification(username=username, is_new=True, name="welcome")
+		notification = Notification(username=username, is_new=True, name="welcome", notification=WELCOME_NOTIF%username)
 		notification.put()
 
 		# make initial bookmarks
@@ -1105,10 +1139,8 @@ def find_guides_ts(school, teacher, subject):
 	'''retrieves a list of guides based on school, teacher, and subject'''
 	q = Guides.all()
 	q.filter('school =', school)
-	if teacher != None:
-		q.filter('teacher =', teacher)
-	if subject != None:
-		q.filter('subject =', subject)
+	q.filter('teacher =', teacher)
+	q.filter('subject =', subject)
 	q.order('-votes')
 	results = q.run(limit=1000)
 	return results

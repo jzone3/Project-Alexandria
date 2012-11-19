@@ -84,15 +84,14 @@ class BaseHandler(webapp2.RequestHandler):
 		params['signed_in'] = self.logged_in()
 		params['bg'] = self.request.cookies.get('bg', '')
 		if params['signed_in']:
-			params['username'] = self.get_username()
+			params['username'] = self.get_username(secure=True)
 
 			# check for notifications
-			q = Notification.all()
-			q.filter('username =', params['username'])
-			q.filter('is_new =', True)
-			notification = q.get()
-			if notification:
-				params['notification'] = notification
+			notification_list, is_new = get_notifications(params['username'])
+			notification_html = get_notification_html(notification_list)
+
+			params['notification_html'] = notification_html
+			params['new_notif'] = is_new
 
 		else:
 			# get schools list for typeahead
@@ -416,7 +415,7 @@ class GuidePageHandler(BaseHandler):
 				admin = (user.username == "admin")
 				if admin:
 					deletable = True
-					
+
 			self.render('guide_page.html', {'guide':guide, 'votes':votes, 'dl_link':dl_link, 'bookmarked':bookmarked, 
 											'logged_in':logged_in, 'reported':reported, 'deletable':deletable, 'diff':diff,
 											'comments':comments, 'admin':admin, 'fake_users':['admin']+FAKE_USERS, 'user':user})
@@ -872,8 +871,9 @@ class CommentHandler(BaseHandler):
 				temp_comment = Comments(user=user, guide=guide, comment=comment, upvotes=0, 
 										downvotes=0, up_users=[], down_users=[], flagged_users=[])
 				if guide.user_created != username:
-					notificationStr = username + " commented on your guide '" + guide.title + "'"
-					notif = Notification(username = guide.user_created, is_new = True, name = "New Comment", notification = notificationStr)
+					notificationStr = "<a href='/user/%s'>%s</a>"%(username,username) + " commented on your guide " + "<a href='/guides/%s'>%s</a><br/>"%(guide.url, guide.title)
+					notificationStr += "<span style='font-size:11px;color:gray;'>%s</span>"%comment_preview(comment)
+					notif = Notification(username = guide.user_created, is_new = True, name = "comment", notification = notificationStr)
 					notif.put()
 				temp_comment.put()
 			else:
@@ -1272,6 +1272,14 @@ class CommentVoteHandler(BaseHandler):
 
 		self.write(response)
 
+class DeleteNotifHandler(BaseHandler):
+	def post(self):
+		key = self.rget('key')
+		notif = Notification.get(key)
+		notif.delete()
+
+		self.write('True')
+
 app = webapp2.WSGIApplication([('/?', MainHandler),
 							   ('/about/?', AboutHandler),
 							   ('/logout/?', LogoutHandler),
@@ -1316,5 +1324,6 @@ app = webapp2.WSGIApplication([('/?', MainHandler),
 							   ('/cron/admin_counts/?', CronCountHandler),
 							   ('/delete_comment/?', DeleteCommentHandler),
 							   ('/comment_vote/?', CommentVoteHandler),
+							   ('/delete_notif/?', DeleteNotifHandler),
 							   ('/.*', NotFoundHandler),
 							   ], debug=True)

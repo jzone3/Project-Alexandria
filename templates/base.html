@@ -83,6 +83,24 @@
 	</script>
 
 	<script type="text/javascript">
+		function deletenotif (id) {
+			notif = $('#'+id).parent();
+			hr = notif.next()
+
+			$.ajax({
+				type:'POST',
+	    		url:'/delete_notif',
+	    		data:'key=' + id,
+				success: function(response) {
+					notif.hide('slow');
+					hr.hide();
+				}
+			});	      		
+		}
+		
+	</script>
+
+	<script type="text/javascript">
 	function showMe (it, box) { 
 	   var vis = (box.checked) ? "block" : "none"; 
 	   document.getElementById(it).style.display = vis;
@@ -100,26 +118,27 @@
 							{% block nav_links %}{% endblock %}
 						</ul>
 						<ul class="nav pull-right">
-							{% if signed_in %}
-								{% if not beta %}
-									{% if notification %}
-									<li>
-										<a href="#" id="target" title="Notifications" style="padding:0px;margin-top:5px;" rel="popover" data-content="<span style='font-family:Junge;'>Hey {{username}}!<br><br> We hope you love using Project Alexandria as much as we loved building it. This is a community-based site so make sure to upload or help edit study guides! Feel free to <a href='\contact'>contact us</a> if you have any questions.<br><br>-The PA Team</span>" data-original-title="Notifications" data-placement="bottom">
+							{% if signed_in %}							
+								<li>
+									{% if notification_html %}
+									<a href="#" id="target" title="Notifications" style="padding:0px;margin-top:5px;" rel="popover" data-content="{{notification_html}}" data-original-title="Notifications" data-placement="bottom">
+									{% else %}
+									<a href="#" id="target" title="Notifications" style="padding:0px;margin-top:5px;" rel="popover" data-content="<center>No notifications</center>" data-original-title="Notifications" data-placement="bottom">
+									{% endif %}
+										{% if new_notif %}
 	    									<img src="/static/img/spot.png" alt="" class="indicator" id="indicator" />
 	    									<!--[if !IE]><!-->
 	    									<span id="pulse"></span>
-	    									<!--<![endif]-->
-										</a>
-									<li>
-									{% else %}
-									<li>
-										<a href="#" id="target" title="Notifications" style="padding:0px;margin-top:5px;" rel="popover" data-content="<span style='font-family:Junge;'>Hey {{username}}!<br><br> We hope you love using Project Alexandria as much as we loved building it. This is a community-based site so make sure to upload or help edit study guides! Feel free to <a href='\contact'>contact us</a> if you have any questions.<br><br>-The PA Team</span>" data-original-title="Notifications" data-placement="bottom">
-	    									<img src="/static/img/spotbw.png" alt="" class="indicator" id="indicator" />
-										</a>
-									<li>		
-									{% endif %}	
-								{% endif %}
-								<script>$("a[rel=popover]").popover();</script>		
+	    									<!--<![endif]-->											
+										{% else %}
+    										<img src="/static/img/spotbw.png" alt="" class="indicator" id="indicator" />
+    									{% endif %}	
+									</a>
+
+								<li>
+
+								<script>$("a[rel=popover]").popover();</script>
+
 								<li><a id="navwelcome">Welcome,</a></li>
 			                    <li id="fat-menu" class="dropdown">
 			                      	<a href="#" id="navuser" role="button" class="dropdown-toggle" data-toggle="dropdown">{{ username }}</a>
@@ -384,8 +403,9 @@
 	<!-- Notificaiton close script -->
 	<script type="text/javascript">
 		jQuery("#target").click(function(){ return false; });
-		jQuery(document).one("click", function() { jQuery("#target").popover('hide'); });
 	</script>
 	<script> $('.tooltips').tooltip() </script>
+
+
 </body>
 </html>

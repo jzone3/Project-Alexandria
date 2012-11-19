@@ -4940,3 +4940,10 @@ a .icon-caret-down:hover{
   text-decoration: none;
   color: red;
 }
+
+.popover-content hr{
+  margin-top: 6px;
+  margin-bottom: 6px;
+  border-top: 1px solid #DBDBDB;
+  border-bottom: 0;
+}
