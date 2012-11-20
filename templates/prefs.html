@@ -66,6 +66,22 @@
 				</form>
 			{% endif %}
 			<hr>
+			<h3>Change the background:</h3>
+				<form action="/change_email" method="post">
+					<div class="row">
+						<div class="span2">
+							Email:
+						</div>
+						<div class="span3">
+							<input type="text" name="email">
+						</div>
+						<div class="span3">
+							<div class="alert alert-error" {% if not email_error %}style="display: none;"{% endif %}>{{email_error}}</div>
+						</div>
+					</div>
+					<input type="submit" value="Change Email" class="btn btn-primary">
+				</form>
+			<hr>
 			<h3>Change your school:</h3>
 			<form action="/change_school" method="post">
 				<div class="row">

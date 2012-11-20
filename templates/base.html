@@ -33,10 +33,8 @@
 {% if blockbg %}
 	{% block blockbg %}{% endblock %}
 {% else %}
-	{% if bg=='i3' or bg=='bg1' %}
+	{% if bg=='bg1' %}
 		<body style="background-image: url(/static/img/{{bg}}.jpg);background-position: 50% 0px;background-attachment:fixed;">
-	{% elif bg=='ti2' %}
-		<body style="background-image: url(/static/img/ti2.png);background-position: 50% 0px;background-color:#181818;background-attachment:fixed;">
 	{% elif not bg %}
 		<body style="background-image: url(/static/img/bg1.jpg);background-position: 50% 0px;background-attachment:fixed;">
 	{% else %}
