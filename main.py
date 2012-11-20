@@ -140,7 +140,7 @@ class BaseHandler(webapp2.RequestHandler):
 		if 'school' in params.keys():
 			del params['school']
 
-		new_params = {'email':email, 'email_verified':email_verified, 'school':school}
+		new_params = {'email':email, 'email_verified':email_verified, 'school':school, 'prefs':True}
 		all_params = dict(new_params)
 		all_params.update(params)
 		self.render('prefs.html', all_params)
@@ -603,7 +603,7 @@ class PreferencesHandler(BaseHandler):
 		if self.logged_in():
 			school_success = self.rget('school_success')
 			if school_success:
-				self.render_prefs({'school_success' : True})
+				self.render_prefs({'school_success':True})
 			else:
 				self.render_prefs()
 		else:

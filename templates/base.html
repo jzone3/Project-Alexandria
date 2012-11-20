@@ -329,12 +329,13 @@
 	</div>
 	{% else %}
 	<div class="sticky-footer" style="color: #CFCFCF;">
-		Copyright 2012 All Rights Reserved | 
+		Copyright 2012 All Rights Reserved |
 		<a href="/tos" class="footerlinks" style="color:#CFCFCF;">Terms of Service</a> | 
 		<a href="/team" class="footerlinks" style="color:#CFCFCF;">Team</a>
 	</div>
 	{% endif %}
-	{% if signed_in and not not_found %}
+
+	{% if signed_in and not not_found and not prefs %}
 	<div class="sticky-footer bg_switcher" style="color: gray;">
 		<img src="/static/img/thumb1.png" width="40px" id="bg1" class="bglink">
 		<img src="/static/img/thumb2.png" width="40px" id="bg2" class="bglink">
@@ -356,7 +357,6 @@
 	</script>
 	<!-- End Footer -->
 
-	{% if not beta %}
 	<a href="#feedback" id="feedbackbar" data-toggle="modal"></a>
 
 	<div id="feedback" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
@@ -379,7 +379,7 @@
 			<input type="hidden" name="formname" value="feedback">
 		</form>
 	</div>
-	{% endif %}
+
 	{% endif %}
 
 	<script type="text/javascript">
