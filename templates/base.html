@@ -335,8 +335,10 @@
 	$('.bglink').click(function() {
 		var id = $(this).attr('id');
 		$.cookie('bg', id, {path:'/'});
-		if (id == 'bg1' || id == 'bg3'){
-			$('body').css({'background-image':'url(/static/img/'+ id +'.jpg)'})		
+		if (id == 'bg1'){
+			$('body').css({'background-image':'url(/static/img/'+ id +'.jpg)'})
+		} else if (id == 'bg3') {
+			$('body').css({'background-image':'url(/static/img/'+ id +'.jpeg)'})
 		} else if (id=='ti2') {
 			$('body').css({'background-image':'url(/static/img/ti2.png)', 'background-color':'#181818'})
 		} else {

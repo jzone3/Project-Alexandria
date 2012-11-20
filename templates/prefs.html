@@ -81,13 +81,13 @@
 				$.cookie('bg', id, {path:'/'});
 				if (id == 'bg1'){
 					$('body').css({'background-image':'url(/static/img/'+ id +'.jpg)'})
-					$('#bg_loader').show();
-					setTimeout(hider, 1000);
+				} else if (id == 'bg3') {
+					$('body').css({'background-image':'url(/static/img/'+ id +'.jpeg)'})
 				} else {
 					$('body').css({'background-image':'url(/static/img/' + id + '.png)'})
-					$('#bg_loader').show();
-					setTimeout(hider, 1000);
-				}		
+				}	
+				$('#bg_loader').show();
+				setTimeout(hider, 1000);	
 			});
 			</script>			
 			<hr>

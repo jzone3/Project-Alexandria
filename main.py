@@ -830,7 +830,7 @@ class ExternalSignUp(BaseHandler):
 			agree = self.rget('agree')
 
 			if school == 'Bergen County Academies':
-				email = self.rget('email') + '@bergen.org'
+				email = self.rget('email')
 				ext_email = user.email()
 			else:
 				email = user.email()
