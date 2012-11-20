@@ -4965,3 +4965,18 @@ a .icon-caret-down:hover{
   font-weight:200;
   font-family: 'Junge', cursive;
 }
+
+.bg_switcher_prefs{
+
+}
+
+.bg_switcher_prefs img{
+  box-shadow: 1px 1px 3px #161616;
+  -webkit-filter: grayscale(0.4);
+
+}
+
+.bg_switcher_prefs img:hover{
+  box-shadow: 2px 2px 3px #161616;
+  -webkit-filter: grayscale(0);
+}
