@@ -7,6 +7,10 @@
  *
  * Designed and built with all the love in the world @twitter by @mdo and @fat.
  */
+.biglogo{
+  font-size:91px;
+}
+
 .clearfix {
   *zoom: 1;
 }
@@ -4323,6 +4327,12 @@ button.close {
   .navbar-fixed-bottom .container {    
   width: 870px;    
   }
+  .biglogo {
+    font-size: 70px;
+  }
+  .biglogo img {
+    height: 120px;
+  }
 }
 
 @media (min-width: 1200px) {
@@ -4946,4 +4956,12 @@ a .icon-caret-down:hover{
   margin-bottom: 6px;
   border-top: 1px solid #DBDBDB;
   border-bottom: 0;
+}
+
+.biglogo {
+  color:white;
+  padding-top:90px;
+  text-shadow: 3px 3px 3px black;
+  font-weight:200;
+  font-family: 'Junge', cursive;
 }
