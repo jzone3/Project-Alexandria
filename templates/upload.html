@@ -19,6 +19,10 @@
 			<center><h1>Submit a Study Guide</h1></center>
 			<br/>
 			<form method="post" action="{{upload_url}}" enctype="multipart/form-data">
+				<div class="row">
+					<center><div class="span11 alert alert-error" {% if not time_error %}style="display: none;"{% endif %}>{{time_error}}</div></center>
+				</div>
+
 				<div class="row" style="margin-bottom:25px;">
 					<div class="span5 inline">
 						<h1 style="font-size:50px;">1</h1>&nbsp;&nbsp;&nbsp;<span style="font-size:17px;">Upload your document</span> 

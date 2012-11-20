@@ -494,6 +494,15 @@ class UploadHandler(BaseHandler):
 		editable = self.rget('editable')
 		tags = self.rget('tags')
 		file_url = self.rget('file')
+		username = self.get_username()
+
+		# check last upload time
+		last_upload = memcache.get('uploadtime-'+username)
+		if last_upload and (datetime.datetime.now() - last_upload < datetime.timedelta(minutes=1)):
+			fields = {'title':title, 'subject':subject, 'teacher':teacher, 
+					  'editable':editable, 'tags':tags, 'time_error':'You\'re uploading too quickly! Try waiting 1 minute between uploads.'}
+			self.render('/upload.html', fields)	 
+			return
 
 		if file_url:
 			# get the file from filepicker.io
@@ -513,8 +522,7 @@ class UploadHandler(BaseHandler):
 					  'editable':editable, 'tags':tags}
 			errors.update(fields)
 			self.render('/upload.html', errors)
-		else:			
-			username = self.get_username()
+		else:						
 			tags = get_tags(tags) + create_tags(title, subject, teacher, username)
 			filename = get_filename(title, username, headers['content-type'])
 			school = get_school(username)
@@ -576,6 +584,9 @@ class UploadHandler(BaseHandler):
 			# add guide to index
 			add_to_index(school, key, tags)
 			self.redirect('/guides/' + url)
+
+			# set last upload time for user
+			memcache.set('uploadtime-'+username, datetime.datetime.now())
 		
 class ServeHandler(blobstore_handlers.BlobstoreDownloadHandler):
 	def get(self, resource):
