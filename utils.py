@@ -560,7 +560,9 @@ def delete_user_account(username):
 	memcache.delete(username + '_submitted')
 
 def delete_bookmarks(username):
-	pass
+	user = get_user(username)
+	for bookmark in user.bookmark_list:
+		bookmark.delete()
 
 ############################### email verification ###############################
 
