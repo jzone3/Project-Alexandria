@@ -33,9 +33,7 @@
 {% if blockbg %}
 	{% block blockbg %}{% endblock %}
 {% else %}
-	{% if bg=='bg1' %}
-		<body style="background-image: url(/static/img/{{bg}}.jpg);background-position: 50% 0px;background-attachment:fixed;">
-	{% elif not bg %}
+	{% if bg=='bg1' or not bg  %}
 		<body style="background-image: url(/static/img/bg1.jpg);background-position: 50% 0px;background-attachment:fixed;">
 	{% else %}
 		<body style="background-image: url(/static/img/{{bg}}.png);background-position: 50% 0px;background-attachment:fixed;">
@@ -339,9 +337,9 @@
 	{% if signed_in and not not_found %}
 	<div class="sticky-footer bg_switcher" style="color: gray;">
 		<img src="/static/img/thumb1.png" width="40px" id="bg1" class="bglink">
-		<img src="/static/img/thumb3.png" width="40px" id="i3" class="bglink">
-		<img src="/static/img/bg12.png" width="40px" id="bg12" class="bglink">
-		<img src="/static/img/bg7.png" width="40px" id="bg7" class="bglink">
+		<img src="/static/img/thumb2.png" width="40px" id="bg2" class="bglink">
+		<img src="/static/img/thumb3.png" width="40px" id="bg3" class="bglink">
+		<img src="/static/img/thumb4.png" width="40px" id="bg4" class="bglink">
 	</div>
 	<script>
 	$('.bglink').click(function() {
