@@ -177,39 +177,21 @@
 		   			<hr style="margin-top:15px"/>
 		   			<center><h4 style="margin-bottom:15px;">Don't want to use Facebook or Google? <a href="#" onClick="$('#form').show('slow');">Sign up <i class="icon-hand-down"></i></a></h4></center>
 		   			<div id="form" {% if not (modal == 'signup') %}style="display:none;"{% endif %}>
-		   				<div class="row">
-							<div class="span2">School</div>
-							<div class="span3"><span class="input-large uneditable-input">Bergen County Academies</span></div>
-							<!-- <div class="span3"><input type="text" autocomplete="off" name="school" id="school" data-provide="typeahead" value="{{ school }}"></div> -->
-							<input name="school" value="Bergen County Academies" style="display:none;">
- 						</div>
-						<div class="alert alert-error" {% if not school_error %}style="display: none;"{% endif %}>{{school_error}}</div>
-
-						<div class="row">
-							<div class="span2">Bergen Mail</div>
-							<div class="span3">
-								<div class="input-append">
-								  <input type="text" name="email" class="input-small" value="{{email}}"><span class="add-on">@bergen.org</span>
-								</div>
-							</div>
-						</div>
-						
-						<div class="alert alert-error" {% if not email_error %}style="display: none;"{% endif %}>{{email_error}}</div>
-			        	<div class="row">
+		   						   				<div class="row">
 							<div class="span2">Username</div>
 							<div class="span3"><input type="text" name="username" type="text" value="{{username}}"></div>
 						</div>
 						<div class="alert alert-error" {% if not username_error %}style="display: none;"{% endif %}>{{username_error}}</div>
-						<!-- <div class="row">
+		   				
+		   				<div class="row">
 							<div class="span2">
-								Email 
-								<a rel="tooltip" data-placement="right" title="A Bergen email is required to join BCA" class="tooltips" onclick="$('#edit_url').modal('hide')">
-									<i class="icon-question-sign"></i>
-								</a>
+								Email <i>(optional)</i>
 							</div>
-							<div class="span3"><input type="text" name="email" value="{{email}}"></div>
-						</div> -->						
-						<div class="row">
+							<div class="span3"><input type="text" name="email" type="text" value="{{email}}"></div>
+						</div>
+						<div class="alert alert-error" {% if not email_error %}style="display: none;"{% endif %}>{{email_error}}</div>
+		   				
+	   					<div class="row">
 							<div class="span2">Password</div>
 							<div class="span3"><input name="password" type="password"></div>
 						</div>
@@ -219,8 +201,14 @@
 							<div class="span3"><input name="verify" type="password"></div>
 						</div>
 						<div class="alert alert-error" {% if not verify_error %}style="display: none;"{% endif %}>{{verify_error}}</div>
-						
-						<div class="alert alert-error" {% if not year_error %}style="display: none;"{% endif %}>{{year_error}}</div>
+						<div class="row">
+							<div class="span2">School</div>
+							<!-- <div class="span3"><div class="input-large uneditable-input">Bergen County Academies</div></div> -->
+							<div class="span3"><input type="text" autocomplete="off" name="school" id="school" data-provide="typeahead" value="{{ school }}"></div>
+						</div>
+						<div class="alert alert-error" {% if not school_error %}style="display: none;"{% endif %}>{{school_error}}</div>
+	
+
 						<br />
 						<label class="checkbox">
 							<input type="checkbox" name="agree"> I agree to the <a href="#" onmouseover="$('#honorcode').show('slow')">PA Honor Code</a> and <a href="tos" target="_blank">Terms of Service</a>
@@ -242,7 +230,8 @@
 							</div>
 						</div>
 						<div class="alert alert-error" {% if not human_error %}style="display: none;"{% endif %}>{{human_error}}</div>
-	        		</div>
+		   			</div>
+		   			
 	        	</div>
 	        	<div class="modal-footer">
 	        		<div style="float:left;">

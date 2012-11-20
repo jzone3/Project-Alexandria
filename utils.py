@@ -364,8 +364,14 @@ def signup(username='', password='', verify='', school='', agree='', human='', e
 	elif verify != password:
 		to_return['verify'] = "Your passwords didn't match."
 
-	if email != '' and not EMAIL_RE.match(email):
+	if school == 'Bergen County Academies' and not EMAIL_RE.match(email):
+		to_return['email'] = "Please provide a valid Bergen Email Address (bergen.org)."
+	elif school == 'Bergen County Academies' and email[len(email) - 11:] != '@bergen.org':
+		to_return['email'] = "Please provide a valid Bergen Email Address (bergen.org)."
+	elif not EMAIL_RE.match(email):
 		to_return['email'] = "That's not a valid email."
+	elif not unique_email(email):
+		to_return['email'] = "Email already exits!"
 	
 	if school == '':
 		to_return['school'] = "Please enter a school"
@@ -436,7 +442,11 @@ def signup_ext(username='', school='', agree='', email='', ext_email=''):
 		to_return['agree_error'] = "You must agree to the Terms of Service to create an account"
 
 	if school == 'Bergen County Academies' and not EMAIL_RE.match(email):
-		to_return['email_error'] = "Please provide a valid Bergen Mail."	
+		to_return['email_error'] = "Please provide a valid Bergen Email Address (bergen.org)."
+	elif school == 'Bergen County Academies' and email[len(email) - 11:] != '@bergen.org':
+		to_return['email_error'] = "Please provide a valid Bergen Email Address (bergen.org)."
+	elif not EMAIL_RE.match(email):
+		to_return['email_error'] = "Please provide a valid email address."
 	elif not unique_email(email):
 		to_return['email_error'] = "Email already exits!"
 
