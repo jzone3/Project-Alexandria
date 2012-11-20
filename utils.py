@@ -579,7 +579,7 @@ def delete_bookmarks(username):
 def deleted_old_links():
 	links = db.GqlQuery("SELECT * FROM Email_Verification ORDER BY DESC")
 	for i in links:
-		if datetime.datetime.now() >= i.date_created + datetime.timedelta(hours=3):
+		if datetime.datetime.now() >= i.date_created + datetime.timedelta(hours=12):
 			i.delete()
 		else:
 			break
@@ -614,7 +614,7 @@ def verify(key):
 	link = db.get(key)
 	if link is None:
 		return False
-	if datetime.datetime.now() >= link.date_created + datetime.timedelta(hours=3):
+	if datetime.datetime.now() >= link.date_created + datetime.timedelta(hours=12):
 		link.delete()
 		return False
 	user = get_user(link.username)
