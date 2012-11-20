@@ -198,6 +198,12 @@ class MainHandler(BaseHandler):
 
 		if formname == 'login':
 			username = self.rget('username')
+			blocked_time = memcache.get('loginblock-'+username)
+
+			if blocked_time and (datetime.datetime.now() - blocked_time < datetime.timedelta(minutes=1)):
+				self.render('index.html', {'username': username, 'wrong': 'You attempted to login too many times. Try again in 1 minute.', 'modal' : 'login', 'blockbg' : True, 'index': True})
+				return 
+
 			key, value = check_login(username, self.rget('password'))
 
 			if key:
@@ -209,6 +215,17 @@ class MainHandler(BaseHandler):
 				self.set_school_cookie(get_school(username))
 				self.redirect('/')
 			else:
+				# log the login attempt
+				tries = memcache.get('login-'+username)
+				if not tries: # first attempted login
+					tries = 1
+					memcache.set('login-'+username, tries)
+				elif tries > 4: # logged in more than 4 times
+					memcache.set('loginblock-'+username, datetime.datetime.now())
+				else:
+					tries += 1
+					memcache.set('login-'+username, tries)
+
 				self.render('index.html', {'username': username, 'wrong': value, 'modal' : 'login', 'blockbg' : True, 'index': True})
 
 		elif formname == 'signup':
