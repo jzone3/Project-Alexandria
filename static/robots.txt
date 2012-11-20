@@ -1,3 +1,7 @@
 User-agent: *
 Disallow: /preferences/
 Disallow: /preferences
+Disallow: /admin
+Disallow: /admin/
+Disallow: /admin_console
+Disallow: /admin_console/
