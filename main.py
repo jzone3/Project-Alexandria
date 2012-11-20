@@ -233,7 +233,7 @@ class MainHandler(BaseHandler):
 			username_error, password_error, verify_error, school_error, agree_error, human_error, email_error = ('', '', '', '', '', '', '')
 
 			username, password, verify, school, agree, human, email = [self.rget(x) for x in ('username', 'password', 'verify', 'school', 'agree', 'session_secret', 'email')]
-			results = signup(username=username, password=password, verify=verify, school=school, agree=agree, human=human, email=email+'@bergen.org')
+			results = signup(username=username, password=password, verify=verify, school=school, agree=agree, human=human, email=email)
 			if results['success']:
 				add_school(school)
 				self.set_cookie(results['cookie'])

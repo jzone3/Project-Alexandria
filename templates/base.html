@@ -327,15 +327,15 @@
 	{% if signed_in and not not_found and not prefs %}
 	<div class="sticky-footer bg_switcher" style="color: gray;">
 		<img src="/static/img/thumb1.png" width="40px" id="bg1" class="bglink">
-		<img src="/static/img/thumb2.png" width="40px" id="bg2" class="bglink">
 		<img src="/static/img/thumb3.png" width="40px" id="bg3" class="bglink">
-		<img src="/static/img/thumb4.png" width="40px" id="bg4" class="bglink">
+		<img src="/static/img/thumb9.png" width="40px" id="bg9" class="bglink">
+		<img src="/static/img/bg7.png" width="40px" id="bg7" class="bglink">
 	</div>
 	<script>
 	$('.bglink').click(function() {
 		var id = $(this).attr('id');
 		$.cookie('bg', id, {path:'/'});
-		if (id == 'bg1' || id == 'i3'){
+		if (id == 'bg1' || id == 'bg3'){
 			$('body').css({'background-image':'url(/static/img/'+ id +'.jpg)'})		
 		} else if (id=='ti2') {
 			$('body').css({'background-image':'url(/static/img/ti2.png)', 'background-color':'#181818'})
