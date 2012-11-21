@@ -91,7 +91,7 @@ def time_difference(time):
 		else:
 			return str(ago) + " seconds ago"
 	else:
-		return time.strftime("%B %d, %Y")
+		return "less than 1 second ago"
 
 def comment_preview(comment):
 	if len(comment) > 28:
@@ -440,7 +440,7 @@ def signup(username='', password='', verify='', school='', agree='', human='', e
 				hashed = salted_hash(password, salt)
 				hashed_pass = hashed + '|' + salt
 
-				account = Users(username = username, password = hashed_pass, school = school, score = 0, confirmed = False, email = email)
+				account = Users(username = username, password = hashed_pass, school = school, score = 0, confirmed = False, email = email, guides_uploaded = 0)
 				account.put()
 				#put welcome notification
 				notification = Notification(username=username, is_new=True, name="welcome", notification=WELCOME_NOTIF%username)
@@ -496,9 +496,9 @@ def signup_ext(username='', school='', agree='', email='', ext_email=''):
 	if len(to_return) == 1:
 		# username.replace("'", "&lsquo;")
 		if school == 'Bergen County Academies':
-			account = Users(username = username, school = school, score = 0, confirmed = False, bergen_mail=email, email=ext_email)
+			account = Users(username = username, school = school, score = 0, confirmed = False, bergen_mail=email, email=ext_email, guides_uploaded = 0)
 		else:
-			account = Users(username = username, school = school, score = 0, confirmed = False, email=email)
+			account = Users(username = username, school = school, score = 0, confirmed = False, email=email, guides_uploaded = 0)
 		account.put()
 
 		#put welcome notification
@@ -900,6 +900,12 @@ def delete_all_test_guides(school='Bergen County Academies'):
 	result = q.get()
 	if result:
 		result.delete()
+
+def increase_guides_uploaded(username):
+	GET_USER.bind(username = username)
+	user = GET_USER.get()
+	user.guides_uploaded += 1
+	user.put()
 
 def delete_guide(guide_key):
 	# delete guide

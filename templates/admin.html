@@ -20,8 +20,8 @@
 				Access the console <a href="/admin_console/">here</a>.
 			</center>
 			<hr>
-			<div class="span11">
-				<div class="span6" style="margin-left:0;">
+			<div class="span12">
+				<div class="span4" style="margin-left:0;">
 					<h2>Users</h2>
 					<h3 style="color:#C93A34;">{{ user_count }}</h3>
 					<em style="color: gray;font-size: 11px;">Graph coming soon!</em>
@@ -31,6 +31,15 @@
 					<h2>Newest Users</h2>
 					<ol>
 					{% for user in new_users %}				
+						<li><a href="\user\{{user.username}}">{{ user.username }}</a></li>				
+					{% endfor %}
+					</ol>
+				</div>
+
+				<div class="span4" style="margin-left:0;">
+					<h2>Power Users</h2>
+					<ol>
+					{% for user in power_users %}				
 						<li><a href="\user\{{user.username}}">{{ user.username }}</a></li>				
 					{% endfor %}
 					</ol>

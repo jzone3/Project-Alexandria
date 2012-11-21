@@ -567,6 +567,8 @@ class UploadHandler(BaseHandler):
 				   		   votes=0, up_users=[], down_users=[])
 			guide.put()
 
+			increase_guides_uploaded(username)
+
 			# add subject, teacher to db
 			add_teacher(school, teacher)
 			add_subject(school, subject)
@@ -1255,13 +1257,14 @@ class AdminHandler(BaseHandler):
 	def get(self):
 		user_count =  Users.all().count()
 		new_users = Users.all().order('-date_created').run(limit=10)
+		power_users = Users.all().order('guides_uploaded').run(limit=10)
 		guide_count = Guides.all().count()
 		new_guides = Guides.all().order('-date_created').run(limit=10)
 		top_guides = Guides.all().order('downloads').run(limit=10)
 		new_comments = Comments.all().order('-date_created').run(limit=10)
 		feedback = Feedback.all().run(limit=5)
 
-		self.render('admin.html', {'user_count':user_count, 'new_users':new_users,
+		self.render('admin.html', {'user_count':user_count, 'new_users':new_users, 'power_users':power_users,
 			'guide_count':guide_count,'new_guides':new_guides, 'new_comments':new_comments,
 			'feedback':feedback, 'top_guides':top_guides})
 

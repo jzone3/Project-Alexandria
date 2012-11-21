@@ -22,16 +22,17 @@ class JsonProperty(db.TextProperty):
 		return super(JsonProperty, self).make_value_from_datastore(value)
 
 class Users(db.Model):
-	username       = db.StringProperty(required = True)
-	school         = db.StringProperty(required = True)
-	grade          = db.IntegerProperty(required = False)
-	score          = db.IntegerProperty(required = True) 
-	confirmed      = db.BooleanProperty(required = True) 
-	password       = db.StringProperty(required = False)
-	date_created   = db.DateTimeProperty(auto_now_add = True)
-	email          = db.StringProperty(required = False)
-	bergen_mail    = db.StringProperty(required = False)
-	email_verified = db.BooleanProperty(required = False)
+	username        = db.StringProperty(required = True)
+	school          = db.StringProperty(required = True)
+	grade           = db.IntegerProperty(required = False)
+	score           = db.IntegerProperty(required = True) 
+	confirmed       = db.BooleanProperty(required = True) 
+	password        = db.StringProperty(required = False)
+	date_created    = db.DateTimeProperty(auto_now_add = True)
+	email           = db.StringProperty(required = False)
+	bergen_mail     = db.StringProperty(required = False)
+	email_verified  = db.BooleanProperty(required = False)
+	guides_uploaded = db.IntegerProperty(required = False)
 
 class Guides(db.Model):
 	user_created = db.StringProperty(required = True)
