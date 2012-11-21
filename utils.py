@@ -915,8 +915,8 @@ def delete_guide(guide_key):
 	# delete from bookmarks
 	bookmarks = list(guide.bookmarks_set)
 	for bookmark in bookmarks:
-	    bk_key = bookmark.key()
-	    db.delete(bk_key)
+		bk_key = bookmark.key()
+		db.delete(bk_key)
 
 	# delete from index
 	q = Indexes.all()
