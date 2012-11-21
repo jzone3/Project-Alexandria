@@ -907,9 +907,16 @@ def increase_guides_uploaded(username):
 	user.guides_uploaded += 1
 	user.put()
 
+def decrease_guides_uploaded(username):
+	GET_USER.bind(username = username)
+	user = GET_USER.get()
+	user.guides_uploaded -= 1
+	user.put()
+
 def delete_guide(guide_key):
 	# delete guide
 	guide = Guides.get(guide_key)
+	decrease_guides_uploaded(user_created)
 	school = guide.school
 	memcache.delete(guide.user_created + "_submitted")
 	db.delete(guide_key)
