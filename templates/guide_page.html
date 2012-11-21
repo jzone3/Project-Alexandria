@@ -24,7 +24,7 @@
 						<button class="btn btn-inverse" id ="deletebtn" type="button">
 							<span id="deletetext">Delete Guide</span>
 						</button>
-						<span style='font-size: 12px;color: #BBB;'>There are {{ diff }} / 24 hours left to delete this guide <a rel="tooltip" data-placement="right" title="You only have 24 hours to delete your guide. After 24 hours, you will not be able to remove your study guide from Project Alexandria." class="tooltips"> <i class="icon-question-sign"></i></a></span>
+						<span style='font-size: 12px;color: #BBB;'>There are {{ diff }} hours left to delete this guide <a rel="tooltip" data-placement="right" title="You only have 24 hours to delete your guide. After 24 hours, you will not be able to remove your study guide from Project Alexandria." class="tooltips"> <i class="icon-question-sign"></i></a></span>
 						{% endif %}
 					</h1>
 					{% if guide.user_created == '[deleted]' %}
@@ -32,7 +32,10 @@
 					{% else %}
 						<h3><em>by <a href="/user/{{ guide.user_created }}">{{ guide.user_created }}</a></em></h3>
 					{% endif %}
-					<h6>{{ guide.subject }} - {{ guide.teacher }}</h6> 
+					<h6>
+						{{ guide.subject }} - {{ guide.teacher }}<br/>
+						Uploaded {{ difference }}
+					</h6>
 					<h5>
 					    <a href="#" class="bookmarkbtn" id="{{ guide.blob_key }}" style="margin-left:-1px;"><i class="icon-bookmark"></i> Bookmark</a>	
 						<span> | </span>					    

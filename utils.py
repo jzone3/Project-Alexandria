@@ -52,11 +52,51 @@ WELCOME_NOTIF = """<div><span style='font-family:Junge;'>Hey %s!<br><br> We hope
 # 	global_stat = stats.GlobalStat.all().get()
 # 	return {'total_data' : global_stat.bytes / 1048576.0}
 
+def time_difference(time):
+	now = datetime.datetime.now()
+	if now > time + datetime.timedelta(days=365.25):
+		ago = now.year - time.year
+		if ago == 1:
+			return str(ago) + " year ago"
+		else:
+			return str(ago) + " years ago"
+	elif now >= time + datetime.timedelta(days=30):
+		ago = now.month - time.month
+		if ago == 1:
+			return str(ago) + " month ago"
+		else:
+			return str(ago) + " months ago"
+	elif now >= time + datetime.timedelta(days=1):
+		ago = now.day - time.day
+		if ago == 1:
+			return str(ago) + " day ago"
+		else:
+			return str(ago) + " days ago"
+	elif now >= time + datetime.timedelta(hours=1):
+		ago = now.hour - time.hour
+		if ago == 1:
+			return str(ago) + " hour ago"
+		else:
+			return str(ago) + " hours ago"
+	elif now >= time + datetime.timedelta(minutes=1):
+		ago = now.minute - time.minute
+		if ago == 1:
+			return str(ago) + " minute ago"
+		else:
+			return str(ago) + " minutes ago"
+	elif now >= time + datetime.timedelta(seconds=1):
+		ago = now.second - time.second
+		if ago == 1:
+			return str(ago) + " second ago"
+		else:
+			return str(ago) + " seconds ago"
+	else:
+		return time.strftime("%B %d, %Y")
+
 def comment_preview(comment):
 	if len(comment) > 28:
 		comment = comment[:28]
 	return comment + '...'
-
 
 def str_votes(votes):
 	if votes > 0:

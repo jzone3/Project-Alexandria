@@ -433,7 +433,7 @@ class GuidePageHandler(BaseHandler):
 				if admin:
 					deletable = True
 
-			self.render('guide_page.html', {'guide':guide, 'votes':votes, 'dl_link':dl_link, 'bookmarked':bookmarked, 
+			self.render('guide_page.html', {'guide':guide, 'difference':time_difference(guide.date_created), 'votes':votes, 'dl_link':dl_link, 'bookmarked':bookmarked, 
 											'logged_in':logged_in, 'reported':reported, 'deletable':deletable, 'diff':diff,
 											'comments':comments, 'admin':admin, 'fake_users':['admin']+FAKE_USERS, 'user':user})
 		else:
