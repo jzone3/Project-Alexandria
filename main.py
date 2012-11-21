@@ -1257,12 +1257,13 @@ class AdminHandler(BaseHandler):
 		new_users = Users.all().order('-date_created').run(limit=10)
 		guide_count = Guides.all().count()
 		new_guides = Guides.all().order('-date_created').run(limit=10)
+		top_guides = Guides.all().order('downloads').run(limit=10)
 		new_comments = Comments.all().order('-date_created').run(limit=10)
 		feedback = Feedback.all().run(limit=5)
 
 		self.render('admin.html', {'user_count':user_count, 'new_users':new_users,
 			'guide_count':guide_count,'new_guides':new_guides, 'new_comments':new_comments,
-			'feedback':feedback})
+			'feedback':feedback, 'top_guides':top_guides})
 
 class CronCountHandler(BaseHandler):
 	def get(self):
