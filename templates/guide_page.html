@@ -24,7 +24,9 @@
 						<button class="btn btn-inverse" id ="deletebtn" type="button">
 							<span id="deletetext">Delete Guide</span>
 						</button>
-						<span style='font-size: 12px;color: #BBB;'>There are {{ diff }} hours left to delete this guide <a rel="tooltip" data-placement="right" title="You only have 24 hours to delete your guide. After 24 hours, you will not be able to remove your study guide from Project Alexandria." class="tooltips"> <i class="icon-question-sign"></i></a></span>
+						{% if not admin %}
+							<span style='font-size: 12px;color: #BBB;'>There are {{ diff }} hours left to delete this guide <a rel="tooltip" data-placement="right" title="You only have 24 hours to delete your guide. After 24 hours, you will not be able to remove your study guide from Project Alexandria." class="tooltips"> <i class="icon-question-sign"></i></a></span>
+						{% endif %}
 						{% endif %}
 					</h1>
 					{% if guide.user_created == '[deleted]' %}
@@ -119,6 +121,10 @@
 							<div style="width:100%;">
 								<span class="datetime" id="{{comment.date_created}}"></span>
 								<span class="comment_btns" style="float:right;">
+									{% if user and user.key() == comment.user.key() %}
+									<a href="#" class="comment_delete" id="{{comment.key()}}">Delete</a>
+									 &nbsp; - &nbsp;&nbsp;								
+									{% endif %}
 									<span><!-- Left blank intentionally --></span> 
 									<span>
 										<span {%if user and user.username in comment.up_users%}style="color:#14BB14"{%endif%}>{{comment.upvotes}}</span>
@@ -137,11 +143,6 @@
 											</a>
 										</span>
 									</span>
-
-									{% if user and user.key() == comment.user.key() %}
-									 | 
-									<a href="#" class="comment_delete" id="{{comment.key()}}">Delete</a>
-									{% endif %}
 								</span>
 							</div>
 						</div>
@@ -410,7 +411,7 @@
 	    $.ajax({
 		    type:'POST', 
 		    url:'/comment', 
-		    data:'key={{guide.key()}}' + '&comment=' + comment {% if admin %}+'&user='+user{% endif %},
+		    data:'key={{guide.key()}}' + '&comment=' + comment{% if admin %} +'&user='+user{% endif %},
 		    success: function(response) {
 		    	if (response != 'False' && response != 'signin') {
 					$('#comment').val('');
