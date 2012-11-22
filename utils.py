@@ -954,40 +954,49 @@ def delete_guide(guide_key):
 	index.index = simplejson.dumps(py_index)
 	index.put()
 
-def get_top_guides(school=None, page=0):
-	global last_refresh
-	if page >= 5: # 5 is max number of memcache'd pages
-		results = list(top_guides_from_db(school, page))
-	elif str(school) in last_refresh.keys():
-		if time.time() > last_refresh[str(school)] + 900:
-			last_refresh[str(school)] = time.time()
-			results = list(top_guides_from_db(school, page))
-			memcache.set(str(school) + '-top_guides-' + str(page), results)
+def get_top_guides(school=None, page=0, rank="votes"):
+	global last_refresh # {school:unix_time}
+	school = str(school)
+	
+	if page >= 5:
+		# retrieve from db if > page 5
+		results = top_guides_from_db(school, page)
+
+	elif school in last_refresh:
+		# if school is in refresh listing		
+		if time.time() > last_refresh[school] + 900:
+			# if overdue for re-caching
+			last_refresh[school] = time.time()
+			results = top_guides_from_db(school, page)
+			memcache.set(school + '-top_guides-' + str(page), results)
 		else:
-			results = memcache.get(str(school) + '-top_guides-' + str(page))
-			if results is None:
-				results = list(top_guides_from_db(school, page))
-				memcache.set(str(school) + '-top_guides-' + str(page), results)
+			# if cache younger than 900 seconds
+			results = memcache.get(school + '-top_guides-' + str(page))
+			if not results:
+				results = top_guides_from_db(school, page)
+				memcache.set(school + '-top_guides-' + str(page), results)
+
 	else:
-		last_refresh[str(school)] = time.time()
-		results = list(top_guides_from_db(school, page))
-		memcache.set(str(school) + '-top_guides-' + str(page), results)
+		# if school not in refresh listing		
+		last_refresh[school] = time.time()
+		results = top_guides_from_db(school, page)
+		memcache.set(school + '-top_guides-' + str(page), results)
+
 	return results
 
 def top_guides_from_db(school, page=0):
 	q = Guides.all()
-	if school: # i.e. if user is logged in (school cookie)
-		q.filter('school =', school)
+	if school: q.filter('school =', school)
 	q.order('-votes')
 
 	results = q.run(limit=25, offset=page*25)
-	# logging
+
 	if school:
 		logging.error('DB top_guides_from_db: '+school)
 	else:
 		logging.error('DB top_guides_from_db: ALL')
 
-	return results
+	return list(results)
 
 def get_new_guides(school, page=0, username=''):
 	if page == 'zero':
