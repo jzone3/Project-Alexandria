@@ -928,7 +928,7 @@ def decrease_guides_uploaded(username):
 def delete_guide(guide_key):
 	# delete guide
 	guide = Guides.get(guide_key)
-	decrease_guides_uploaded(user_created)
+	decrease_guides_uploaded(guide.user_created)
 	school = guide.school
 	memcache.delete(guide.user_created + "_submitted")
 	db.delete(guide_key)
