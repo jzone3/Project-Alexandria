@@ -1252,12 +1252,16 @@ def vote(key, vote_type, username):
 	else:
 		return False
 
-	# record changes in guide
+	# record vote changes in guide
 	guide.votes += diff
 	if diff > 0:
 		guide.up_users.append(username)
 	else:
 		guide.down_users.append(username)
+
+	# update top_score
+	guide.top_score = calc_score(guide)
+
 	guide.put()
 
 	memcache.delete('new-guides-None')

@@ -595,6 +595,7 @@ class ServeHandler(blobstore_handlers.BlobstoreDownloadHandler):
 		guide = Guides.all().filter('blob_key =', resource).get()
 		if guide:
 			guide.downloads += 1
+			guide.top_score = calc_score(guide)
 			guide.put()
 
 			resource = str(urllib.unquote(resource))
