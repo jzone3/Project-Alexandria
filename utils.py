@@ -607,12 +607,16 @@ def delete_user_account(username):
 		x.put()
 	reset_user_link(username)
 	delete_bookmarks(username)
+	delete_all_notifications(username)
 	memcache.delete(username + '_submitted')
 
 def delete_bookmarks(username):
 	user = get_user(username)
 	for bookmark in user.bookmark_list:
 		bookmark.delete()
+
+def delete_all_notifications(username):
+	pass
 
 ############################### email verification ###############################
 
