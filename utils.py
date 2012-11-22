@@ -408,8 +408,8 @@ def signup(username='', password='', verify='', school='', agree='', human='', e
 		to_return['email'] = "Please provide a valid Bergen Email Address (bergen.org)."
 	elif school == 'Bergen County Academies' and email[len(email) - 11:] != '@bergen.org':
 		to_return['email'] = "Please provide a valid Bergen Email Address (bergen.org)."
-	elif not EMAIL_RE.match(email):
-		to_return['email'] = "That's not a valid email."
+	elif not EMAIL_RE.match(email) and email != '':
+		to_return['email'] = "That's not a valid email." + email
 	elif not unique_email(email):
 		to_return['email'] = "Email already exits!"
 	
@@ -433,14 +433,17 @@ def signup(username='', password='', verify='', school='', agree='', human='', e
 		if not unique_username(username):
 			to_return['username'] = "Username already exists!"
 		else:
-			if not unique_email(email):
+			if email and not unique_email(email):
 				to_return['email'] = "Email already exists!"
 			else:
 				salt = make_salt()
 				hashed = salted_hash(password, salt)
 				hashed_pass = hashed + '|' + salt
 
-				account = Users(username = username, password = hashed_pass, school = school, score = 0, confirmed = False, email = email, guides_uploaded = 0)
+				if email:
+					account = Users(username = username, password = hashed_pass, school = school, score = 0, confirmed = False, email = email, guides_uploaded = 0)
+				else:
+					account = Users(username = username, password = hashed_pass, school = school, score = 0, confirmed = False, guides_uploaded = 0)
 				account.put()
 				#put welcome notification
 				notification = Notification(username=username, is_new=True, name="welcome", notification=WELCOME_NOTIF%username)
@@ -459,7 +462,8 @@ def signup(username='', password='', verify='', school='', agree='', human='', e
 				cookie = LOGIN_COOKIE_NAME + '=%s|%s; Expires=%s Path=/' % (str(username), hash_str(username), remember_me())
 				to_return['cookie'] = cookie
 				to_return['success'] = True
-				email_verification(username, email)
+				if email:
+					email_verification(username, email)
 
 	return to_return
 
@@ -534,7 +538,10 @@ def change_school(school, username):
 	add_school(school)
 	user = get_user(username)
 	user.school = school
+	memcache.set('user-'+username, user)
 	user.put()
+	x = memcache.get('user-' + username)
+	x.school = school
 	return [True]
 
 def new_email(email, username):
@@ -550,6 +557,7 @@ def new_email(email, username):
 	user = get_user(username)
 	user.email = email
 	user.email_verified = False
+	memcache.set('user-'+username, user)
 	user.put()
 	email_verification(username, email)
 	return [True]

@@ -23,7 +23,7 @@
 			<div class="alert alert-success" {% if not email_success %}style="display: none;"{% endif %}>Your email has successfully been changed!</div>
 			<div class="alert alert-success" {% if not verification_success %}style="display: none;"{% endif %}>Another verification email has been sent!</div>
 			<hr>
-			{% if email == '' %}
+			{% if not email %}
 				<h3>Add an email:</h3>
 				<form action="/change_email" method="post">
 					<div class="row">
