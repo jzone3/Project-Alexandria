@@ -40,7 +40,8 @@ CONTENT_TYPE_EXTS = {'application/msword':'.doc',
 					'application/vnd.openxmlformats-officedocument.wordprocessingml.document':'.docx',
 					'application/pdf':'.pdf',
 					'text/plain':'.txt',
-					'application/rtf':'.rtf'}
+					'application/rtf':'.rtf',
+					'image/jpg':'.jpg'}
 
 FAKE_USERS = ["emanresu", "shyguy", "shaneybo","saucey","pikachun","lartple","coldshoulder","distargirl","jarson5","weakev","jonhar", "oxacuk", "ollypop", "zfinter", "korile1", "sinkra", "jojo", "bert95", "mickey", "ghost_man"]
 
