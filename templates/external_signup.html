@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}PA - Sign Up{% endblock %}
+{% block title %}Sign Up{% endblock %}
 
 {% block nav_links %}
 <li><a href="/">Home</a></li>
@@ -54,15 +54,22 @@
 		</center>
 			<form method="post">
 				<div class="row">
+					<div class="span2">Username:</div>
+					<div class="span3"><input type="text" name="username" value={{username}}></div>
+				</div>
+				<div class="row"  {% if not username_error %}style="display: none;"{% endif %}>
+					<div class="span5 alert alert-error">{{username_error}}</div>
+				</div>
+				
+				<div class="row">
 					<div class="span2">School</div>
-					<div class="span3"><span class="input-large uneditable-input">Bergen County Academies</span></div>
-					<!-- <div class="span3"><input type="text" autocomplete="off" name="school" id="school" data-provide="typeahead" value="{{ school }}"></div> -->
-					<input name="school" value="Bergen County Academies" style="display:none;">
+					<div class="span3"><input type="text" autocomplete="off" name="school" id="ext_school" data-provide="typeahead" value="{{ school }}" onblur="if ($('#ext_school')[0].value == 'Bergen County Academies') {$('#bergenmail').show('slow');}"></div>
 				</div>
 				<div class="row" {% if not school_error %}style="display: none;"{% endif %}>
 					<div class="span5 alert alert-error">{{school_error}}</div>
 				</div>
 
+				<div id="bergenmail"{% if not email_error %}style="display:none;"{% endif %}>
 				<div class="row">
 					<div class="span2">Bergen Mail</div>
 					<div class="span3">
@@ -73,15 +80,7 @@
 				</div>
 				<div class="row"  {% if not email_error %}style="display: none;"{% endif %}>
 					<div class="span5 alert alert-error">{{email_error}}</div>
-				</div>				
-
-
-				<div class="row">
-					<div class="span2">Username:</div>
-					<div class="span3"><input type="text" name="username" value={{username}}></div>
 				</div>
-				<div class="row"  {% if not username_error %}style="display: none;"{% endif %}>
-					<div class="span5 alert alert-error">{{username_error}}</div>
 				</div>
 
 				<div class="row">

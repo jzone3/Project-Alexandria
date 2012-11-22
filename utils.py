@@ -482,9 +482,9 @@ def signup_ext(username='', school='', agree='', email='', ext_email=''):
 		to_return['agree_error'] = "You must agree to the Terms of Service to create an account"
 
 	if school == 'Bergen County Academies' and not EMAIL_RE.match(email):
-		to_return['email_error'] = "Please provide a valid Bergen Email Address (bergen.org)."
+		to_return['email_error'] = "Please provide a valid Bergen Email Address (bergen.org)"
 	elif school == 'Bergen County Academies' and email[len(email) - 11:] != '@bergen.org':
-		to_return['email_error'] = "Please provide a valid Bergen Email Address (bergen.org)."
+		to_return['email_error'] = "Please provide a valid Bergen Email Address (bergen.org)"
 	elif not EMAIL_RE.match(email):
 		to_return['email_error'] = "Please provide a valid email address."
 	elif not unique_email(email):

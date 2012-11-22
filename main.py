@@ -822,7 +822,7 @@ class ExternalSignUp(BaseHandler):
 									    'modal': 'signup'})
 			return
 
-		self.render('external_signup.html')
+		self.render('external_signup.html', {'ext' : True})
 
 	def post(self):
 		user = users.get_current_user()
@@ -832,7 +832,7 @@ class ExternalSignUp(BaseHandler):
 			agree = self.rget('agree')
 
 			if school == 'Bergen County Academies':
-				email = self.rget('email')
+				email = self.rget('email') + '@bergen.org'
 				ext_email = user.email()
 			else:
 				email = user.email()
@@ -854,7 +854,8 @@ class ExternalSignUp(BaseHandler):
 													 'email_error':result.get('email_error'),
 													 'username':username,
 													 'school':school,
-													 'email':email[:-11]})
+													 'email':email[:-11],
+													 'ext' : True})
 		else:
 			self.redirect('/google_signup')
 
