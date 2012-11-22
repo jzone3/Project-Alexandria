@@ -53,11 +53,51 @@ WELCOME_NOTIF = """<div><span style='font-family:Junge;'>Hey %s!<br><br> We hope
 # 	global_stat = stats.GlobalStat.all().get()
 # 	return {'total_data' : global_stat.bytes / 1048576.0}
 
+def time_difference(time):
+	now = datetime.datetime.now()
+	if now > time + datetime.timedelta(days=365.25):
+		ago = now.year - time.year
+		if ago == 1:
+			return str(ago) + " year ago"
+		else:
+			return str(ago) + " years ago"
+	elif now >= time + datetime.timedelta(days=30):
+		ago = now.month - time.month
+		if ago == 1:
+			return str(ago) + " month ago"
+		else:
+			return str(ago) + " months ago"
+	elif now >= time + datetime.timedelta(days=1):
+		ago = now.day - time.day
+		if ago == 1:
+			return str(ago) + " day ago"
+		else:
+			return str(ago) + " days ago"
+	elif now >= time + datetime.timedelta(hours=1):
+		ago = now.hour - time.hour
+		if ago == 1:
+			return str(ago) + " hour ago"
+		else:
+			return str(ago) + " hours ago"
+	elif now >= time + datetime.timedelta(minutes=1):
+		ago = now.minute - time.minute
+		if ago == 1:
+			return str(ago) + " minute ago"
+		else:
+			return str(ago) + " minutes ago"
+	elif now >= time + datetime.timedelta(seconds=1):
+		ago = now.second - time.second
+		if ago == 1:
+			return str(ago) + " second ago"
+		else:
+			return str(ago) + " seconds ago"
+	else:
+		return "less than 1 second ago"
+
 def comment_preview(comment):
 	if len(comment) > 28:
 		comment = comment[:28]
 	return comment + '...'
-
 
 def str_votes(votes):
 	if votes > 0:
@@ -365,8 +405,14 @@ def signup(username='', password='', verify='', school='', agree='', human='', e
 	elif verify != password:
 		to_return['verify'] = "Your passwords didn't match."
 
-	if email != '' and not EMAIL_RE.match(email):
+	if school == 'Bergen County Academies' and not EMAIL_RE.match(email):
+		to_return['email'] = "Please provide a valid Bergen Email Address (bergen.org)."
+	elif school == 'Bergen County Academies' and email[len(email) - 11:] != '@bergen.org':
+		to_return['email'] = "Please provide a valid Bergen Email Address (bergen.org)."
+	elif not EMAIL_RE.match(email):
 		to_return['email'] = "That's not a valid email."
+	elif not unique_email(email):
+		to_return['email'] = "Email already exits!"
 	
 	if school == '':
 		to_return['school'] = "Please enter a school"
@@ -395,7 +441,7 @@ def signup(username='', password='', verify='', school='', agree='', human='', e
 				hashed = salted_hash(password, salt)
 				hashed_pass = hashed + '|' + salt
 
-				account = Users(username = username, password = hashed_pass, school = school, score = 0, confirmed = False, email = email)
+				account = Users(username = username, password = hashed_pass, school = school, score = 0, confirmed = False, email = email, guides_uploaded = 0)
 				account.put()
 				#put welcome notification
 				notification = Notification(username=username, is_new=True, name="welcome", notification=WELCOME_NOTIF%username)
@@ -437,7 +483,11 @@ def signup_ext(username='', school='', agree='', email='', ext_email=''):
 		to_return['agree_error'] = "You must agree to the Terms of Service to create an account"
 
 	if school == 'Bergen County Academies' and not EMAIL_RE.match(email):
-		to_return['email_error'] = "Please provide a valid Bergen Mail."	
+		to_return['email_error'] = "Please provide a valid Bergen Email Address (bergen.org)."
+	elif school == 'Bergen County Academies' and email[len(email) - 11:] != '@bergen.org':
+		to_return['email_error'] = "Please provide a valid Bergen Email Address (bergen.org)."
+	elif not EMAIL_RE.match(email):
+		to_return['email_error'] = "Please provide a valid email address."
 	elif not unique_email(email):
 		to_return['email_error'] = "Email already exits!"
 
@@ -447,9 +497,9 @@ def signup_ext(username='', school='', agree='', email='', ext_email=''):
 	if len(to_return) == 1:
 		# username.replace("'", "&lsquo;")
 		if school == 'Bergen County Academies':
-			account = Users(username = username, school = school, score = 0, confirmed = False, bergen_mail=email, email=ext_email)
+			account = Users(username = username, school = school, score = 0, confirmed = False, bergen_mail=email, email=ext_email, guides_uploaded = 0)
 		else:
-			account = Users(username = username, school = school, score = 0, confirmed = False, email=email)
+			account = Users(username = username, school = school, score = 0, confirmed = False, email=email, guides_uploaded = 0)
 		account.put()
 
 		#put welcome notification
@@ -558,6 +608,7 @@ def delete_user_account(username):
 		x.put()
 	reset_user_link(username)
 	delete_bookmarks(username)
+	delete_all_notifications(username)
 	memcache.delete(username + '_submitted')
 
 def delete_bookmarks(username):
@@ -565,12 +616,15 @@ def delete_bookmarks(username):
 	for bookmark in user.bookmark_list:
 		bookmark.delete()
 
+def delete_all_notifications(username):
+	pass
+
 ############################### email verification ###############################
 
 def deleted_old_links():
 	links = db.GqlQuery("SELECT * FROM Email_Verification ORDER BY DESC")
 	for i in links:
-		if datetime.datetime.now() >= i.date_created + datetime.timedelta(hours=3):
+		if datetime.datetime.now() >= i.date_created + datetime.timedelta(hours=12):
 			i.delete()
 		else:
 			break
@@ -605,7 +659,7 @@ def verify(key):
 	link = db.get(key)
 	if link is None:
 		return False
-	if datetime.datetime.now() >= link.date_created + datetime.timedelta(hours=3):
+	if datetime.datetime.now() >= link.date_created + datetime.timedelta(hours=12):
 		link.delete()
 		return False
 	user = get_user(link.username)
@@ -852,9 +906,22 @@ def delete_all_test_guides(school='Bergen County Academies'):
 	if result:
 		result.delete()
 
+def increase_guides_uploaded(username):
+	GET_USER.bind(username = username)
+	user = GET_USER.get()
+	user.guides_uploaded += 1
+	user.put()
+
+def decrease_guides_uploaded(username):
+	GET_USER.bind(username = username)
+	user = GET_USER.get()
+	user.guides_uploaded -= 1
+	user.put()
+
 def delete_guide(guide_key):
 	# delete guide
 	guide = Guides.get(guide_key)
+	decrease_guides_uploaded(user_created)
 	school = guide.school
 	memcache.delete(guide.user_created + "_submitted")
 	db.delete(guide_key)
@@ -866,8 +933,8 @@ def delete_guide(guide_key):
 	# delete from bookmarks
 	bookmarks = list(guide.bookmarks_set)
 	for bookmark in bookmarks:
-	    bk_key = bookmark.key()
-	    db.delete(bk_key)
+		bk_key = bookmark.key()
+		db.delete(bk_key)
 
 	# delete from index
 	q = Indexes.all()

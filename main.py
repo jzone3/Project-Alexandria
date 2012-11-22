@@ -233,7 +233,7 @@ class MainHandler(BaseHandler):
 			username_error, password_error, verify_error, school_error, agree_error, human_error, email_error = ('', '', '', '', '', '', '')
 
 			username, password, verify, school, agree, human, email = [self.rget(x) for x in ('username', 'password', 'verify', 'school', 'agree', 'session_secret', 'email')]
-			results = signup(username=username, password=password, verify=verify, school=school, agree=agree, human=human, email=email+'@bergen.org')
+			results = signup(username=username, password=password, verify=verify, school=school, agree=agree, human=human, email=email)
 			if results['success']:
 				add_school(school)
 				self.set_cookie(results['cookie'])
@@ -433,7 +433,7 @@ class GuidePageHandler(BaseHandler):
 				if admin:
 					deletable = True
 
-			self.render('guide_page.html', {'guide':guide, 'votes':votes, 'dl_link':dl_link, 'bookmarked':bookmarked, 
+			self.render('guide_page.html', {'guide':guide, 'difference':time_difference(guide.date_created), 'votes':votes, 'dl_link':dl_link, 'bookmarked':bookmarked, 
 											'logged_in':logged_in, 'reported':reported, 'deletable':deletable, 'diff':diff,
 											'comments':comments, 'admin':admin, 'fake_users':['admin']+FAKE_USERS, 'user':user})
 		else:
@@ -566,6 +566,8 @@ class UploadHandler(BaseHandler):
 				   		   edit_url=edit_url, school=school, url=url, icon=icon,
 				   		   votes=0, up_users=[], down_users=[])
 			guide.put()
+
+			increase_guides_uploaded(username)
 
 			# add subject, teacher to db
 			add_teacher(school, teacher)
@@ -830,7 +832,7 @@ class ExternalSignUp(BaseHandler):
 			agree = self.rget('agree')
 
 			if school == 'Bergen County Academies':
-				email = self.rget('email') + '@bergen.org'
+				email = self.rget('email')
 				ext_email = user.email()
 			else:
 				email = user.email()
@@ -1255,14 +1257,16 @@ class AdminHandler(BaseHandler):
 	def get(self):
 		user_count =  Users.all().count()
 		new_users = Users.all().order('-date_created').run(limit=10)
+		power_users = Users.all().order('-guides_uploaded').run(limit=10)
 		guide_count = Guides.all().count()
 		new_guides = Guides.all().order('-date_created').run(limit=10)
+		top_guides = Guides.all().order('downloads').run(limit=10)
 		new_comments = Comments.all().order('-date_created').run(limit=10)
 		feedback = Feedback.all().run(limit=5)
 
-		self.render('admin.html', {'user_count':user_count, 'new_users':new_users,
+		self.render('admin.html', {'user_count':user_count, 'new_users':new_users, 'power_users':power_users,
 			'guide_count':guide_count,'new_guides':new_guides, 'new_comments':new_comments,
-			'feedback':feedback})
+			'feedback':feedback, 'top_guides':top_guides})
 
 class CronCountHandler(BaseHandler):
 	def get(self):
