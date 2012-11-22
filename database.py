@@ -51,6 +51,7 @@ class Guides(db.Model):
 	up_users     = db.StringListProperty()
 	down_users   = db.StringListProperty()
 	downloads    = db.IntegerProperty()
+	top_score    = db.IntegerProperty() # (2*votes + downloads)/minutes
 	misc         = db.StringProperty(required = False)
 
 class Email_Verification(db.Model):

@@ -53,6 +53,15 @@ WELCOME_NOTIF = """<div><span style='font-family:Junge;'>Hey %s!<br><br> We hope
 # 	global_stat = stats.GlobalStat.all().get()
 # 	return {'total_data' : global_stat.bytes / 1048576.0}
 
+def calc_score(guide):
+	"""Calculates top/hot score for a guide"""
+	votes = guide.votes
+	dl = guide.downloads
+	minutes = (datetime.datetime.now() - guide.date_created).seconds / 60.0
+
+	return (2*votes + dl) / minutes
+
+
 def time_difference(time):
 	now = datetime.datetime.now()
 	if now > time + datetime.timedelta(days=365.25):
