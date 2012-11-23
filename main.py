@@ -44,21 +44,19 @@ class BaseHandler(webapp2.RequestHandler):
 		return self.response.out.write(content)
 
 	def rget(self, name):
+		'''Gets a HTTP parameter'''
 		return self.request.get(name)
 
 	def get_username(self, secure=False):
+		'''Gets the username if the user cookie is valid'''
 		user_cookie = self.request.cookies.get(LOGIN_COOKIE_NAME, '')
-		if not user_cookie:
-			return None
-		elif not secure:
-			return user_cookie.split("|")[0]
-		# secure check	
 		if self.logged_in():
 			return user_cookie.split("|")[0]
 		else:
-			return None
+			return None		
 
 	def list_to_str(self, lst):
+		'''Converts a list into a string to put into HTML'''
 		to_return = '['
 		for i in lst:
 			if i == lst[len(lst) - 1]:
@@ -68,15 +66,18 @@ class BaseHandler(webapp2.RequestHandler):
 		return to_return
 
 	def get_schools_list(self):
+		'''Returns a string version of the schools list to put into HTML'''
 		return self.list_to_str(self.get_schools_raw())
 
 	def get_schools_raw(self):
+		'''Returns a list of schools available for typeahead'''
 		schools_list = get_schools()
 		if schools_list is None:
 			schools_list = ['Bergen County Academies']
 		return schools_list
 
 	def render(self, template, params={}):
+		'''Renders `template` using `params` and other parameters'''
 		if template == 'index.html':
 			params['main_page'] = True
 		elif template == '404.html':
@@ -112,6 +113,7 @@ class BaseHandler(webapp2.RequestHandler):
 		self.response.out.write(template.render(params))
 
 	def render_prefs(self, params={}):
+		'''Renders the preferences page using specific parameters and `params`'''
 		username = self.get_username()
 		user = get_user(username)
 		if not 'email' in params.keys():
@@ -145,8 +147,9 @@ class BaseHandler(webapp2.RequestHandler):
 		self.render('prefs.html', all_params)
 
 	def logged_in(self, username = None):
+		'''Checks if login cookie is valid (authenticates user)'''
 		username = self.request.cookies.get(LOGIN_COOKIE_NAME, '')
-		if username and not username == '':
+		if username and username != '':
 			name, hashed_name = username.split("|")
 			if name and hashed_name and hash_str(name) == hashed_name:
 				return True
@@ -180,7 +183,7 @@ class BaseHandler(webapp2.RequestHandler):
 		return school
 
 class MainHandler(BaseHandler):
-	'''Handles homepage: index.html and dashboard.html'''
+	'''Handles homepage: index.html, dashboard.html, singup, and signin'''
 	def get(self):
 		logged_in = self.logged_in()
 
@@ -592,6 +595,8 @@ class ServeHandler(blobstore_handlers.BlobstoreDownloadHandler):
 	def get(self, resource):
 		guide = Guides.all().filter('blob_key =', resource).get()
 		if guide:
+			if guide.downloads is None:
+				guide.downloads = 0
 			guide.downloads += 1
 			guide.top_score = calc_score(guide)
 			guide.put()
@@ -645,7 +650,7 @@ class ChangeEmailHandler(BaseHandler):
 	def post(self):
 		if self.logged_in():
 			email = self.rget('email')
-			results = new_email(email, self.get_username())
+			results = new_user_email(email, self.get_username())
 			if results[0]:
 				self.render_prefs({'email_success' : True})
 			else:
@@ -1246,14 +1251,6 @@ class BetaHandler(BaseHandler):
 			self.response.out.write(template.render({'username':username, 'signed_in':True, 'beta':True}))
 		template = jinja_env.get_template('beta.html')
 		self.response.out.write(template.render({'username':username, 'signed_in':True, 'beta':True}))
-
-# class ModHandler(BaseHandler):
-# 	def get(self):
-# 		if self.logged_in() and self.get_username() in ['jzone3', 'ksong', 'mattlotocki', 'nitsuj', 'airrick213']:
-# 			self.render('mod.html', mod_page_vars())
-# 		else:
-# 			self.error(404)
-# 			self.render('404.html',{'blockbg':True})
 
 class AdminHandler(BaseHandler):
 	def get(self):
