@@ -244,13 +244,13 @@ class MainHandler(BaseHandler):
 				self.render('index.html', {'username': username,
 										   'school': school,
 										   'email' : email,
-										   'email_error' : get_error(results, 'email'),
-										   'username_error': get_error(results, 'username'),
-										   'password_error': get_error(results, 'password'),
-										   'verify_error': get_error(results, 'verify'),
-										   'school_error': get_error(results, 'school'),
-										   'agree_error': get_error(results, 'agree'),
-										   'human_error': get_error(results, 'human'),
+										   'email_error' : results.get('email'),
+										   'username_error': results.get('username'),
+										   'password_error': results.get('password'),
+										   'verify_error': results.get('verify'),
+										   'school_error': results.get('school'),
+										   'agree_error': results.get('agree'),
+										   'human_error': results.get('human'),
 										   'blockbg' : True,
 										   'modal': 'signup',
 										   'index': True})
@@ -565,7 +565,7 @@ class UploadHandler(BaseHandler):
 			guide = Guides(user_created=username, title=title, subject=subject,
 				   		   teacher=teacher, tags=tags, blob_key=str(blob_key),
 				   		   edit_url=edit_url, school=school, url=url, icon=icon,
-				   		   votes=0, up_users=[], down_users=[], top_score=0, downloads=0)
+				   		   votes=0, up_users=[], down_users=[], top_score=0.0, downloads=0)
 			guide.put()
 
 			increase_guides_uploaded(username)
