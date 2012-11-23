@@ -73,14 +73,11 @@ except ImportError:
       from xml.etree import ElementTree
     except ImportError:
       from elementtree import ElementTree
-import atom.service
-import gdata
-import atom
-import atom.http_interface
-import atom.token_store
-import gdata.auth
-import gdata.gauth
 
+import externals.gdata as gdata
+import externals.atom as atom
+import externals.atom.service
+import externals.gdata.auth
 
 AUTH_SERVER_HOST = 'https://www.google.com'
 
@@ -362,11 +359,11 @@ class GDataService(atom.service.AtomService):
           their behalf.  This parameter should only be set when two_legged_oauth
           is True.
     """
-    self._oauth_input_params = gdata.auth.OAuthInputParams(
+    self._oauth_input_params = externals.gdata.auth.OAuthInputParams(
         signature_method, consumer_key, consumer_secret=consumer_secret,
         rsa_key=rsa_key, requestor_id=requestor_id)
     if two_legged_oauth:
-      oauth_token = gdata.auth.OAuthToken(
+      oauth_token = externals.gdata.auth.OAuthToken(
           oauth_input_params=self._oauth_input_params)
       self.SetOAuthToken(oauth_token)
 
@@ -409,13 +406,13 @@ class GDataService(atom.service.AtomService):
         extra_parameters['oauth_callback'] = oauth_callback
       else:
         extra_parameters = {'oauth_callback': oauth_callback}
-    request_token_url = gdata.auth.GenerateOAuthRequestTokenUrl(
+    request_token_url = externals.gdata.auth.GenerateOAuthRequestTokenUrl(
         self._oauth_input_params, scopes,
         request_token_url=request_url,
         extra_parameters=extra_parameters)
     response = self.http_client.request('GET', str(request_token_url))
     if response.status == 200:
-      token = gdata.auth.OAuthToken()
+      token = externals.gdata.auth.OAuthToken()
       token.set_token_string(response.read())
       token.scopes = scopes
       token.oauth_input_params = self._oauth_input_params
@@ -439,7 +436,7 @@ class GDataService(atom.service.AtomService):
     you receive from FetchOAuthRequestToken.
     
     Args:
-      request_token: gdata.auth.OAuthToken OAuth request token.
+      request_token: externals.gdata.auth.OAuthToken OAuth request token.
     """
     if self.auto_set_current_token:
       self.current_token = oauth_token
@@ -454,9 +451,9 @@ class GDataService(atom.service.AtomService):
     """Generates URL at which user will login to authorize the request token.
     
     Args:
-      request_token: gdata.auth.OAuthToken (optional) OAuth request token.
+      request_token: externals.gdata.auth.OAuthToken (optional) OAuth request token.
           If not specified, then the current token will be used if it is of
-          type <gdata.auth.OAuthToken>, else it is found by looking in the
+          type <externals.gdata.auth.OAuthToken>, else it is found by looking in the
           token_store by looking for a token for the current scope.    
       callback_url: string (optional) The URL user will be sent to after
           logging in and granting access.
@@ -482,20 +479,20 @@ class GDataService(atom.service.AtomService):
       NonOAuthToken if the user's request token is not an OAuth token or if a
       request token was not available.
     """
-    if request_token and not isinstance(request_token, gdata.auth.OAuthToken):
+    if request_token and not isinstance(request_token, externals.gdata.auth.OAuthToken):
       raise NonOAuthToken
     if not request_token:
-      if isinstance(self.current_token, gdata.auth.OAuthToken):
+      if isinstance(self.current_token, externals.gdata.auth.OAuthToken):
         request_token = self.current_token
       else:
         current_scopes = lookup_scopes(self.service)
         if current_scopes:
           token = self.token_store.find_token(current_scopes[0])
-          if isinstance(token, gdata.auth.OAuthToken):
+          if isinstance(token, externals.gdata.auth.OAuthToken):
             request_token = token
     if not request_token:
       raise NonOAuthToken
-    return str(gdata.auth.GenerateOAuthAuthorizationUrl(
+    return str(externals.gdata.auth.GenerateOAuthAuthorizationUrl(
         request_token,
         authorization_url=request_url,
         callback_url=callback_url, extra_params=extra_params,
@@ -509,9 +506,9 @@ class GDataService(atom.service.AtomService):
     """Upgrades the authorized request token to an access token and returns it
     
     Args:
-      authorized_request_token: gdata.auth.OAuthToken (optional) OAuth request
+      authorized_request_token: externals.gdata.auth.OAuthToken (optional) OAuth request
           token. If not specified, then the current token will be used if it is
-          of type <gdata.auth.OAuthToken>, else it is found by looking in the
+          of type <externals.gdata.auth.OAuthToken>, else it is found by looking in the
           token_store by looking for a token for the current scope.
       request_url: Access token URL. The default is
           'https://www.google.com/accounts/OAuthGetAccessToken'.
@@ -532,20 +529,20 @@ class GDataService(atom.service.AtomService):
       error.
     """
     if (authorized_request_token and
-        not isinstance(authorized_request_token, gdata.auth.OAuthToken)):
+        not isinstance(authorized_request_token, externals.gdata.auth.OAuthToken)):
       raise NonOAuthToken
     if not authorized_request_token:
-      if isinstance(self.current_token, gdata.auth.OAuthToken):
+      if isinstance(self.current_token, externals.gdata.auth.OAuthToken):
         authorized_request_token = self.current_token
       else:
         current_scopes = lookup_scopes(self.service)
         if current_scopes:
           token = self.token_store.find_token(current_scopes[0])
-          if isinstance(token, gdata.auth.OAuthToken):
+          if isinstance(token, externals.gdata.auth.OAuthToken):
             authorized_request_token = token
     if not authorized_request_token:
       raise NonOAuthToken
-    access_token_url = gdata.auth.GenerateOAuthAccessTokenUrl(
+    access_token_url = externals.gdata.auth.GenerateOAuthAccessTokenUrl(
         authorized_request_token,
         self._oauth_input_params,
         access_token_url=request_url,
@@ -553,7 +550,7 @@ class GDataService(atom.service.AtomService):
         oauth_verifier=oauth_verifier)
     response = self.http_client.request('GET', str(access_token_url))
     if response.status == 200:
-      token = gdata.auth.OAuthTokenFromHttpBody(response.read())
+      token = externals.gdata.auth.OAuthTokenFromHttpBody(response.read())
       token.scopes = authorized_request_token.scopes
       token.oauth_input_params = authorized_request_token.oauth_input_params
       self.SetOAuthToken(token)
@@ -575,7 +572,7 @@ class GDataService(atom.service.AtomService):
     """
     scopes = lookup_scopes(self.service)
     token = self.token_store.find_token(scopes[0])
-    if not isinstance(token, gdata.auth.OAuthToken):
+    if not isinstance(token, externals.gdata.auth.OAuthToken):
       raise NonOAuthToken
 
     response = token.perform_request(self.http_client, 'GET', request_url,
@@ -603,16 +600,16 @@ class GDataService(atom.service.AtomService):
       for a token which matches the service object's default scope is returned.
       If there are no tokens valid for the scope, returns None.
     """
-    if isinstance(self.current_token, gdata.auth.AuthSubToken):
+    if isinstance(self.current_token, externals.gdata.auth.AuthSubToken):
       return self.current_token.get_token_string()
     current_scopes = lookup_scopes(self.service)
     if current_scopes:
       token = self.token_store.find_token(current_scopes[0])
-      if isinstance(token, gdata.auth.AuthSubToken):
+      if isinstance(token, externals.gdata.auth.AuthSubToken):
         return token.get_token_string()
     else:
       token = self.token_store.find_token(atom.token_store.SCOPE_ALL)
-      if isinstance(token, gdata.auth.ClientLoginToken):
+      if isinstance(token, externals.gdata.auth.ClientLoginToken):
         return token.get_token_string()
       return None
 
@@ -627,7 +624,7 @@ class GDataService(atom.service.AtomService):
     http://code.google.com/apis/accounts/AuthForWebApps.html 
 
     Args:
-     token: gdata.auth.AuthSubToken or gdata.auth.SecureAuthSubToken or string
+     token: externals.gdata.auth.AuthSubToken or externals.gdata.auth.SecureAuthSubToken or string
             The token returned by the AuthSub service. If the token is an
             AuthSubToken or SecureAuthSubToken, the scope information stored in
             the token is used. If the token is a string, the scopes parameter is
@@ -638,12 +635,12 @@ class GDataService(atom.service.AtomService):
               method.  This parameter is necessary if the token is a string
               representing a secure token.
     """
-    if not isinstance(token, gdata.auth.AuthSubToken):
+    if not isinstance(token, externals.gdata.auth.AuthSubToken):
       token_string = token
       if rsa_key:
-        token = gdata.auth.SecureAuthSubToken(rsa_key)
+        token = externals.gdata.auth.SecureAuthSubToken(rsa_key)
       else:
-        token = gdata.auth.AuthSubToken()
+        token = externals.gdata.auth.AuthSubToken()
 
       token.set_token_string(token_string)
         
@@ -674,16 +671,16 @@ class GDataService(atom.service.AtomService):
     The token string is the end of the Authorization header, it doesn not
     include the ClientLogin label.
     """
-    if isinstance(self.current_token, gdata.auth.ClientLoginToken):
+    if isinstance(self.current_token, externals.gdata.auth.ClientLoginToken):
       return self.current_token.get_token_string()
     current_scopes = lookup_scopes(self.service)
     if current_scopes:
       token = self.token_store.find_token(current_scopes[0])
-      if isinstance(token, gdata.auth.ClientLoginToken):
+      if isinstance(token, externals.gdata.auth.ClientLoginToken):
         return token.get_token_string()
     else:
       token = self.token_store.find_token(atom.token_store.SCOPE_ALL)
-      if isinstance(token, gdata.auth.ClientLoginToken):
+      if isinstance(token, externals.gdata.auth.ClientLoginToken):
         return token.get_token_string()
       return None
 
@@ -701,9 +698,9 @@ class GDataService(atom.service.AtomService):
     Args:
       token: string or instance of a ClientLoginToken. 
     """
-    if not isinstance(token, gdata.auth.ClientLoginToken):
+    if not isinstance(token, externals.gdata.auth.ClientLoginToken):
       token_string = token
-      token = gdata.auth.ClientLoginToken()
+      token = externals.gdata.auth.ClientLoginToken()
       token.set_token_string(token_string)
 
     if not token.scopes:
@@ -755,7 +752,7 @@ class GDataService(atom.service.AtomService):
       BadAuthentication if the login service rejected the username or password
       Error if the login service responded with a 403 different from the above
     """
-    request_body = gdata.auth.generate_client_login_request_body(self.email,
+    request_body = externals.gdata.auth.generate_client_login_request_body(self.email,
         self.password, self.service, self.source, self.account_type,
         captcha_token, captcha_response)
 
@@ -774,14 +771,14 @@ class GDataService(atom.service.AtomService):
     if auth_response.status == 200:
       # TODO: insert the token into the token_store directly.
       self.SetClientLoginToken(
-          gdata.auth.get_client_login_token(response_body))
+          externals.gdata.auth.get_client_login_token(response_body))
       self.__captcha_token = None
       self.__captcha_url = None
 
     elif auth_response.status == 403:
       # Examine each line to find the error type and the captcha token and
       # captch URL if they are present.
-      captcha_parameters = gdata.auth.get_captcha_challenge(response_body,
+      captcha_parameters = externals.gdata.auth.get_captcha_challenge(response_body,
           captcha_base_url='%s/accounts/' % AUTH_SERVER_HOST)
       if captcha_parameters:
         self.__captcha_token = captcha_parameters['token']
@@ -852,7 +849,7 @@ class GDataService(atom.service.AtomService):
     """
     if not isinstance(scope, (list, tuple)):
       scope = (scope,)
-    return gdata.auth.generate_auth_sub_url(next, scope, secure=secure, 
+    return externals.gdata.auth.generate_auth_sub_url(next, scope, secure=secure, 
         session=session, 
         request_url='%s/accounts/AuthSubRequest' % AUTH_SERVER_HOST, 
         domain=domain)
@@ -861,7 +858,7 @@ class GDataService(atom.service.AtomService):
     """Upgrades a single use AuthSub token to a session token.
 
     Args:
-      token: A gdata.auth.AuthSubToken or gdata.auth.SecureAuthSubToken
+      token: A externals.gdata.auth.AuthSubToken or externals.gdata.auth.SecureAuthSubToken
              (optional) which is good for a single use but can be upgraded
              to a session token. If no token is passed in, the token
              is found by looking in the token_store by looking for a token
@@ -878,7 +875,7 @@ class GDataService(atom.service.AtomService):
         token = self.token_store.find_token(scopes[0])
       else:
         token = self.token_store.find_token(atom.token_store.SCOPE_ALL)
-    if not isinstance(token, gdata.auth.AuthSubToken):
+    if not isinstance(token, externals.gdata.auth.AuthSubToken):
       raise NonAuthSubToken
 
     self.SetAuthSubToken(self.upgrade_to_session_token(token))
@@ -887,12 +884,12 @@ class GDataService(atom.service.AtomService):
     """Upgrades a single use AuthSub token to a session token.
 
     Args:
-      token: A gdata.auth.AuthSubToken or gdata.auth.SecureAuthSubToken
+      token: A externals.gdata.auth.AuthSubToken or externals.gdata.auth.SecureAuthSubToken
              which is good for a single use but can be upgraded to a
              session token.
 
     Returns:
-      The upgraded token as a gdata.auth.AuthSubToken object.
+      The upgraded token as a externals.gdata.auth.AuthSubToken object.
 
     Raises:
       TokenUpgradeFailed if the server responded to the request with an 
@@ -904,7 +901,7 @@ class GDataService(atom.service.AtomService):
     response_body = response.read()
     if response.status == 200:
       token.set_token_string(
-          gdata.auth.token_from_http_body(response_body))
+          externals.gdata.auth.token_from_http_body(response_body))
       return token
     else:
       raise TokenUpgradeFailed({'status': response.status,
@@ -919,7 +916,7 @@ class GDataService(atom.service.AtomService):
     """
     scopes = lookup_scopes(self.service)
     token = self.token_store.find_token(scopes[0])
-    if not isinstance(token, gdata.auth.AuthSubToken):
+    if not isinstance(token, externals.gdata.auth.AuthSubToken):
       raise NonAuthSubToken
 
     response = token.perform_request(self.http_client, 'GET', 
@@ -936,7 +933,7 @@ class GDataService(atom.service.AtomService):
     """
     scopes = lookup_scopes(self.service)
     token = self.token_store.find_token(scopes[0])
-    if not isinstance(token, gdata.auth.AuthSubToken):
+    if not isinstance(token, externals.gdata.auth.AuthSubToken):
       raise NonAuthSubToken
 
     response = token.perform_request(self.http_client, 'GET', 
@@ -1476,7 +1473,7 @@ def ExtractToken(url, scopes_included_in_next=True):
     tuple will contain (token, None).
   """
   parsed = urlparse.urlparse(url)
-  token = gdata.auth.AuthSubTokenFromUrl(parsed[4])
+  token = externals.gdata.auth.AuthSubTokenFromUrl(parsed[4])
   scopes = ''
   if scopes_included_in_next:
     for pair in parsed[4].split('&'):
@@ -1531,7 +1528,7 @@ def GenerateAuthSubRequestUrl(next, scopes, hd='default', secure=False,
       next += '&%s' % urllib.urlencode({SCOPE_URL_PARAM_NAME:scope})
     else:
       next += '?%s' % urllib.urlencode({SCOPE_URL_PARAM_NAME:scope})
-  return gdata.auth.GenerateAuthSubUrl(next=next, scope=scope, secure=secure,
+  return externals.gdata.auth.GenerateAuthSubUrl(next=next, scope=scope, secure=secure,
       session=session, request_url=request_url, domain=hd)
 
 

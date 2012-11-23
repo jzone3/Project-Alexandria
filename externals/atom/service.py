@@ -30,10 +30,10 @@
 __author__ = 'api.jscudder (Jeff Scudder)'
 
 
-import atom.http_interface
-import atom.url
-import atom.http
-import atom.token_store
+import externals.atom.http_interface
+import externals.atom.url
+import externals.atom.http
+import externals.atom.token_store
 
 import os
 import httplib
@@ -52,7 +52,7 @@ except ImportError:
       from xml.etree import ElementTree
     except ImportError:
       from elementtree import ElementTree
-import atom
+import externals.atom as atom
 
 
 class AtomService(object):

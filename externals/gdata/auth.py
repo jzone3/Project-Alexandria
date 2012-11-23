@@ -22,15 +22,15 @@ import re
 import time
 import types
 import urllib
-import atom.http_interface
-import atom.token_store
-import atom.url
-import gdata.oauth as oauth
-import gdata.oauth.rsa as oauth_rsa
-import gdata.tlslite.utils.keyfactory as keyfactory
-import gdata.tlslite.utils.cryptomath as cryptomath
+import externals.atom.http_interface
+import externals.atom.token_store
+import externals.atom.url
+import externals.gdata.oauth as oauth
+import externals.gdata.oauth.rsa as oauth_rsa
+import externals.gdata.tlslite.utils.keyfactory as keyfactory
+import externals.gdata.tlslite.utils.cryptomath as cryptomath
 
-import gdata.gauth
+import externals.gdata.gauth
 
 __author__ = 'api.jscudder (Jeff Scudder)'
 
@@ -92,7 +92,7 @@ def generate_client_login_request_body(email, password, service, source,
   Returns:
     The HTTP body to send in a request for a client login token.
   """
-  return gdata.gauth.generate_client_login_request_body(email, password,
+  return externals.gdata.gauth.generate_client_login_request_body(email, password,
       service, source, account_type, captcha_token, captcha_response)
 
 
@@ -131,7 +131,7 @@ def get_client_login_token(http_body):
   Returns:
     The token value string for a ClientLoginToken.
   """
-  return gdata.gauth.get_client_login_token_string(http_body)
+  return externals.gdata.gauth.get_client_login_token_string(http_body)
 
 
 def extract_client_login_token(http_body, scopes):
@@ -140,7 +140,7 @@ def extract_client_login_token(http_body, scopes):
   Args:
     http_body: str The body of the server's HTTP response to a Client Login
                request. It is assumed that the login request was successful.
-    scopes: list containing atom.url.Urls or strs. The scopes list contains
+    scopes: list containing externals.atom.url.Urls or strs. The scopes list contains
             all of the partial URLs under which the client login token is
             valid. For example, if scopes contains ['http://example.com/foo']
             then the client login token would be valid for 
@@ -177,7 +177,7 @@ def get_captcha_challenge(http_body,
      'url': string containing the URL of the image}
     Returns None if there was no CAPTCHA challenge in the response.
   """
-  return gdata.gauth.get_captcha_challenge(http_body, captcha_base_url)
+  return externals.gdata.gauth.get_captcha_challenge(http_body, captcha_base_url)
 
 
 GetCaptchaChallenge = get_captcha_challenge
@@ -204,7 +204,7 @@ def GenerateOAuthRequestTokenUrl(
         extra_parameters = {'oauth_version': '2.0'}
   
   Returns:
-    atom.url.Url OAuth request token URL.
+    externals.atom.url.Url OAuth request token URL.
   """
   scopes_string = ' '.join([str(scope) for scope in scopes])
   parameters = {'scope': scopes_string}
@@ -215,7 +215,7 @@ def GenerateOAuthRequestTokenUrl(
       parameters=parameters)
   oauth_request.sign_request(oauth_input_params.GetSignatureMethod(),
                              oauth_input_params.GetConsumer(), None)
-  return atom.url.parse_url(oauth_request.to_url())
+  return externals.atom.url.parse_url(oauth_request.to_url())
 
 
 def GenerateOAuthAuthorizationUrl(
@@ -247,7 +247,7 @@ def GenerateOAuthAuthorizationUrl(
         the scopes of the token as value if include_scopes_in_callback=True.
 
   Returns:
-    atom.url.Url OAuth authorization URL.
+    externals.atom.url.Url OAuth authorization URL.
   """
   scopes = request_token.scopes
   if isinstance(scopes, list):
@@ -262,7 +262,7 @@ def GenerateOAuthAuthorizationUrl(
   oauth_request = oauth.OAuthRequest.from_token_and_callback(
       token=oauth_token, callback=callback_url,
       http_url=authorization_url, parameters=extra_params)
-  return atom.url.parse_url(oauth_request.to_url())
+  return externals.atom.url.parse_url(oauth_request.to_url())
 
 
 def GenerateOAuthAccessTokenUrl(
@@ -286,7 +286,7 @@ def GenerateOAuthAccessTokenUrl(
         oauth_verifier (as returned by the SP) in the access token step.
 
   Returns:
-    atom.url.Url OAuth access token URL.
+    externals.atom.url.Url OAuth access token URL.
   """
   oauth_token = oauth.OAuthToken(authorized_request_token.key,
                                  authorized_request_token.secret)
@@ -298,7 +298,7 @@ def GenerateOAuthAccessTokenUrl(
       http_url=access_token_url, parameters=parameters)
   oauth_request.sign_request(oauth_input_params.GetSignatureMethod(),
                              oauth_input_params.GetConsumer(), oauth_token)
-  return atom.url.parse_url(oauth_request.to_url())
+  return externals.atom.url.parse_url(oauth_request.to_url())
 
 
 def GenerateAuthSubUrl(next, scope, secure=False, session=True, 
@@ -363,14 +363,14 @@ def generate_auth_sub_url(next, scopes, secure=False, session=True,
   extracted from the request URL. 
 
   Args:
-    next: atom.url.URL or string The URL user will be sent to after
+    next: externals.atom.url.URL or string The URL user will be sent to after
           authorizing this web application to access their data.
     scopes: list containint strings The URLs of the services to be accessed.
     secure: boolean (optional) Determines whether or not the issued token
             is a secure token.
     session: boolean (optional) Determines whether or not the issued token
              can be upgraded to a session token.
-    request_url: atom.url.Url or str The beginning of the request URL. This
+    request_url: externals.atom.url.Url or str The beginning of the request URL. This
         is normally 'http://www.google.com/accounts/AuthSubRequest' or 
         '/accounts/AuthSubRequest'
     domain: The domain which the account is part of. This is used for Google
@@ -382,16 +382,16 @@ def generate_auth_sub_url(next, scopes, secure=False, session=True,
         for the URL parameter defaults to 'auth_sub_scopes'
 
   Returns:
-    An atom.url.Url which the user's browser should be directed to in order
+    An externals.atom.url.Url which the user's browser should be directed to in order
     to authorize this application to access their information.
   """
   if isinstance(next, (str, unicode)):
-    next = atom.url.parse_url(next)
+    next = externals.atom.url.parse_url(next)
   scopes_string = ' '.join([str(scope) for scope in scopes])
   next.params[scopes_param_prefix] = scopes_string
 
   if isinstance(request_url, (str, unicode)):
-    request_url = atom.url.parse_url(request_url)
+    request_url = externals.atom.url.parse_url(request_url)
   request_url.params['next'] = str(next)
   request_url.params['scope'] = scopes_string
   if session:
@@ -454,7 +454,7 @@ def extract_auth_sub_token_from_url(url,
   name is specified in scopes_param_prefix.
 
   Args:
-    url: atom.url.Url or str representing the current URL. The token value
+    url: externals.atom.url.Url or str representing the current URL. The token value
          and valid scopes should be included as URL parameters.
     scopes_param_prefix: str (optional) The URL parameter key which maps to
                          the list of valid scopes for the token.
@@ -466,7 +466,7 @@ def extract_auth_sub_token_from_url(url,
     'token' parameter in the URL, this function returns None.
   """
   if isinstance(url, (str, unicode)):
-    url = atom.url.parse_url(url)
+    url = externals.atom.url.parse_url(url)
   if 'token' not in url.params:
     return None
   scopes = []
@@ -540,7 +540,7 @@ def OAuthTokenFromUrl(url, scopes_param_prefix='oauth_token_scope'):
   scopes_param_prefix.
 
   Args:
-    url: atom.url.Url or str representing the current URL. The token value
+    url: externals.atom.url.Url or str representing the current URL. The token value
         and valid scopes should be included as URL parameters.
     scopes_param_prefix: str (optional) The URL parameter key which maps to
         the list of valid scopes for the token.
@@ -552,7 +552,7 @@ def OAuthTokenFromUrl(url, scopes_param_prefix='oauth_token_scope'):
     'oauth_token' parameter in the URL, this function returns None.
   """
   if isinstance(url, (str, unicode)):
-    url = atom.url.parse_url(url)
+    url = externals.atom.url.parse_url(url)
   if 'oauth_token' not in url.params:
     return None
   scopes = []
@@ -691,7 +691,7 @@ class OAuthInputParams(object):
     return self._consumer
 
 
-class ClientLoginToken(atom.http_interface.GenericToken):
+class ClientLoginToken(externals.atom.http_interface.GenericToken):
   """Stores the Authorization header in auth_header and adds to requests.
 
   This token will add it's Authorization header to an HTTP request
@@ -702,7 +702,7 @@ class ClientLoginToken(atom.http_interface.GenericToken):
 
   Args:
     auth_header: str The value for the Authorization header.
-    scopes: list of str or atom.url.Url specifying the beginnings of URLs
+    scopes: list of str or externals.atom.url.Url specifying the beginnings of URLs
         for which this token can be used. For example, if scopes contains
         'http://example.com/foo', then this token can be used for a request to
         'http://example.com/foo/bar' but it cannot be used for a request to
@@ -735,12 +735,12 @@ class ClientLoginToken(atom.http_interface.GenericToken):
     """Tells the caller if the token authorizes access to the desired URL.
     """
     if isinstance(url, (str, unicode)):
-      url = atom.url.parse_url(url)
+      url = externals.atom.url.parse_url(url)
     for scope in self.scopes:
-      if scope == atom.token_store.SCOPE_ALL:
+      if scope == externals.atom.token_store.SCOPE_ALL:
         return True
       if isinstance(scope, (str, unicode)):
-        scope = atom.url.parse_url(scope)
+        scope = externals.atom.url.parse_url(scope)
       if scope == url:
         return True
       # Check the host and the path, but ignore the port and protocol.
@@ -762,7 +762,7 @@ class AuthSubToken(ClientLoginToken):
     self.auth_header = '%s%s' % (AUTHSUB_AUTH_LABEL, token_string)
 
 
-class OAuthToken(atom.http_interface.GenericToken):
+class OAuthToken(externals.atom.http_interface.GenericToken):
   """Stores the token key, token secret and scopes for which token is valid.
   
   This token adds the authorization header to each request made. It
@@ -773,7 +773,7 @@ class OAuthToken(atom.http_interface.GenericToken):
   Attributes:
     key: str The value for the OAuth token i.e. token key.
     secret: str The value for the OAuth token secret.
-    scopes: list of str or atom.url.Url specifying the beginnings of URLs
+    scopes: list of str or externals.atom.url.Url specifying the beginnings of URLs
         for which this token can be used. For example, if scopes contains
         'http://example.com/foo', then this token can be used for a request to
         'http://example.com/foo/bar' but it cannot be used for a request to
@@ -833,7 +833,7 @@ class OAuthToken(atom.http_interface.GenericToken):
 
     Args:
       http_method: string HTTP method i.e. operation e.g. GET, POST, PUT, etc.
-      http_url: string or atom.url.Url HTTP URL to which request is made.
+      http_url: string or externals.atom.url.Url HTTP URL to which request is made.
       realm: string (default='') realm parameter to be included in the
           authorization header.
 
@@ -842,7 +842,7 @@ class OAuthToken(atom.http_interface.GenericToken):
       authentication.
     """
     if isinstance(http_url, types.StringTypes):
-      http_url = atom.url.parse_url(http_url)
+      http_url = externals.atom.url.parse_url(http_url)
     header = None
     token = None
     if self.key or self.secret:
@@ -869,12 +869,12 @@ class OAuthToken(atom.http_interface.GenericToken):
     
   def valid_for_scope(self, url):
     if isinstance(url, (str, unicode)):
-      url = atom.url.parse_url(url)
+      url = externals.atom.url.parse_url(url)
     for scope in self.scopes:
-      if scope == atom.token_store.SCOPE_ALL:
+      if scope == externals.atom.token_store.SCOPE_ALL:
         return True
       if isinstance(scope, (str, unicode)):
-        scope = atom.url.parse_url(scope)
+        scope = externals.atom.url.parse_url(scope)
       if scope == url:
         return True
       # Check the host and the path, but ignore the port and protocol.
@@ -899,7 +899,7 @@ class SecureAuthSubToken(AuthSubToken):
     rsa_key: string The RSA private key in PEM format that the token will
              use to sign requests
     token_string: string (optional) The value for the AuthSub token.
-    scopes: list of str or atom.url.Url specifying the beginnings of URLs
+    scopes: list of str or externals.atom.url.Url specifying the beginnings of URLs
         for which this token can be used. For example, if scopes contains
         'http://example.com/foo', then this token can be used for a request to
         'http://example.com/foo/bar' but it cannot be used for a request to
@@ -930,7 +930,7 @@ class SecureAuthSubToken(AuthSubToken):
 
     Args:
       http_method: string HTTP method i.e. operation e.g. GET, POST, PUT, etc.
-      http_url: string or atom.url.Url HTTP URL to which request is made.
+      http_url: string or externals.atom.url.Url HTTP URL to which request is made.
       
     Returns:
       dict Header to be sent with every subsequent request after authentication.

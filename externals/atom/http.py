@@ -38,11 +38,10 @@ __author__ = 'api.jscudder (Jeff Scudder)'
 import types
 import os
 import httplib
-import atom.url
-import atom.http_interface
+import externals.atom as atom
 import socket
 import base64
-import atom.http_core
+
 ssl_imported = False
 ssl = None
 try:

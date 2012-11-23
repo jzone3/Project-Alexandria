@@ -28,8 +28,8 @@ it will not be used in future requests.
 __author__ = 'api.jscudder (Jeff Scudder)'
 
 
-import atom.http_interface
-import atom.url
+import externals.atom as atom
+
 
 
 SCOPE_ALL = 'http'

@@ -7,11 +7,11 @@ requires tlslite - http://trevp.net/tlslite/
 
 import binascii
 
-from gdata.tlslite.utils import keyfactory
-from gdata.tlslite.utils import cryptomath
+from externals.gdata.tlslite.utils import keyfactory
+from externals.gdata.tlslite.utils import cryptomath
 
 # XXX andy: ugly local import due to module name, oauth.oauth
-import gdata.oauth as oauth
+import externals.gdata.oauth as oauth
 
 class OAuthSignatureMethod_RSA_SHA1(oauth.OAuthSignatureMethod):
   def get_name(self):

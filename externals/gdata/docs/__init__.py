@@ -19,8 +19,8 @@
 __author__ = ('api.jfisher (Jeff Fisher), '
               'api.eric@google.com (Eric Bidelman)')
 
-import atom
-import gdata
+import externals.atom as atom
+import externals.gdata as gdata
 
 
 DOCUMENTS_NAMESPACE = 'http://schemas.google.com/docs/2007'

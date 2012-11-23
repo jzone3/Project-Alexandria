@@ -21,7 +21,7 @@
 __author__ = 'j.s@google.com (Jeff Scudder)'
 
 
-import atom.core
+import externals.atom.core
 
 
 XML_TEMPLATE = '{http://www.w3.org/XML/1998/namespace}%s'
@@ -30,23 +30,23 @@ APP_TEMPLATE_V1 = '{http://purl.org/atom/app#}%s'
 APP_TEMPLATE_V2 = '{http://www.w3.org/2007/app}%s'
 
 
-class Name(atom.core.XmlElement):
-  """The atom:name element."""
+class Name(externals.atom.core.XmlElement):
+  """The externals.atom:name element."""
   _qname = ATOM_TEMPLATE % 'name'
 
 
-class Email(atom.core.XmlElement):
-  """The atom:email element."""
+class Email(externals.atom.core.XmlElement):
+  """The externals.atom:email element."""
   _qname = ATOM_TEMPLATE % 'email'
 
 
-class Uri(atom.core.XmlElement):
-  """The atom:uri element."""
+class Uri(externals.atom.core.XmlElement):
+  """The externals.atom:uri element."""
   _qname = ATOM_TEMPLATE % 'uri'
 
 
-class Person(atom.core.XmlElement):
-  """A foundation class which atom:author and atom:contributor extend.
+class Person(externals.atom.core.XmlElement):
+  """A foundation class which externals.atom:author and externals.atom:contributor extend.
 
   A person contains information like name, email address, and web page URI for
   an author or contributor to an Atom feed.
@@ -57,7 +57,7 @@ class Person(atom.core.XmlElement):
 
 
 class Author(Person):
-  """The atom:author element.
+  """The externals.atom:author element.
 
   An author is a required element in Feed unless each Entry contains an Author.
   """
@@ -65,12 +65,12 @@ class Author(Person):
 
 
 class Contributor(Person):
-  """The atom:contributor element."""
+  """The externals.atom:contributor element."""
   _qname = ATOM_TEMPLATE % 'contributor'
 
 
-class Link(atom.core.XmlElement):
-  """The atom:link element."""
+class Link(externals.atom.core.XmlElement):
+  """The externals.atom:link element."""
   _qname = ATOM_TEMPLATE % 'link'
   href = 'href'
   rel = 'rel'
@@ -80,15 +80,15 @@ class Link(atom.core.XmlElement):
   length = 'length'
 
 
-class Generator(atom.core.XmlElement):
-  """The atom:generator element."""
+class Generator(externals.atom.core.XmlElement):
+  """The externals.atom:generator element."""
   _qname = ATOM_TEMPLATE % 'generator'
   uri = 'uri'
   version = 'version'
 
 
-class Text(atom.core.XmlElement):
-  """A foundation class from which atom:title, summary, etc. extend.
+class Text(externals.atom.core.XmlElement):
+  """A foundation class from which externals.atom:title, summary, etc. extend.
 
   This class should never be instantiated.
   """
@@ -96,60 +96,60 @@ class Text(atom.core.XmlElement):
 
 
 class Title(Text):
-  """The atom:title element."""
+  """The externals.atom:title element."""
   _qname = ATOM_TEMPLATE % 'title'
 
 
 class Subtitle(Text):
-  """The atom:subtitle element."""
+  """The externals.atom:subtitle element."""
   _qname = ATOM_TEMPLATE % 'subtitle'
 
 
 class Rights(Text):
-  """The atom:rights element."""
+  """The externals.atom:rights element."""
   _qname = ATOM_TEMPLATE % 'rights'
 
 
 class Summary(Text):
-  """The atom:summary element."""
+  """The externals.atom:summary element."""
   _qname = ATOM_TEMPLATE % 'summary'
 
 
 class Content(Text):
-  """The atom:content element."""
+  """The externals.atom:content element."""
   _qname = ATOM_TEMPLATE % 'content'
   src = 'src'
 
 
-class Category(atom.core.XmlElement):
-  """The atom:category element."""
+class Category(externals.atom.core.XmlElement):
+  """The externals.atom:category element."""
   _qname = ATOM_TEMPLATE % 'category'
   term = 'term'
   scheme = 'scheme'
   label = 'label'
 
 
-class Id(atom.core.XmlElement):
-  """The atom:id element."""
+class Id(externals.atom.core.XmlElement):
+  """The externals.atom:id element."""
   _qname = ATOM_TEMPLATE % 'id'
 
 
-class Icon(atom.core.XmlElement):
-  """The atom:icon element."""
+class Icon(externals.atom.core.XmlElement):
+  """The externals.atom:icon element."""
   _qname = ATOM_TEMPLATE % 'icon'
 
 
-class Logo(atom.core.XmlElement):
-  """The atom:logo element."""
+class Logo(externals.atom.core.XmlElement):
+  """The externals.atom:logo element."""
   _qname = ATOM_TEMPLATE % 'logo'
 
 
-class Draft(atom.core.XmlElement):
+class Draft(externals.atom.core.XmlElement):
   """The app:draft element which indicates if this entry should be public."""
   _qname = (APP_TEMPLATE_V1 % 'draft', APP_TEMPLATE_V2 % 'draft')
 
 
-class Control(atom.core.XmlElement):
+class Control(externals.atom.core.XmlElement):
   """The app:control element indicating restrictions on publication.
 
   The APP control element may contain a draft element indicating whether or
@@ -159,17 +159,17 @@ class Control(atom.core.XmlElement):
   draft = Draft
 
 
-class Date(atom.core.XmlElement):
-  """A parent class for atom:updated, published, etc."""
+class Date(externals.atom.core.XmlElement):
+  """A parent class for externals.atom:updated, published, etc."""
 
 
 class Updated(Date):
-  """The atom:updated element."""
+  """The externals.atom:updated element."""
   _qname = ATOM_TEMPLATE % 'updated'
 
 
 class Published(Date):
-  """The atom:published element."""
+  """The externals.atom:published element."""
   _qname = ATOM_TEMPLATE % 'published'
 
 
@@ -280,8 +280,8 @@ class LinkFinder(object):
   GetAlternateLink = get_alternate_link
 
 
-class FeedEntryParent(atom.core.XmlElement, LinkFinder):
-  """A super class for atom:feed and entry, contains shared attributes"""
+class FeedEntryParent(externals.atom.core.XmlElement, LinkFinder):
+  """A super class for externals.atom:feed and entry, contains shared attributes"""
   author = [Author]
   category = [Category]
   contributor = [Contributor]
@@ -294,7 +294,7 @@ class FeedEntryParent(atom.core.XmlElement, LinkFinder):
   def __init__(self, atom_id=None, text=None, *args, **kwargs):
     if atom_id is not None:
       self.id = atom_id
-    atom.core.XmlElement.__init__(self, text=text, *args, **kwargs)
+    externals.atom.core.XmlElement.__init__(self, text=text, *args, **kwargs)
 
 
 class Source(FeedEntryParent):
@@ -322,7 +322,7 @@ class Feed(Source):
   entry = [Entry]
 
 
-class ExtensionElement(atom.core.XmlElement):
+class ExtensionElement(externals.atom.core.XmlElement):
   """Provided for backwards compatibility to the v1 atom.ExtensionElement."""
 
   def __init__(self, tag=None, namespace=None, attributes=None,
@@ -335,6 +335,6 @@ class ExtensionElement(atom.core.XmlElement):
     self.attributes = attributes or {}
     self.text = text
 
-  _BecomeChildElement = atom.core.XmlElement._become_child
+  _BecomeChildElement = externals.atom.core.XmlElement._become_child
 
 

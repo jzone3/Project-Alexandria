@@ -19,9 +19,9 @@ from database import *
 
 ## import external modules
 import externals.ayah
-import gdata.gauth
-import gdata.docs.service
-import gdata.docs.data
+import externals.gdata.gauth
+import externals.gdata.docs.service
+import externals.gdata.docs.data
 
 ## import GAE modules
 from google.appengine.api import files
@@ -539,9 +539,9 @@ class UploadHandler(BaseHandler):
 			# write file to google docs
 			if _editable:
 				google_doc_name = school + ': ' + filename 
-				client = gdata.docs.service.DocsService()
+				client = externals.gdata.docs.service.DocsService()
 				client.ClientLogin(secret.G_USERNAME, secret.G_PASSWORD)
-				ms = gdata.MediaSource(file_handle=result.content, 
+				ms = externals.gdata.MediaSource(file_handle=result.content, 
 					                   content_type=headers['content-type'], 
 					                   content_length=int(headers['content-length']))
 				entry = client.Upload(ms, google_doc_name, folder_or_uri=secret.G_FOLDER_URI)

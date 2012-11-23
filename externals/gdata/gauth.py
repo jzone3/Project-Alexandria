@@ -49,8 +49,8 @@ ae_save
 import time
 import random
 import urllib
-import atom.http_core
-
+import externals.atom as atom
+import externals.atom.http_core
 
 __author__ = 'j.s@google.com (Jeff Scudder)'
 
@@ -242,12 +242,12 @@ class ClientLoginToken(object):
 # AuthSub functions and classes.
 def _to_uri(str_or_uri):
   if isinstance(str_or_uri, (str, unicode)):
-    return atom.http_core.Uri.parse_uri(str_or_uri)
+    return externals.atom.http_core.Uri.parse_uri(str_or_uri)
   return str_or_uri
 
 
 def generate_auth_sub_url(next, scopes, secure=False, session=True,
-    request_url=atom.http_core.parse_uri(
+    request_url=externals.atom.http_core.parse_uri(
         'https://www.google.com/accounts/AuthSubRequest'),
     domain='default', scopes_param_prefix='auth_sub_scopes'):
   """Constructs a URI for requesting a multiscope AuthSub token.
@@ -291,16 +291,16 @@ def generate_auth_sub_url(next, scopes, secure=False, session=True,
     order to authorize this application to access their information.
   """
   if isinstance(next, (str, unicode)):
-    next = atom.http_core.Uri.parse_uri(next)
+    next = externals.atom.http_core.Uri.parse_uri(next)
   # If the user passed in a string instead of a list for scopes, convert to
   # a single item tuple.
-  if isinstance(scopes, (str, unicode, atom.http_core.Uri)):
+  if isinstance(scopes, (str, unicode, externals.atom.http_core.Uri)):
     scopes = (scopes,)
   scopes_string = ' '.join([str(scope) for scope in scopes])
   next.query[scopes_param_prefix] = scopes_string
 
   if isinstance(request_url, (str, unicode)):
-    request_url = atom.http_core.Uri.parse_uri(request_url)
+    request_url = externals.atom.http_core.Uri.parse_uri(request_url)
   request_url.query['next'] = str(next)
   request_url.query['scope'] = scopes_string
   if session:
@@ -326,14 +326,14 @@ def auth_sub_string_from_url(url, scopes_param_prefix='auth_sub_scopes'):
   name is specified in scopes_param_prefix.
 
   Args:
-    url: atom.url.Url or str representing the current URL. The token value
+    url: externals.atom.url.Url or str representing the current URL. The token value
          and valid scopes should be included as URL parameters.
     scopes_param_prefix: str (optional) The URL parameter key which maps to
                          the list of valid scopes for the token.
 
   Returns:
     A tuple containing the token value as a string, and a tuple of scopes
-    (as atom.http_core.Uri objects) which are URL prefixes under which this
+    (as externals.atom.http_core.Uri objects) which are URL prefixes under which this
     token grants permission to read and write user data.
     (token_string, (scope_uri, scope_uri, scope_uri, ...))
     If no scopes were included in the URL, the second value in the tuple is
@@ -341,7 +341,7 @@ def auth_sub_string_from_url(url, scopes_param_prefix='auth_sub_scopes'):
     (None, None)
   """
   if isinstance(url, (str, unicode)):
-    url = atom.http_core.Uri.parse_uri(url)
+    url = externals.atom.http_core.Uri.parse_uri(url)
   if 'token' not in url.query:
     return (None, None)
   token = url.query['token']
@@ -395,7 +395,7 @@ class AuthSubToken(object):
     Uses auth_sub_string_from_url.
 
     Args:
-      str_or_uri: The current page's URL (as a str or atom.http_core.Uri)
+      str_or_uri: The current page's URL (as a str or externals.atom.http_core.Uri)
                   which should contain a token query parameter since the
                   Google auth server redirected the user's browser to this
                   URL.
@@ -466,7 +466,7 @@ class SecureAuthSubToken(AuthSubToken):
     Uses auth_sub_string_from_url.
 
     Args:
-      str_or_uri: The current page's URL (as a str or atom.http_core.Uri)
+      str_or_uri: The current page's URL (as a str or externals.atom.http_core.Uri)
           which should contain a token query parameter since the Google auth
           server redirected the user's browser to this URL.
       rsa_private_key: str the private RSA key cert used to sign all requests
@@ -486,7 +486,7 @@ class SecureAuthSubToken(AuthSubToken):
     (uses now at the time this method is called) and a random nonce.
 
     Args:
-      http_request: The atom.http_core.HttpRequest which contains all of the
+      http_request: The externals.atom.http_core.HttpRequest which contains all of the
           information needed to send a request to the remote server. The
           URL and the method of the request must be already set and cannot be
           changed after this token signs the request, or the signature will
@@ -713,10 +713,10 @@ def generate_request_for_request_token(
         Defaults to '1.0a'
 
   Returns:
-    An atom.http_core.HttpRequest object with the URL, Authorization header
+    An externals.atom.http_core.HttpRequest object with the URL, Authorization header
     and body filled in.
   """
-  request = atom.http_core.HttpRequest(auth_server_url, 'POST')
+  request = externals.atom.http_core.HttpRequest(auth_server_url, 'POST')
   # Add the requested auth scopes to the Auth request URL.
   if scopes:
     request.uri.query['scope'] = ' '.join(scopes)
@@ -760,7 +760,7 @@ def generate_request_for_access_token(
     A new HttpRequest object which can be sent to the OAuth server to
     request an OAuth Access Token.
   """
-  http_request = atom.http_core.HttpRequest(auth_server_url, 'POST')
+  http_request = externals.atom.http_core.HttpRequest(auth_server_url, 'POST')
   http_request.headers['Content-Length'] = '0'
   return request_token.modify_request(http_request)
 
@@ -825,10 +825,10 @@ def generate_oauth_authorization_url(
         'https://www.google.com/accounts/OAuthAuthorizeToken'
 
   Returns:
-    An atom.http_core.Uri pointing to the token authorization page where the
+    An externals.atom.http_core.Uri pointing to the token authorization page where the
     user may allow or deny this app to access their Google data.
   """
-  uri = atom.http_core.Uri.parse_uri(auth_server)
+  uri = externals.atom.http_core.Uri.parse_uri(auth_server)
   uri.query['oauth_token'] = token
   uri.query['hd'] = hd
   if next is not None:
@@ -848,7 +848,7 @@ def oauth_token_info_from_url(url):
     need to sent when upgrading a request token to an access token.
   """
   if isinstance(url, (str, unicode)):
-    url = atom.http_core.Uri.parse_uri(url)
+    url = externals.atom.http_core.Uri.parse_uri(url)
   token = None
   verifier = None
   if 'oauth_token' in url.query:

@@ -20,43 +20,43 @@
 __author__ = 'j.s@google.com (Jeff Scudder)'
 
 
-import atom.core
-import atom.data
-import gdata.data
-import gdata.opensearch.data
+import externals.atom.core
+import externals.atom.data
+import externals.gdata.data
+import externals.gdata.opensearch.data
 
 
 GACL_TEMPLATE = '{http://schemas.google.com/acl/2007}%s'
 
 
-class AclRole(atom.core.XmlElement):
+class AclRole(externals.atom.core.XmlElement):
   """Describes the role of an entry in an access control list."""
   _qname = GACL_TEMPLATE % 'role'
   value = 'value'
 
 
-class AclScope(atom.core.XmlElement):
+class AclScope(externals.atom.core.XmlElement):
   """Describes the scope of an entry in an access control list."""
   _qname = GACL_TEMPLATE % 'scope'
   type = 'type'
   value = 'value'
 
 
-class AclWithKey(atom.core.XmlElement):
+class AclWithKey(externals.atom.core.XmlElement):
   """Describes a key that can be used to access a document."""
   _qname = GACL_TEMPLATE % 'withKey'
   key = 'key'
   role = AclRole
 
 
-class AclEntry(gdata.data.GDEntry):
+class AclEntry(externals.gdata.data.GDEntry):
   """Describes an entry in a feed of an access control list (ACL)."""
   scope = AclScope
   role = AclRole
   with_key = AclWithKey
 
 
-class AclFeed(gdata.data.GDFeed):
+class AclFeed(externals.gdata.data.GDFeed):
   """Describes a feed of an access control list (ACL)."""
   entry = [AclEntry]
 

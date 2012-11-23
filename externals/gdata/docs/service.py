@@ -30,10 +30,12 @@ __author__ = ('api.jfisher (Jeff Fisher), '
               'e.bidelman (Eric Bidelman)')
 
 import re
-import atom
-import gdata.service
-import gdata.docs
+import externals.atom as atom
+import externals.gdata as gdata
 import urllib
+import externals.gdata.docs
+import externals.gdata.service
+import externals.atom.service
 
 # XML Namespaces used in Google Documents entities.
 DATA_KIND_SCHEME = gdata.GDATA_NAMESPACE + '#kind'
@@ -52,7 +54,7 @@ PRIVATE_LABEL_TERM = LABEL_SCHEME + '#private'
 SHARED_WITH_DOMAIN_LABEL_TERM = LABEL_SCHEME + '#shared-with-domain'
 VIEWED_LABEL_TERM = LABEL_SCHEME + '#viewed'
 
-FOLDERS_SCHEME_PREFIX = gdata.docs.DOCUMENTS_NAMESPACE + '/folders/'
+FOLDERS_SCHEME_PREFIX = externals.gdata.docs.DOCUMENTS_NAMESPACE + '/folders/'
 
 # File extensions of documents that are permitted to be uploaded or downloaded.
 SUPPORTED_FILETYPES = {

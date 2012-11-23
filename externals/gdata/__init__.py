@@ -24,7 +24,7 @@
 __author__ = 'j.s@google.com (Jeffrey Scudder)'
 
 import os
-import atom
+import externals.atom as atom
 try:
   from xml.etree import cElementTree as ElementTree
 except ImportError:

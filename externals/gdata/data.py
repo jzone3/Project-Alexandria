@@ -29,8 +29,8 @@ __author__ = 'j.s@google.com (Jeff Scudder)'
 
 
 import os
-import atom.core
-import atom.data
+import externals.atom.core
+import externals.atom.data
 
 
 GDATA_TEMPLATE = '{http://schemas.google.com/g/2005}%s'
@@ -161,7 +161,7 @@ class MissingRequiredParameters(Error):
   pass
 
 
-class LinkFinder(atom.data.LinkFinder):
+class LinkFinder(externals.atom.data.LinkFinder):
   """Mixin used in Feed and Entry classes to simplify link lookups by type.
 
   Provides lookup methods for edit, edit-media, post, ACL and other special
@@ -247,25 +247,25 @@ class LinkFinder(atom.data.LinkFinder):
   GetPreviousLink = get_previous_link
 
 
-class TotalResults(atom.core.XmlElement):
+class TotalResults(externals.atom.core.XmlElement):
   """opensearch:TotalResults for a GData feed."""
   _qname = (OPENSEARCH_TEMPLATE_V1 % 'totalResults',
             OPENSEARCH_TEMPLATE_V2 % 'totalResults')
 
 
-class StartIndex(atom.core.XmlElement):
+class StartIndex(externals.atom.core.XmlElement):
   """The opensearch:startIndex element in GData feed."""
   _qname = (OPENSEARCH_TEMPLATE_V1 % 'startIndex',
             OPENSEARCH_TEMPLATE_V2 % 'startIndex')
 
 
-class ItemsPerPage(atom.core.XmlElement):
+class ItemsPerPage(externals.atom.core.XmlElement):
   """The opensearch:itemsPerPage element in GData feed."""
   _qname = (OPENSEARCH_TEMPLATE_V1 % 'itemsPerPage',
             OPENSEARCH_TEMPLATE_V2 % 'itemsPerPage')
 
 
-class ExtendedProperty(atom.core.XmlElement):
+class ExtendedProperty(externals.atom.core.XmlElement):
   """The Google Data extendedProperty element.
 
   Used to store arbitrary key-value information specific to your
@@ -280,7 +280,7 @@ class ExtendedProperty(atom.core.XmlElement):
   value = 'value'
 
   def get_xml_blob(self):
-    """Returns the XML blob as an atom.core.XmlElement.
+    """Returns the XML blob as an externals.atom.core.XmlElement.
 
     Returns:
       An XmlElement representing the blob's XML, or None if no
@@ -301,20 +301,20 @@ class ExtendedProperty(atom.core.XmlElement):
     in this object.
 
     Args:
-      blob: str  or atom.core.XmlElement representing the XML blob stored in
+      blob: str  or externals.atom.core.XmlElement representing the XML blob stored in
             the extendedProperty.
     """
     # Erase any existing extension_elements, clears the child nodes from the
     # extendedProperty.
-    if isinstance(blob, atom.core.XmlElement):
+    if isinstance(blob, externals.atom.core.XmlElement):
       self._other_elements = [blob]
     else:
-      self._other_elements = [atom.core.parse(str(blob))]
+      self._other_elements = [externals.atom.core.parse(str(blob))]
 
   SetXmlBlob = set_xml_blob
 
 
-class GDEntry(atom.data.Entry, LinkFinder):
+class GDEntry(externals.atom.data.Entry, LinkFinder):
   """Extends Atom Entry to provide data processing"""
   etag = '{http://schemas.google.com/g/2005}etag'
 
@@ -343,7 +343,7 @@ class GDEntry(atom.data.Entry, LinkFinder):
   FindMediaLink = find_media_link
 
 
-class GDFeed(atom.data.Feed, LinkFinder):
+class GDFeed(externals.atom.data.Feed, LinkFinder):
   """A Feed from a GData service."""
   etag = '{http://schemas.google.com/g/2005}etag'
   total_results = TotalResults
@@ -364,18 +364,18 @@ class GDFeed(atom.data.Feed, LinkFinder):
     return None
 
 
-class BatchId(atom.core.XmlElement):
+class BatchId(externals.atom.core.XmlElement):
   """Identifies a single operation in a batch request."""
   _qname = BATCH_TEMPLATE % 'id'
 
 
-class BatchOperation(atom.core.XmlElement):
+class BatchOperation(externals.atom.core.XmlElement):
   """The CRUD operation which this batch entry represents."""
   _qname = BATCH_TEMPLATE % 'operation'
   type = 'type'
 
 
-class BatchStatus(atom.core.XmlElement):
+class BatchStatus(externals.atom.core.XmlElement):
   """The batch:status element present in a batch response entry.
 
   A status element contains the code (HTTP response code) and
@@ -405,7 +405,7 @@ class BatchEntry(GDEntry):
   batch_status = BatchStatus
 
 
-class BatchInterrupted(atom.core.XmlElement):
+class BatchInterrupted(externals.atom.core.XmlElement):
   """The batch:interrupted element sent if batch request was interrupted.
 
   Only appears in a feed if some of the batch entries could not be processed.
@@ -442,7 +442,7 @@ class BatchFeed(GDFeed):
     entry will be in the feed's entry list.
 
     Args:
-      entry: BatchEntry, atom.data.Entry, or another Entry flavor (optional)
+      entry: BatchEntry, externals.atom.data.Entry, or another Entry flavor (optional)
           The entry which will be sent to the server as part of the batch
           request. The item must have a valid atom id so that the server
           knows which entry this request references.
@@ -469,7 +469,7 @@ class BatchFeed(GDFeed):
     if entry is None and id_url_string is None:
       raise MissingRequiredParameters('supply either an entry or URL string')
     if entry is None and id_url_string is not None:
-      entry = BatchEntry(id=atom.data.Id(text=id_url_string))
+      entry = BatchEntry(id=externals.atom.data.Id(text=id_url_string))
     if batch_id_string is not None:
       entry.batch_id = BatchId(text=batch_id_string)
     elif entry.batch_id is None or entry.batch_id.text is None:
@@ -571,7 +571,7 @@ class BatchFeed(GDFeed):
   FindBatchLink = find_batch_link
 
 
-class EntryLink(atom.core.XmlElement):
+class EntryLink(externals.atom.core.XmlElement):
   """The gd:entryLink element.
 
   Represents a logically nested entry. For example, a <gd:who>
@@ -584,7 +584,7 @@ class EntryLink(atom.core.XmlElement):
   href = 'href'
 
 
-class FeedLink(atom.core.XmlElement):
+class FeedLink(externals.atom.core.XmlElement):
   """The gd:feedLink element.
 
   Represents a logically nested feed. For example, a calendar feed might
@@ -598,7 +598,7 @@ class FeedLink(atom.core.XmlElement):
   href = 'href'
 
 
-class AdditionalName(atom.core.XmlElement):
+class AdditionalName(externals.atom.core.XmlElement):
   """The gd:additionalName element.
 
   Specifies additional (eg. middle) name of the person.
@@ -608,7 +608,7 @@ class AdditionalName(atom.core.XmlElement):
   yomi = 'yomi'
 
 
-class Comments(atom.core.XmlElement):
+class Comments(externals.atom.core.XmlElement):
   """The gd:comments element.
 
   Contains a comments feed for the enclosing entry (such as a calendar event).
@@ -618,7 +618,7 @@ class Comments(atom.core.XmlElement):
   feed_link = FeedLink
 
 
-class Country(atom.core.XmlElement):
+class Country(externals.atom.core.XmlElement):
   """The gd:country element.
 
   Country name along with optional country code. The country code is
@@ -629,7 +629,7 @@ class Country(atom.core.XmlElement):
   code = 'code'
 
 
-class EmailImParent(atom.core.XmlElement):
+class EmailImParent(externals.atom.core.XmlElement):
   address = 'address'
   label = 'label'
   rel = 'rel'
@@ -646,7 +646,7 @@ class Email(EmailImParent):
   display_name = 'displayName'
 
 
-class FamilyName(atom.core.XmlElement):
+class FamilyName(externals.atom.core.XmlElement):
   """The gd:familyName element.
 
   Specifies family name of the person, eg. "Smith".
@@ -664,7 +664,7 @@ class Im(EmailImParent):
   protocol = 'protocol'
 
 
-class GivenName(atom.core.XmlElement):
+class GivenName(externals.atom.core.XmlElement):
   """The gd:givenName element.
 
   Specifies given name of the person, eg. "John".
@@ -673,7 +673,7 @@ class GivenName(atom.core.XmlElement):
   yomi = 'yomi'
 
 
-class NamePrefix(atom.core.XmlElement):
+class NamePrefix(externals.atom.core.XmlElement):
   """The gd:namePrefix element.
 
   Honorific prefix, eg. 'Mr' or 'Mrs'.
@@ -681,7 +681,7 @@ class NamePrefix(atom.core.XmlElement):
   _qname = GDATA_TEMPLATE % 'namePrefix'
 
 
-class NameSuffix(atom.core.XmlElement):
+class NameSuffix(externals.atom.core.XmlElement):
   """The gd:nameSuffix element.
 
   Honorific suffix, eg. 'san' or 'III'.
@@ -689,7 +689,7 @@ class NameSuffix(atom.core.XmlElement):
   _qname = GDATA_TEMPLATE % 'nameSuffix'
 
 
-class FullName(atom.core.XmlElement):
+class FullName(externals.atom.core.XmlElement):
   """The gd:fullName element.
 
   Unstructured representation of the name.
@@ -697,7 +697,7 @@ class FullName(atom.core.XmlElement):
   _qname = GDATA_TEMPLATE % 'fullName'
 
 
-class Name(atom.core.XmlElement):
+class Name(externals.atom.core.XmlElement):
   """The gd:name element.
 
   Allows storing person's name in a structured way. Consists of
@@ -712,7 +712,7 @@ class Name(atom.core.XmlElement):
   full_name = FullName
 
 
-class OrgDepartment(atom.core.XmlElement):
+class OrgDepartment(externals.atom.core.XmlElement):
   """The gd:orgDepartment element.
 
   Describes a department within an organization. Must appear within a
@@ -721,7 +721,7 @@ class OrgDepartment(atom.core.XmlElement):
   _qname = GDATA_TEMPLATE % 'orgDepartment'
 
 
-class OrgJobDescription(atom.core.XmlElement):
+class OrgJobDescription(externals.atom.core.XmlElement):
   """The gd:orgJobDescription element.
 
   Describes a job within an organization. Must appear within a
@@ -730,7 +730,7 @@ class OrgJobDescription(atom.core.XmlElement):
   _qname = GDATA_TEMPLATE % 'orgJobDescription'
 
 
-class OrgName(atom.core.XmlElement):
+class OrgName(externals.atom.core.XmlElement):
   """The gd:orgName element.
 
   The name of the organization. Must appear within a gd:organization
@@ -743,7 +743,7 @@ class OrgName(atom.core.XmlElement):
   yomi = 'yomi'
 
 
-class OrgSymbol(atom.core.XmlElement):
+class OrgSymbol(externals.atom.core.XmlElement):
   """The gd:orgSymbol element.
 
   Provides a symbol of an organization. Must appear within a
@@ -752,7 +752,7 @@ class OrgSymbol(atom.core.XmlElement):
   _qname = GDATA_TEMPLATE % 'orgSymbol'
 
 
-class OrgTitle(atom.core.XmlElement):
+class OrgTitle(externals.atom.core.XmlElement):
   """The gd:orgTitle element.
 
   The title of a person within an organization. Must appear within a
@@ -761,7 +761,7 @@ class OrgTitle(atom.core.XmlElement):
   _qname = GDATA_TEMPLATE % 'orgTitle'
 
 
-class Organization(atom.core.XmlElement):
+class Organization(externals.atom.core.XmlElement):
   """The gd:organization element.
 
   An organization, typically associated with a contact.
@@ -777,7 +777,7 @@ class Organization(atom.core.XmlElement):
   title = OrgTitle
 
 
-class When(atom.core.XmlElement):
+class When(externals.atom.core.XmlElement):
   """The gd:when element.
 
   Represents a period of time or an instant.
@@ -788,7 +788,7 @@ class When(atom.core.XmlElement):
   value = 'valueString'
 
 
-class OriginalEvent(atom.core.XmlElement):
+class OriginalEvent(externals.atom.core.XmlElement):
   """The gd:originalEvent element.
 
   Equivalent to the Recurrence ID property specified in section 4.8.4.4
@@ -804,7 +804,7 @@ class OriginalEvent(atom.core.XmlElement):
   when = When
 
 
-class PhoneNumber(atom.core.XmlElement):
+class PhoneNumber(externals.atom.core.XmlElement):
   """The gd:phoneNumber element.
 
   A phone number associated with the containing entity (which is usually
@@ -817,7 +817,7 @@ class PhoneNumber(atom.core.XmlElement):
   primary = 'primary'
 
 
-class PostalAddress(atom.core.XmlElement):
+class PostalAddress(externals.atom.core.XmlElement):
   """The gd:postalAddress element."""
   _qname = GDATA_TEMPLATE % 'postalAddress'
   label = 'label'
@@ -826,7 +826,7 @@ class PostalAddress(atom.core.XmlElement):
   primary = 'primary'
 
 
-class Rating(atom.core.XmlElement):
+class Rating(externals.atom.core.XmlElement):
   """The gd:rating element.
 
   Represents a numeric rating of the enclosing entity, such as a
@@ -843,7 +843,7 @@ class Rating(atom.core.XmlElement):
   value = 'value'
 
 
-class Recurrence(atom.core.XmlElement):
+class Recurrence(externals.atom.core.XmlElement):
   """The gd:recurrence element.
 
   Represents the dates and times when a recurring event takes place.
@@ -880,7 +880,7 @@ class Recurrence(atom.core.XmlElement):
   _qname = GDATA_TEMPLATE % 'recurrence'
 
 
-class RecurrenceException(atom.core.XmlElement):
+class RecurrenceException(externals.atom.core.XmlElement):
   """The gd:recurrenceException element.
 
   Represents an event that's an exception to a recurring event-that is,
@@ -933,7 +933,7 @@ class RecurrenceException(atom.core.XmlElement):
   original_event = OriginalEvent
 
 
-class Reminder(atom.core.XmlElement):
+class Reminder(externals.atom.core.XmlElement):
   """The gd:reminder element.
 
   A time interval, indicating how long before the containing entity's start
@@ -950,7 +950,7 @@ class Reminder(atom.core.XmlElement):
   minutes = 'minutes'
 
 
-class Transparency(atom.core.XmlElement):
+class Transparency(externals.atom.core.XmlElement):
   """The gd:transparency element:
 
   Extensible enum corresponding to the TRANSP property defined in RFC 244.
@@ -959,7 +959,7 @@ class Transparency(atom.core.XmlElement):
   value = 'value'
 
 
-class Agent(atom.core.XmlElement):
+class Agent(externals.atom.core.XmlElement):
   """The gd:agent element.
 
   The agent who actually receives the mail. Used in work addresses.
@@ -968,7 +968,7 @@ class Agent(atom.core.XmlElement):
   _qname = GDATA_TEMPLATE % 'agent'
 
 
-class HouseName(atom.core.XmlElement):
+class HouseName(externals.atom.core.XmlElement):
   """The gd:housename element.
 
   Used in places where houses or buildings have names (and not
@@ -977,7 +977,7 @@ class HouseName(atom.core.XmlElement):
   _qname = GDATA_TEMPLATE % 'housename'
 
 
-class Street(atom.core.XmlElement):
+class Street(externals.atom.core.XmlElement):
   """The gd:street element.
 
   Can be street, avenue, road, etc. This element also includes the
@@ -986,7 +986,7 @@ class Street(atom.core.XmlElement):
   _qname = GDATA_TEMPLATE % 'street'
 
 
-class PoBox(atom.core.XmlElement):
+class PoBox(externals.atom.core.XmlElement):
   """The gd:pobox element.
 
   Covers actual P.O. boxes, drawers, locked bags, etc. This is usually
@@ -995,7 +995,7 @@ class PoBox(atom.core.XmlElement):
   _qname = GDATA_TEMPLATE % 'pobox'
 
 
-class Neighborhood(atom.core.XmlElement):
+class Neighborhood(externals.atom.core.XmlElement):
   """The gd:neighborhood element.
 
   This is used to disambiguate a street address when a city contains more
@@ -1006,7 +1006,7 @@ class Neighborhood(atom.core.XmlElement):
   _qname = GDATA_TEMPLATE % 'neighborhood'
 
 
-class City(atom.core.XmlElement):
+class City(externals.atom.core.XmlElement):
   """The gd:city element.
 
   Can be city, village, town, borough, etc. This is the postal town and
@@ -1015,7 +1015,7 @@ class City(atom.core.XmlElement):
   _qname = GDATA_TEMPLATE % 'city'
 
 
-class Subregion(atom.core.XmlElement):
+class Subregion(externals.atom.core.XmlElement):
   """The gd:subregion element.
 
   Handles administrative districts such as U.S. or U.K. counties that are
@@ -1025,7 +1025,7 @@ class Subregion(atom.core.XmlElement):
   _qname = GDATA_TEMPLATE % 'subregion'
 
 
-class Region(atom.core.XmlElement):
+class Region(externals.atom.core.XmlElement):
   """The gd:region element.
 
   A state, province, county (in Ireland), Land (in Germany),
@@ -1034,7 +1034,7 @@ class Region(atom.core.XmlElement):
   _qname = GDATA_TEMPLATE % 'region'
 
 
-class Postcode(atom.core.XmlElement):
+class Postcode(externals.atom.core.XmlElement):
   """The gd:postcode element.
 
   Postal code. Usually country-wide, but sometimes specific to the
@@ -1043,7 +1043,7 @@ class Postcode(atom.core.XmlElement):
   _qname = GDATA_TEMPLATE % 'postcode'
 
 
-class Country(atom.core.XmlElement):
+class Country(externals.atom.core.XmlElement):
   """The gd:country element.
 
   The name or code of the country.
@@ -1051,7 +1051,7 @@ class Country(atom.core.XmlElement):
   _qname = GDATA_TEMPLATE % 'country'
 
 
-class FormattedAddress(atom.core.XmlElement):
+class FormattedAddress(externals.atom.core.XmlElement):
   """The gd:formattedAddress element.
 
   The full, unstructured postal address.
@@ -1059,7 +1059,7 @@ class FormattedAddress(atom.core.XmlElement):
   _qname = GDATA_TEMPLATE % 'formattedAddress'
 
 
-class StructuredPostalAddress(atom.core.XmlElement):
+class StructuredPostalAddress(externals.atom.core.XmlElement):
   """The gd:structuredPostalAddress element.
 
   Postal address split into components. It allows to store the address
@@ -1090,7 +1090,7 @@ class StructuredPostalAddress(atom.core.XmlElement):
   formatted_address = FormattedAddress
 
 
-class Where(atom.core.XmlElement):
+class Where(externals.atom.core.XmlElement):
   """The gd:where element.
 
   A place (such as an event location) associated with the containing
@@ -1110,31 +1110,31 @@ class Where(atom.core.XmlElement):
   entry_link = EntryLink
 
 
-class AttendeeType(atom.core.XmlElement):
+class AttendeeType(externals.atom.core.XmlElement):
   """The gd:attendeeType element."""
   _qname = GDATA_TEMPLATE % 'attendeeType'
   value = 'value'
 
 
-class AttendeeStatus(atom.core.XmlElement):
+class AttendeeStatus(externals.atom.core.XmlElement):
   """The gd:attendeeStatus element."""
   _qname = GDATA_TEMPLATE % 'attendeeStatus'
   value = 'value'
 
 
-class EventStatus(atom.core.XmlElement):
+class EventStatus(externals.atom.core.XmlElement):
   """The gd:eventStatus element."""
   _qname = GDATA_TEMPLATE % 'eventStatus'
   value = 'value'
 
 
-class Visibility(atom.core.XmlElement):
+class Visibility(externals.atom.core.XmlElement):
   """The gd:visibility element."""
   _qname = GDATA_TEMPLATE % 'visibility'
   value = 'value'
 
 
-class Who(atom.core.XmlElement):
+class Who(externals.atom.core.XmlElement):
   """The gd:who element.
 
   A person associated with the containing entity. The type of the
@@ -1153,12 +1153,12 @@ class Who(atom.core.XmlElement):
   entry_link = EntryLink
 
 
-class Deleted(atom.core.XmlElement):
+class Deleted(externals.atom.core.XmlElement):
   """gd:deleted when present, indicates the containing entry is deleted."""
   _qname = GD_TEMPLATE % 'deleted'
 
 
-class Money(atom.core.XmlElement):
+class Money(externals.atom.core.XmlElement):
   """Describes money"""
   _qname = GD_TEMPLATE % 'money'
   amount = 'amount'

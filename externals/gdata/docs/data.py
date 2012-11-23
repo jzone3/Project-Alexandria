@@ -20,10 +20,13 @@ __author__ = 'e.bidelman (Eric Bidelman)'
 
 
 import re
-import atom.core
-import atom.data
-import gdata.acl.data
-import gdata.data
+import externals.atom as atom
+import externals.gdata as gdata
+import externals.atom.core
+import externals.atom.data
+import externals.gdata.data
+import externals.gdata.acl
+import externals.gdata.acl.data
 
 DOCUMENTS_NS = 'http://schemas.google.com/docs/2007'
 DOCUMENTS_TEMPLATE = '{http://schemas.google.com/docs/2007}%s'
@@ -125,45 +128,45 @@ def make_content_link_from_resource_id(resource_id):
 MakeContentLinkFromResourceId = make_content_link_from_resource_id
 
 
-class ResourceId(atom.core.XmlElement):
+class ResourceId(externals.atom.core.XmlElement):
   """The DocList gd:resourceId element."""
-  _qname = gdata.data.GDATA_TEMPLATE  % 'resourceId'
+  _qname = '{http://schemas.google.com/g/2005}%s'  % 'resourceId'
 
 
-class LastModifiedBy(atom.data.Person):
+class LastModifiedBy(externals.atom.data.Person):
   """The DocList gd:lastModifiedBy element."""
-  _qname = gdata.data.GDATA_TEMPLATE  % 'lastModifiedBy'
+  _qname = '{http://schemas.google.com/g/2005}%s' % 'lastModifiedBy'
 
 
-class LastViewed(atom.data.Person):
+class LastViewed(externals.atom.data.Person):
   """The DocList gd:lastViewed element."""
-  _qname = gdata.data.GDATA_TEMPLATE  % 'lastViewed'
+  _qname = '{http://schemas.google.com/g/2005}%s'  % 'lastViewed'
 
 
-class WritersCanInvite(atom.core.XmlElement):
+class WritersCanInvite(externals.atom.core.XmlElement):
   """The DocList docs:writersCanInvite element."""
   _qname = DOCUMENTS_TEMPLATE  % 'writersCanInvite'
   value = 'value'
 
 
-class QuotaBytesUsed(atom.core.XmlElement):
+class QuotaBytesUsed(externals.atom.core.XmlElement):
   """The DocList gd:quotaBytesUsed element."""
-  _qname = gdata.data.GDATA_TEMPLATE  % 'quotaBytesUsed'
+  _qname = '{http://schemas.google.com/g/2005}%s'  % 'quotaBytesUsed'
 
 
-class Publish(atom.core.XmlElement):
+class Publish(externals.atom.core.XmlElement):
   """The DocList docs:publish element."""
   _qname = DOCUMENTS_TEMPLATE  % 'publish'
   value = 'value'
 
 
-class PublishAuto(atom.core.XmlElement):
+class PublishAuto(externals.atom.core.XmlElement):
   """The DocList docs:publishAuto element."""
   _qname = DOCUMENTS_TEMPLATE  % 'publishAuto'
   value = 'value'
 
 
-class PublishOutsideDomain(atom.core.XmlElement):
+class PublishOutsideDomain(externals.atom.core.XmlElement):
   """The DocList docs:publishOutsideDomain element."""
   _qname = DOCUMENTS_TEMPLATE  % 'publishOutsideDomain'
   value = 'value'
@@ -234,21 +237,21 @@ class DocsEntry(gdata.data.GDEntry):
   InFolders = in_folders
 
 
-class Acl(gdata.acl.data.AclEntry):
+class Acl(externals.gdata.acl.data.AclEntry):
   """A document ACL entry."""
 
 
-class DocList(gdata.data.GDFeed):
+class DocList(externals.gdata.data.GDFeed):
   """The main DocList feed containing a list of Google Documents."""
   entry = [DocsEntry]
 
 
-class AclFeed(gdata.acl.data.AclFeed):
+class AclFeed(externals.gdata.acl.data.AclFeed):
   """A DocList ACL feed."""
   entry = [Acl]
 
 
-class Revision(gdata.data.GDEntry):
+class Revision(externals.gdata.data.GDEntry):
   """A document Revision entry."""
   publish = Publish
   publish_auto = PublishAuto
@@ -268,13 +271,13 @@ class Revision(gdata.data.GDEntry):
     """Get the link that points to the published document on the web.
 
     Returns:
-      A gdata.data.Link for the link with a rel ending in #publish.
+      A externals.gdata.data.Link for the link with a rel ending in #publish.
     """
     return self.get_link(DOCS_PUBLISH_LINK_REL)
 
   GetPublishLink = get_publish_link
 
 
-class RevisionFeed(gdata.data.GDFeed):
+class RevisionFeed(externals.gdata.data.GDFeed):
   """A DocList Revision feed."""
   entry = [Revision]
