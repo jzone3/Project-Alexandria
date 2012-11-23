@@ -437,7 +437,7 @@ class GuidePageHandler(BaseHandler):
 		else:
 			# site = url.lower().split('/')
 			# if site[0] != 'null':
-			# 	logging.error(site[0])
+			# 	logging.debug(site[0])
 			# 	self.get('/null/' + site[1])
 			# else:
 			self.error(404)
@@ -735,7 +735,7 @@ class DeleteAccountHandler(BaseHandler):
 	def post(self):
 		if self.logged_in():
 			username = self.get_username()
-			logging.error('username = ' + username)
+			#logging.debug('username = ' + username)
 			if is_google_account(username):
 				self.delete_account(username)
 			else:
@@ -770,15 +770,15 @@ class GoogleLoginHandler(BaseHandler):
 		account = memcache.get('useremail-'+user.email())
 
 		if account:
-			logging.error('CACHE GLOGIN: '+user.email())
+			logging.info('CACHE GLOGIN: '+user.email())
 		else:
-			logging.error('DB GLOGIN: '+user.email())
+			logging.info('DB GLOGIN: '+user.email())
 			q = Users.all()
 			q.filter('email =', user.email())
 			account = q.get()
 
 			memcache.set('useremail-'+user.email(), account)
-			logging.error('CACHE set glogin useremail-'+user.email())
+			logging.info('CACHE set glogin useremail-'+user.email())
 
 		if account:
 			username = account.username
@@ -821,7 +821,7 @@ class ExternalSignUp(BaseHandler):
 									    'modal': 'signup'})
 			return
 
-		self.render('external_signup.html')
+		self.render('external_signup.html', {'ext' : True})
 
 	def post(self):
 		user = users.get_current_user()
@@ -830,8 +830,10 @@ class ExternalSignUp(BaseHandler):
 			school = self.rget('school')
 			agree = self.rget('agree')
 
+			logging.debug("school == " + school)
+			
 			if school == 'Bergen County Academies':
-				email = self.rget('email')
+				email = self.rget('email') + '@bergen.org'
 				ext_email = user.email()
 			else:
 				email = user.email()
@@ -853,7 +855,8 @@ class ExternalSignUp(BaseHandler):
 													 'email_error':result.get('email_error'),
 													 'username':username,
 													 'school':school,
-													 'email':email[:-11]})
+													 'email':email[:-11],
+													 'ext' : True})
 		else:
 			self.redirect('/google_signup')
 
@@ -1050,7 +1053,7 @@ class SubjectsHandler2(BaseHandler):
 	def post(self):
 		teacher = self.rget('teacher')
 		subject = self.rget('subject')
-
+		
 		school = self.get_school_cookie()
 		
 		if teacher == "View All":
@@ -1278,7 +1281,7 @@ class CronCountHandler(BaseHandler):
 		d1.put()
 		d2.put()
 
-		logging.error('CRON logged user_count & guide_count')
+		logging.info('CRON logged user_count & guide_count')
 		self.write('CRON logged user_count & guide_count')
 
 class DeleteCommentHandler(BaseHandler):
