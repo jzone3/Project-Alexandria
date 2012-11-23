@@ -1052,7 +1052,7 @@ class SubjectsHandler2(BaseHandler):
 	def post(self):
 		teacher = self.rget('teacher')
 		subject = self.rget('subject')
-
+		
 		school = self.get_school_cookie()
 		
 		if teacher == "View All":

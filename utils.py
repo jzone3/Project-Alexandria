@@ -134,7 +134,7 @@ dev = 0
 def save_feedback(content, origin):
 	new_feedback = Feedback(content = content, origin = origin)
 	new_feedback.put()
-	feedback_type = ((content.split("<br")[0].strip())[8:])
+	feedback_type = ((content.split("<br")[0].strip())[6:])
 	feedback_to_compare = feedback_type.split(' ')
 	logging.debug('SAVE FEEDBACK')
 	user_email = get_user(origin).email
@@ -623,7 +623,10 @@ def delete_bookmarks(username):
 		bookmark.delete()
 
 def delete_all_notifications(username):
-	pass
+	q = Notification.all().filter('username =', username)
+	
+	for notif in q:
+		notif.delete()
 
 ############################### email verification ###############################
 
@@ -1211,10 +1214,15 @@ def add_teacher_to_subject(school, teacher, subject):
 
 def find_guides_ts(school, teacher, subject):
 	'''retrieves a list of guides based on school, teacher, and subject'''
+	# To whomever removed the if statements, please dont.  they're needed. love, management
 	q = Guides.all()
 	q.filter('school =', school)
-	q.filter('teacher =', teacher)
-	q.filter('subject =', subject)
+	if teacher != None:
+		q.filter('teacher =', teacher)
+		
+	if subject != None:
+		q.filter('subject =', subject)
+		
 	q.order('-votes')
 	results = q.run(limit=1000)
 	return results
