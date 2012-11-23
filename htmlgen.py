@@ -129,30 +129,30 @@ def make_activation_email(username, link, ignore_link):
 def make_submitted(guides, username):
 	if len(guides) == 0:
 		return """<center>
-							<h2>You haven't submitted anything yet!</h2>
-							<h3><a href="/upload">Upload</a> a study guide!</h3>
-						</center>"""
+					<h2>You haven't submitted anything yet!</h2>
+					<h3><a href="/upload">Upload</a> a study guide!</h3>
+				</center>"""
+
 	to_return = """
-							<br/><br/>
-							<table class="table table-hover">
-							<thead>
-								<th style="width: 670px;">Title</th>
-								<th>Subject</th>
-								<th>Teacher</th>
-								<th>Date Uploaded</th>
-							</thead>
-							<tbody>"""
-	for i in guides:
+				<table class="table table-hover">
+				<thead>
+					<th style="width: 670px;">Title</th>
+					<th>Subject</th>
+					<th>Teacher</th>
+					<th>Date Uploaded</th>
+				</thead>
+				<tbody>"""
+	for g in guides:
 		to_return += """
-								<tr>
-										<td><a href="/guides/%s">%s</a></td>
-										<td>%s</td>
-										<td>%s</td>
-										<td>%s</td>
-									</tr>""" % (i['url'], i['title'], i['subject'], i['teacher'], i['date_created'].strftime("%B %d, %Y"))
-	to_return += """
-							</tbody>
-						</table>"""
+					<tr>
+						<td><a href="/guides/%s">%s</a></td>
+						<td>%s</td>
+						<td>%s</td>
+						<td>%s</td>
+					</tr>""" % (g.url, g.title, g.subject, g.teacher, g.date_created.strftime("%B %d, %Y"))
+	
+	to_return += """</tbody></table>"""
+
 	return to_return
 
 def make_report_email(guide):

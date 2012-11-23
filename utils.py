@@ -186,21 +186,18 @@ def get_submitted_html(username):
 def get_submitted(username):
 	'''Gets all submitted Guides from db for user'''
 	from_cache = memcache.get(username + '_submitted')
-	if from_cache is None:
+	if not from_cache:
 		GET_USER_GUIDES.bind(username = username)
 		guides = GET_USER_GUIDES
-		if guides is None:
+		if not guides:
 			return 5
 		logging.info('DB get_submitted(): '+username)
-		to_return = []
-		for submission in guides:
-			to_return.append({'url': submission.url, 'title' : submission.title, 'subject' : submission.subject, 'teacher' : submission.teacher, 'date_created' : submission.date_created, 'key' : submission.key(), 'icon' : submission.icon, 'url' : submission.url})
-		memcache.set(username + '_submitted', to_return)
+		memcache.set(username + '_submitted', list(guides))
 		logging.info('CACHE set: '+username+'_submitted')
 	else:
 		logging.info('CACHE get_submitted(): '+username)
 		return from_cache
-	return to_return
+	return list(guides)
 
 def send_report_mail(blob_key):
 	'''Send email to admins that a guide has been reported 10x'''

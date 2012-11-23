@@ -122,16 +122,13 @@
 								<span class="datetime" id="{{comment.date_created}}"></span>
 								<span class="comment_btns" style="float:right;">
 									{% if user and user.key() == comment.user.key() %}
-									<a href="#" class="comment_delete" id="{{comment.key()}}">Delete</a>
-									 &nbsp; - &nbsp;&nbsp;								
+									<a href="#" class="comment_delete" id="{{comment.key()}}">Delete</a> | 
 									{% endif %}
 									<span><!-- Left blank intentionally --></span> 
 									<span>
 										<span {%if user and user.username in comment.up_users%}style="color:#14BB14"{%endif%}>{{comment.upvotes}}</span>
 										<span>
-											<a href="#" class="comment_plus" id="{{comment.key()}}" {%if user and user.username in comment.up_users%}style="color:#14BB14"{%endif%}>
-												<i class="icon-caret-up"></i>
-											</a>
+											<a href="#" class="comment_plus" id="{{comment.key()}}" {%if user and user.username in comment.up_users%}style="color:#14BB14"{%endif%}><i class="icon-caret-up"></i></a>
 										</span>
 									</span>
 									 | 
