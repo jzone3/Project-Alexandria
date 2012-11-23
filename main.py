@@ -1259,7 +1259,7 @@ class AdminHandler(BaseHandler):
 		power_users = Users.all().order('-guides_uploaded').run(limit=10)
 		guide_count = Guides.all().count()
 		new_guides = Guides.all().order('-date_created').run(limit=10)
-		top_guides = Guides.all().order('downloads').run(limit=10)
+		top_guides = Guides.all().order('-downloads').run(limit=10)
 		new_comments = Comments.all().order('-date_created').run(limit=10)
 		feedback = Feedback.all().run(limit=5)
 

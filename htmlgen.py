@@ -200,7 +200,8 @@ def get_notification_html(notification_list):
 	html = ''
 	for notif in notification_list:
 		if notif.name == 'welcome':
-			html += notif.notification
+			if notif.notification:
+				html += notif.notification
 			html += """<a href='#' id='%s' onclick='deletenotif("%s")' style='float:right;font-size:10px;position:relative;top:1px;'>Delete</a></div>"""%(str(notif.key()),str(notif.key()))
 		elif notif.name == 'comment':
 			html += "<div>%s"%notif.notification
