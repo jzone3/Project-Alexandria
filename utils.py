@@ -136,7 +136,7 @@ def save_feedback(content, origin):
 	new_feedback.put()
 	feedback_type = ((content.split("<br")[0].strip())[8:])
 	feedback_to_compare = feedback_type.split(' ')
-	logging.error('SAVE FEEDBACK')
+	logging.debug('SAVE FEEDBACK')
 	user_email = get_user(origin).email
 
 	if "Problem" in feedback_to_compare:
@@ -185,14 +185,14 @@ def get_submitted(username):
 		guides = GET_USER_GUIDES
 		if guides is None:
 			return 5
-		logging.error('DB get_submitted(): '+username)
+		logging.info('DB get_submitted(): '+username)
 		to_return = []
 		for submission in guides:
 			to_return.append({'url': submission.url, 'title' : submission.title, 'subject' : submission.subject, 'teacher' : submission.teacher, 'date_created' : submission.date_created, 'key' : submission.key(), 'icon' : submission.icon, 'url' : submission.url})
 		memcache.set(username + '_submitted', to_return)
-		logging.error('CACHE set: '+username+'_submitted')
+		logging.info('CACHE set: '+username+'_submitted')
 	else:
-		logging.error('CACHE get_submitted(): '+username)
+		logging.info('CACHE get_submitted(): '+username)
 		return from_cache
 	return to_return
 
@@ -202,14 +202,14 @@ def get_submitted_guide_names(username):
 		GET_USER_GUIDES.bind(username = username)
 		guides = GET_USER_GUIDES
 		# guides = db.GqlQuery("SELECT * FROM Guides WHERE user_created = '" + username.replace("'", "&lsquo;") + "' ORDER BY date_created DESC")
-		logging.error('DB get_submitted_guide_names(): '+username)
+		logging.info('DB get_submitted_guide_names(): '+username)
 		to_return = []
 		for submission in guides:
 			to_return.append({'title' : submission.title, 'subject' : submission.subject, 'votes' : submission.votes, 'date_created' : submission.date_created, 'url' : submission.url})
 		memcache.set(username + '_submitted', to_return)
-		logging.error('CACHE set: '+username+'_submitted')
+		logging.info('CACHE set: '+username+'_submitted')
 	else:
-		logging.error('CACHE get_submitted_guide_names(): '+username)
+		logging.info('CACHE get_submitted_guide_names(): '+username)
 	return to_return
 
 def send_report_mail(blob_key):
@@ -307,15 +307,15 @@ def get_notification_html(notification_list):
 def get_user(username):
 	user = memcache.get('user-'+username)
 	if user:
-		logging.error('CACHE GET_USER: '+username)
+		logging.info('CACHE GET_USER: '+username)
 		return user
 	else:
-		logging.error('DB GET_USER: '+username)
+		logging.info('DB GET_USER: '+username)
 		GET_USER.bind(username = username)
 		user = GET_USER.get()
 
 		memcache.set('user-'+username, user)
-		logging.error('CACHE set user-'+username)
+		logging.info('CACHE set user-'+username)
 
 		return user
 
@@ -357,14 +357,14 @@ def check_login(username, password):
 	if username != '' and password != '':		
 		accounts = memcache.get('user-'+username)
 		if accounts:
-			logging.error("CACHE LOGIN check_login(): "+username)
+			logging.info("CACHE LOGIN check_login(): "+username)
 		else:
-			logging.error("DB LOGIN check_login(): "+username)
+			logging.info("DB LOGIN check_login(): "+username)
 			GET_USER.bind(username = username)
 			accounts = GET_USER.get()
 
 			memcache.set('user-'+username, accounts)
-			logging.error("CACHE set user-"+username)
+			logging.info("CACHE set user-"+username)
 
 		if accounts is None:
 			return [False, 'Username does not exist']
@@ -575,7 +575,6 @@ def change_password(old, new, verify, username):
 		return [False, {'verify_new_password_error' : "Your passwords didn't match."}]
 
 	user = get_user(username)
-	logging.error(old)
 	(db_password, db_salt) = (user.password).split("|")
 	if salted_hash(old, db_salt) == db_password:		
 		salt = make_salt()
@@ -587,8 +586,8 @@ def change_password(old, new, verify, username):
 
 		memcache.set('user-'+username, user)
 		memcache.set('useremail-'+str(user.email), user)
-		logging.error('CACHE set user-'+username)
-		logging.error('CACHE set useremail-'+str(user.email))
+		logging.info('CACHE set user-'+username)
+		logging.info('CACHE set useremail-'+str(user.email))
 
 		cookie = LOGIN_COOKIE_NAME + '=%s|%s; Expires=%s Path=/' % (str(username), hash_str(username), remember_me())
 		return [True, cookie]
@@ -804,13 +803,13 @@ def delete_orphan_subteach(school='Bergen County Academies'):
 			subs = filter(lambda x: x not in del_teacher_subjects, ts.subjects_list)
 			ts.subjects_list = subs
 			ts.put()
-			logging.error('removed '+repr(del_teacher_subjects)+' from '+teacher)
+			logging.info('removed '+repr(del_teacher_subjects)+' from '+teacher)
 
 	# remove empty teachers
 	teachers = filter(lambda x: x not in del_teachers, act_teachers_list)
 	act_teachers.active_teachers_list = teachers
 	act_teachers.put()
-	logging.error('removed '+repr(del_teachers)+' from ActiveTeachers')
+	logging.info('removed '+repr(del_teachers)+' from ActiveTeachers')
 
 	del_subjects = []
 	for subject in act_subjects_list:
@@ -841,13 +840,13 @@ def delete_orphan_subteach(school='Bergen County Academies'):
 			teachers = filter(lambda x: x not in del_subject_teachers, st.teachers_list)
 			st.teachers_list = teachers
 			st.put()
-			logging.error('removed '+repr(del_subject_teachers)+' from '+subject)
+			logging.info('removed '+repr(del_subject_teachers)+' from '+subject)
 
 	# remove empty subjects
 	subjects = filter(lambda x: x not in del_subjects, act_subjects_list)
 	act_subjects.active_subjects_list = subjects
 	act_subjects.put()
-	logging.error('removed '+repr(del_subjects)+' from ActiveSubjects')
+	logging.info('removed '+repr(del_subjects)+' from ActiveSubjects')
 
 def delete_all_test_guides(school='Bergen County Academies'):
 	# delete guide, index entries, etc.
@@ -981,9 +980,9 @@ def top_guides_from_db(school, page=0):
 	results = q.run(limit=25, offset=page*25)
 	# logging
 	if school:
-		logging.error('DB top_guides_from_db: '+school)
+		logging.info('DB top_guides_from_db: '+school)
 	else:
-		logging.error('DB top_guides_from_db: ALL')
+		logging.info('DB top_guides_from_db: ALL')
 
 	return results
 
@@ -1000,7 +999,7 @@ def get_new_guides_from_db(school='', page=0):
 		results = None
 		
 	if results:
-		logging.error('CACHE get_new_guides_from_db() :'+str(school))
+		logging.info('CACHE get_new_guides_from_db() :'+str(school))
 	else:
 		q = Guides.all()
 		if school: # i.e. if user is logged in (school cookie)
@@ -1016,7 +1015,7 @@ def get_new_guides_from_db(school='', page=0):
 		results = lst
 
 		# logging
-		logging.error('DB new_guides_from_db: '+school)
+		logging.info('DB new_guides_from_db: '+school)
 
 
 	return results
@@ -1052,7 +1051,7 @@ def add_subject(school, subject):
 		result = ActiveSubjects(school=school, active_subjects_list=[subject])
 
 	memcache.set('activesubjects-'+school, sorted(result.active_subjects_list))
-	logging.error('CACHE set from upload activesubjects: '+school)
+	logging.info('CACHE set from upload activesubjects: '+school)
 		
 	result.put()
 
@@ -1064,14 +1063,12 @@ def add_teacher(school, teacher):
 
 	if result:
 		# update old entry
-		logging.error('update')
 		teachers = result.teachers_list 
 		if teacher not in teachers:
 			teachers.append(teacher)
 		result.teachers_list = teachers
 	else:
 		# new entry
-		logging.error('new')
 		result = Teachers(school=school, teachers_list=[teacher])
 	result.put()
 
@@ -1089,7 +1086,7 @@ def add_teacher(school, teacher):
 		result = ActiveTeachers(school=school, active_teachers_list=[teacher])
 
 	memcache.set('activeteachers-'+school, sorted(result.active_teachers_list))
-	logging.error('CACHE set from upload activesubjects: '+school)
+	logging.info('CACHE set from upload activesubjects: '+school)
 
 	result.put()
 
@@ -1100,15 +1097,15 @@ def get_all_active_teachers(school=''):
 
 	result = memcache.get('activeteachers-'+school)
 	if result:
-		logging.error('CACHE get_all_active_teachers(): '+school)
+		logging.info('CACHE get_all_active_teachers(): '+school)
 		return result
 
-	logging.error('DB get_all_active_teachers(): '+school)
+	logging.info('DB get_all_active_teachers(): '+school)
 	q = ActiveTeachers.all()
 	q.filter('school =', school)
 	result = q.get()
 	if result:
-		logging.error('CACHE set get_all_active_teachers(): '+school)
+		logging.info('CACHE set get_all_active_teachers(): '+school)
 		x = sorted(result.active_teachers_list)
 		memcache.set('activeteachers-'+school, x)
 		return x
@@ -1122,15 +1119,15 @@ def get_all_active_subjects(school=''):
 		
 	result = memcache.get('activesubjects-'+school)
 	if result:
-		logging.error('CACHE get_all_active_subjects(): '+school)
+		logging.info('CACHE get_all_active_subjects(): '+school)
 		return result
 
-	logging.error('DB get_all_active_subjects(): '+school)
+	logging.info('DB get_all_active_subjects(): '+school)
 	q = ActiveSubjects.all()
 	q.filter('school =', school)
 	result = q.get()
 	if result:
-		logging.error('CACHE set get_all_active_subjects(): '+school)
+		logging.info('CACHE set get_all_active_subjects(): '+school)
 		x = sorted(result.active_subjects_list)
 		memcache.set('activesubjects-'+school, x)
 		return x
@@ -1263,7 +1260,7 @@ def vote(key, vote_type, username):
 	last_refresh[str(guide.school)] = 0
 	last_refresh['None'] = 0
 
-	logging.error(diff)
+	#logging.debug(diff)
 
 	return diff
 

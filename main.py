@@ -439,7 +439,7 @@ class GuidePageHandler(BaseHandler):
 		else:
 			# site = url.lower().split('/')
 			# if site[0] != 'null':
-			# 	logging.error(site[0])
+			# 	logging.debug(site[0])
 			# 	self.get('/null/' + site[1])
 			# else:
 			self.error(404)
@@ -736,7 +736,7 @@ class DeleteAccountHandler(BaseHandler):
 	def post(self):
 		if self.logged_in():
 			username = self.get_username()
-			logging.error('username = ' + username)
+			#logging.debug('username = ' + username)
 			if is_google_account(username):
 				self.delete_account(username)
 			else:
@@ -771,15 +771,15 @@ class GoogleLoginHandler(BaseHandler):
 		account = memcache.get('useremail-'+user.email())
 
 		if account:
-			logging.error('CACHE GLOGIN: '+user.email())
+			logging.info('CACHE GLOGIN: '+user.email())
 		else:
-			logging.error('DB GLOGIN: '+user.email())
+			logging.info('DB GLOGIN: '+user.email())
 			q = Users.all()
 			q.filter('email =', user.email())
 			account = q.get()
 
 			memcache.set('useremail-'+user.email(), account)
-			logging.error('CACHE set glogin useremail-'+user.email())
+			logging.info('CACHE set glogin useremail-'+user.email())
 
 		if account:
 			username = account.username
@@ -1280,7 +1280,7 @@ class CronCountHandler(BaseHandler):
 		d1.put()
 		d2.put()
 
-		logging.error('CRON logged user_count & guide_count')
+		logging.info('CRON logged user_count & guide_count')
 		self.write('CRON logged user_count & guide_count')
 
 class DeleteCommentHandler(BaseHandler):
