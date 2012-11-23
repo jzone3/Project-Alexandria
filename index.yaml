@@ -69,6 +69,12 @@ indexes:
 - kind: Guides
   properties:
   - name: school
+  - name: top_score
+    direction: desc
+
+- kind: Guides
+  properties:
+  - name: school
   - name: votes
     direction: desc
 

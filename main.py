@@ -96,9 +96,8 @@ class BaseHandler(webapp2.RequestHandler):
 		else:
 			# get schools list for typeahead
 			params['all_schools'] = self.get_schools_list()
-
 			# set username to blank
-			if not 'username' in params.keys():
+			if 'username' not in params:
 				params['username'] = ''
 			# setup areyouahuman
 			externals.ayah.configure('9ee379aab47a91907b9f9b505204b16494367d56', 
@@ -187,8 +186,7 @@ class MainHandler(BaseHandler):
 
 		if self.rget('q'):
 			self.redirect('/search?q=' + self.rget('q'))
-
-		if logged_in:
+		elif logged_in:
 			self.redirect('/dashboard/')
 		else:
 			self.render('index.html', {'blockbg':True, 'index':True})
@@ -564,7 +562,7 @@ class UploadHandler(BaseHandler):
 			guide = Guides(user_created=username, title=title, subject=subject,
 				   		   teacher=teacher, tags=tags, blob_key=str(blob_key),
 				   		   edit_url=edit_url, school=school, url=url, icon=icon,
-				   		   votes=0, up_users=[], down_users=[])
+				   		   votes=0, up_users=[], down_users=[], top_score=0, downloads=0)
 			guide.put()
 
 			increase_guides_uploaded(username)

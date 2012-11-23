@@ -935,9 +935,7 @@ def delete_guide(guide_key):
 	memcache.delete(guide.user_created + "_submitted")
 	db.delete(guide_key)
 	for comment in guide.comments_list:
-		comment.delete()
-	
-	
+		comment.delete()	
 
 	# delete from bookmarks
 	bookmarks = list(guide.bookmarks_set)
@@ -954,28 +952,57 @@ def delete_guide(guide_key):
 	index.index = simplejson.dumps(py_index)
 	index.put()
 
-def get_top_guides(school=None, page=0, rank="votes"):
+def get_hot_guides(school=None, page=0):
+	global last_refresh # {school:unix_time}
+	school = str(school)
+
+	if school+'-hot' in last_refresh:
+		if time.time() > last_refresh[school] + 900:
+			last_refresh[school] = time.time()
+			results = hot_guides_from_db(school, page)
+			memcache.set(school + '-hot_guides-' + str(page), results)
+		else:
+			results = memcache.get(school + '-hot_guides-' + str(page))
+			if not results:
+				results = hot_guides_from_db(school, page)
+				memcache.set(school + '-hot_guides-' + str(page), results)
+	else:
+		last_refresh[school] = time.time()
+		results = hot_guides_from_db(school, page)
+		memcache.set(school + '-hot_guides-' + str(page), results)
+
+def hot_guides_from_db(school, page):
+	q = Guides.all()
+	if school: q.filter('school =', school)
+	q.order('-top_score')
+
+	results = q.run(limit=25, offset=page*25)
+
+	if school:
+		logging.error('DB hot_guides_from_db: '+school)
+	else:
+		logging.error('DB hot_guides_from_db: ALL')
+
+	return list(results)
+
+def get_top_guides(school=None, page=0):
 	global last_refresh # {school:unix_time}
 	school = str(school)
 	
 	if page >= 5:
 		# retrieve from db if > page 5
 		results = top_guides_from_db(school, page)
-
 	elif school in last_refresh:
-		# if school is in refresh listing		
 		if time.time() > last_refresh[school] + 900:
-			# if overdue for re-caching
+			# if cache older than 900 sec
 			last_refresh[school] = time.time()
 			results = top_guides_from_db(school, page)
 			memcache.set(school + '-top_guides-' + str(page), results)
 		else:
-			# if cache younger than 900 seconds
 			results = memcache.get(school + '-top_guides-' + str(page))
 			if not results:
 				results = top_guides_from_db(school, page)
 				memcache.set(school + '-top_guides-' + str(page), results)
-
 	else:
 		# if school not in refresh listing		
 		last_refresh[school] = time.time()
@@ -984,7 +1011,7 @@ def get_top_guides(school=None, page=0, rank="votes"):
 
 	return results
 
-def top_guides_from_db(school, page=0):
+def top_guides_from_db(school, page):
 	q = Guides.all()
 	if school: q.filter('school =', school)
 	q.order('-votes')
