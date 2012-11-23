@@ -7,12 +7,11 @@ import random
 import datetime
 import time
 
-from database import *
 from django.utils import simplejson
 from google.appengine.ext import db
 
 import secret
-from database import *
+from model.database import *
 
 from google.appengine.api import memcache
 

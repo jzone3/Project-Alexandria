@@ -16,8 +16,8 @@ from google.appengine.api import mail
 from google.appengine.ext.db import stats
 
 import secret
-from database import *
-from htmlgen import *
+from models.database import *
+from tools.htmlgen import *
 
 from google.appengine.api import memcache
 

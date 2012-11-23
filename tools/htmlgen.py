@@ -126,6 +126,8 @@ def make_activation_email(username, link, ignore_link):
 
 	return body, html
 
+import logging
+
 def make_submitted(guides, username):
 	if len(guides) == 0:
 		return """<center>

@@ -13,9 +13,9 @@ import webapp2
 
 ## import application modules
 import secret
-from search import *
-from utils import *
-from database import *
+from models.database import *
+from tools.search import *
+from tools.utils import *
 
 ## import external modules
 import externals.ayah

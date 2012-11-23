@@ -5,7 +5,7 @@ from google.appengine.api import memcache
 
 from google.appengine.ext import db
 
-from database import Indexes, Guides
+from models.database import Indexes, Guides
 
 # likely errant key presses that are not part of a query
 ERROR_CHARS = """'"\\`~!@#$%^&*()-_=+/|[]{};:<>.,?"""
