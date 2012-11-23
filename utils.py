@@ -17,9 +17,7 @@ from google.appengine.ext.db import stats
 
 import secret
 from database import *
-from activation import make_activation_email
-from new_guides import make_new_guides
-from submitted import make_submitted
+from htmlgen import *
 
 from google.appengine.api import memcache
 
@@ -43,15 +41,12 @@ CONTENT_TYPE_EXTS = {'application/msword':'.doc',
 					'application/rtf':'.rtf',
 					'image/jpg':'.jpg'}
 
-FAKE_USERS = ["emanresu", "shyguy", "shaneybo","saucey","pikachun","lartple","coldshoulder","distargirl","jarson5","weakev","jonhar", "oxacuk", "ollypop", "zfinter", "korile1", "sinkra", "jojo", "bert95", "mickey", "ghost_man"]
-
-WELCOME_NOTIF = """<div><span style='font-family:Junge;'>Hey %s!<br><br> We hope you love using Project Alexandria as much as we loved building it. This is a community-based site so make sure to upload or help edit study guides! Feel free to <a href='\contact'>contact us</a> if you have any questions.<br><br>-The PA Team</span>"""
-
-############################### misc. functions ###############################
-
-# def mod_page_vars():
-# 	global_stat = stats.GlobalStat.all().get()
-# 	return {'total_data' : global_stat.bytes / 1048576.0}
+FAKE_USERS = ["emanresu","shyguy","shaneybo","saucey","pikachun","lartple","coldshoulder","distargirl","jarson5","weakev","jonhar", "oxacuk", "ollypop", "zfinter", "korile1", "sinkra", "jojo", "bert95", "mickey", "ghost_man"]
+PEOPLE = ['jared@projectalexa.com', 'kenny@projectalexa.com', 'matthew@projectalexa.com', 'eric@projectalexa.com', 'justin@projectalexa.com']
+DEVS = ['jared@projectalexa.com', 'kenny@projectalexa.com', 'matthew@projectalexa.com']
+last_refresh = {}
+person = 0
+dev = 0
 
 def calc_score(guide):
 	"""Calculates top/hot score for a guide"""
@@ -61,8 +56,8 @@ def calc_score(guide):
 
 	return (2*votes + dl) / minutes
 
-
 def time_difference(time):
+	'''Calculates text time difference for guide page'''
 	now = datetime.datetime.now()
 	if now > time + datetime.timedelta(days=365.25):
 		ago = now.year - time.year
@@ -104,17 +99,20 @@ def time_difference(time):
 		return "less than 1 second ago"
 
 def comment_preview(comment):
+	'''Shortens comment for notification box'''
 	if len(comment) > 28:
 		comment = comment[:28]
 	return comment + '...'
 
 def str_votes(votes):
+	'''Prepends +- to a vote integer'''
 	if votes > 0:
 		return '+' + str(votes)
 	else:
 		return str(votes)
 
 def get_schools():
+	'''Get all schools registered'''
 	lst = memcache.get('all_schools')
 	if lst is None:
 		all_users = db.GqlQuery("SELECT * FROM Users")
@@ -128,20 +126,15 @@ def get_schools():
 	return lst
 
 def add_school(new_school):
-	# implement CAS later
+	'''Add a new school to memcache'''
 	current_schools = get_schools()
 	if not new_school in current_schools:
 		current_schools.append(new_school)
 	memcache.set('all_schools', current_schools)
 
-# http://www.google.com/a/projectalexa.com
-PEOPLE = ['jared@projectalexa.com', 'kenny@projectalexa.com', 'matthew@projectalexa.com', 'eric@projectalexa.com', 'justin@projectalexa.com']
-person = 0
-
-DEVS = ['jared@projectalexa.com', 'kenny@projectalexa.com', 'matthew@projectalexa.com']
-dev = 0
 
 def save_feedback(content, origin):
+	'''Emails feedback to admins'''
 	new_feedback = Feedback(content = content, origin = origin)
 	new_feedback.put()
 	feedback_type = ((content.split("<br")[0].strip())[6:])
@@ -173,6 +166,7 @@ def save_feedback(content, origin):
 			person += 1
 
 def add_submitted(username, key):
+	'''Add a guide key to user's submitted guides list'''
 	cached_items = memcache.get(username + '_submitted')
 	submission = Guides.get(key)
 	new_guide = [{'title' : submission.title, 'subject' : submission.subject, 'teacher' : submission.teacher, 'date_created' : submission.date_created, 'key' : key, 'icon' : submission.icon}]
@@ -186,9 +180,11 @@ def add_submitted(username, key):
 		memcache.set(username + '_submitted', new_guide)
 
 def get_submitted_html(username):
+	'''Makes submitted html list for a user'''	
 	return make_submitted(get_submitted(username), username)
 
 def get_submitted(username):
+	'''Gets all submitted Guides from db for user'''
 	from_cache = memcache.get(username + '_submitted')
 	if from_cache is None:
 		GET_USER_GUIDES.bind(username = username)
@@ -206,87 +202,35 @@ def get_submitted(username):
 		return from_cache
 	return to_return
 
-def get_submitted_guide_names(username):
-	to_return = memcache.get(username + '_submitted')
-	if to_return is None:
-		GET_USER_GUIDES.bind(username = username)
-		guides = GET_USER_GUIDES
-		# guides = db.GqlQuery("SELECT * FROM Guides WHERE user_created = '" + username.replace("'", "&lsquo;") + "' ORDER BY date_created DESC")
-		logging.info('DB get_submitted_guide_names(): '+username)
-		to_return = []
-		for submission in guides:
-			to_return.append({'title' : submission.title, 'subject' : submission.subject, 'votes' : submission.votes, 'date_created' : submission.date_created, 'url' : submission.url})
-		memcache.set(username + '_submitted', to_return)
-		logging.info('CACHE set: '+username+'_submitted')
-	else:
-		logging.info('CACHE get_submitted_guide_names(): '+username)
-	return to_return
-
 def send_report_mail(blob_key):
+	'''Send email to admins that a guide has been reported 10x'''
 	GET_GUIDES_BY_BLOB_KEY.bind(blob_key = blob_key)
 	guide = GET_GUIDES_BY_BLOB_KEY.get()
 	
+	body, html = make_report_email(guide)
+
 	mail.send_mail(sender="Project Alexandria <info@projectalexa.com>",
-						to="Jared Zoneraich <jszoneraich@gmail.com>, Kenny Song <jellyksong@gmail.com>, Justin Kim <nitsuj199@gmail.com>, Eric Kim <randomperson97xd@gmail.com>, Matthew Lotocki <matthew.lotocki@gmail.com>",
-						subject="'%s' Reached 10 Reports!" % guide.title,
-						body= """
-The guide "%s" has reached 10 reports!
-
-Link: http://projectalexa.com/guides/%s
-Votes: %s
-Reports %s
-
-School: %s
-Teacher: %s
-Subject: %s
-User Created: %s
-
-Sincerely,
-PA9000
-""" % (guide.title, guide.url, str(guide.votes), str(len(guide.report_users) + 1), guide.school, guide.teacher, guide.subject, guide.user_created),
-						html= """
-<!DOCTYPE HTML>
-<html>
-<head></head>
-<body>
-The guide "%s" has reached 10 reports!<br/>
-<br/>
-Link: <a href="http://projectalexa.com/guides/%s">http://projectalexa.com/guides/%s</a><br/>
-Votes: %s<br/>
-Reports %s<br/>
-<br/>
-School: %s<br/>
-Teacher: %s<br/>
-Subject: %s<br/>
-User Created: %s<br/>
-<br/>
-Sincerely,<br/>
-PA9000<br/>
-</body>
-</html>
-""" % (guide.title, guide.url, guide.url, str(guide.votes), str(len(guide.report_users) + 1), guide.school, guide.teacher, guide.subject, guide.user_created)
-						)
-
-############################### user functions ###############################
+					to="Jared Zoneraich <jszoneraich@gmail.com>, Kenny Song <jellyksong@gmail.com>, Justin Kim <nitsuj199@gmail.com>, Eric Kim <randomperson97xd@gmail.com>, Matthew Lotocki <matthew.lotocki@gmail.com>",
+					subject="'%s' Reached 10 Reports!" % guide.title,
+					body=body,
+					html=html)
 
 def remember_me():
+	'''Returns expiration time for remember me cookie'''
 	expiration = datetime.datetime.now() + datetime.timedelta(days=50)
 	return expiration.strftime("%a, %d-%b-%Y %H:%M:%S PST")
 
 def hash_str(string):
+	'''Hashes a string for user cookie'''
 	return hmac.new(secret.SECRET, str(string), hashlib.sha512).hexdigest()
 
 def salted_hash(password, salt):
+	'''Hashes a string for user password'''
 	return hashlib.sha256(password + salt).hexdigest()
 
 def make_salt():
+	'''Makes random salt for user cookie'''
 	return ''.join(random.choice(string.letters) for x in xrange(5))
-
-def get_error(results, error):
-	if error in results.keys():
-		return results[error]
-	else:
-		return None
 
 def get_notifications(username):
 	'''Returns latest 6 notifications and if any are new'''
@@ -302,19 +246,8 @@ def get_notifications(username):
 
 	return notifications, is_new
 
-def get_notification_html(notification_list):
-	html = ''
-	for notif in notification_list:
-		if notif.name == 'welcome':
-			html += notif.notification
-			html += """<a href='#' id='%s' onclick='deletenotif("%s")' style='float:right;font-size:10px;position:relative;top:1px;'>Delete</a></div>"""%(str(notif.key()),str(notif.key()))
-		elif notif.name == 'comment':
-			html += "<div>%s"%notif.notification
-			html += """<a href='#' id='%s' onclick='deletenotif("%s")' style='float:right;font-size:10px;position:relative;top:1px;'>Delete</a></div><hr>"""%(str(notif.key()),str(notif.key()))
-
-	return html
-
 def get_user(username):
+	'''Get User object from username'''
 	user = memcache.get('user-'+username)
 	if user:
 		logging.info('CACHE GET_USER: '+username)
@@ -329,9 +262,8 @@ def get_user(username):
 
 		return user
 
-
 def get_school(username):
-	'''gets school from db from username'''
+	'''Gets school from db from username'''
 	q = Users.all()
 	q.filter('username =', username)
 	results = q.get()
@@ -341,12 +273,14 @@ def get_school(username):
 		return None
 
 def unique_email(email):
+	'''Checks that an email is not taken already'''
 	accounts = (db.GqlQuery("SELECT * FROM Users WHERE email = :email", email = email)).get()
 	if accounts is None:
 		return True
 	return False
 
 def unique_username(username):
+	'''Checks that a username is not taken already'''
 	GET_USER.bind(username = username)
 	accounts = GET_USER.get()
 	if accounts:
@@ -538,9 +472,8 @@ def signup_ext(username='', school='', agree='', email='', ext_email=''):
 			
 	return to_return
 		
-############################### user pref functions ###############################
-
 def change_school(school, username):
+	'''Changes a user's school'''
 	if school == '':
 		return [False, 'No school entered']
 	if not SCHOOL_RE.match(school):
@@ -554,8 +487,9 @@ def change_school(school, username):
 	x.school = school
 	return [True]
 
-def new_email(email, username):
+def new_user_email(email, username):
 	"""
+	Changes a user's email
 	Returns:
 		[Success_bool, error]
 	"""
@@ -573,6 +507,7 @@ def new_email(email, username):
 	return [True]
 
 def change_password(old, new, verify, username):
+	'''Change a user's password'''
 	if new == '':
 		return [False, {'new_password_error' : "Please enter a password"}]
 	if old == '':
@@ -605,6 +540,7 @@ def change_password(old, new, verify, username):
 		return [False, {'current_password_error' : 'Incorrect current password'}]
 
 def is_google_account(username):
+	'''Checks if user signs in with Google'''
 	GET_USER.bind(username = username)
 	user = GET_USER.get()
 	if user.password == None:
@@ -612,6 +548,7 @@ def is_google_account(username):
 	return False
 
 def delete_user_account(username):
+	'''Deletes a user account and all related data (minus comments)'''
 	GET_USER.bind(username = username)
 	user = GET_USER
 	for i in user:
@@ -628,19 +565,19 @@ def delete_user_account(username):
 	memcache.delete(username + '_submitted')
 
 def delete_bookmarks(username):
+	'''Deletes all bookmarks for a user'''
 	user = get_user(username)
 	for bookmark in user.bookmark_list:
 		bookmark.delete()
 
 def delete_all_notifications(username):
-	q = Notification.all().filter('username =', username)
-	
+	'''Deletes all notifications for a user'''
+	q = Notification.all().filter('username =', username)	
 	for notif in q:
 		notif.delete()
 
-############################### email verification ###############################
-
 def deleted_old_links():
+	'''Deletes expired verification links'''
 	links = db.GqlQuery("SELECT * FROM Email_Verification ORDER BY DESC")
 	for i in links:
 		if datetime.datetime.now() >= i.date_created + datetime.timedelta(hours=12):
@@ -649,32 +586,34 @@ def deleted_old_links():
 			break
 
 def delete_link(key):
-	links = db.get(key)
-	for i in link:
-		i.delete()
+	'''Deletes verification links from db'''
+	db.get(key).delete()
 
 def reset_user_link(username):
+	'''Deletes email verification links for user'''
 	links = db.GqlQuery("SELECT * FROM Email_Verification WHERE username = :username", username = username)
 	for i in links:
 		i.delete()
 
 def get_unique_link(username):
+	'''Creates a verification link for new user'''
 	reset_user_link(username)
 	link_row = Email_Verification(username = username)
 	link_row.put()
 	return 'http://projectalexa.com/verify/' + str(link_row.key()), 'http://projectalexa.com/delete_email/' + str(link_row.key())
 
 def email_verification(username, email):
+	'''Sends a verification email for new user'''
 	link, dellink = get_unique_link(username)
 	body, html = make_activation_email(username, link, dellink)
 	mail.send_mail(sender="Project Alexandria <info@projectalexa.com>",
 						to="%s <%s>" % (username, email),
 						subject="Email Verification",
 						body=body,
-						html=html
-						)
+						html=html)
 
 def verify(key):
+	'''Verfies email from verification link'''
 	link = db.get(key)
 	if link is None:
 		return False
@@ -690,6 +629,7 @@ def verify(key):
 	return True
 
 def deleted(key):
+	'''Wrong email, delete verficiation link'''
 	link = db.get(key)
 	if link is None:
 		return False
@@ -700,8 +640,6 @@ def deleted(key):
 	user.put()
 	link.delete()
 	return True
-
-############################### file handling functions ###############################
 
 def get_tags(string):
 	'''Gets tags from a comma separated string'''
@@ -737,6 +675,7 @@ def get_url(filename, user):
 	return user + '/' + filename
 
 def upload_errors(title, subject, teacher, editable, headers):
+	'''Returns errors for an uploaded file'''
 	title_error, subject_error, teacher_error, doc_url_error = '', '', '', ''
 	
 	if not TITLE_RE.match(title):
@@ -771,173 +710,23 @@ def upload_errors(title, subject, teacher, editable, headers):
 	return _editable, {'title_error':title_error, 'subject_error':subject_error, 
 			'teacher_error':teacher_error, 'file_error':file_error}
 
-############################### db functions ###############################
-
-last_refresh = {}
-
-from database import *
-from django.utils import simplejson
-
-def delete_orphan_subteach(school='Bergen County Academies'):
-	'''Cleans up the Subject and Teacher tab
-	Use sparingly, this takes a lot of db reads and writes.
-	'''
-	act_teachers = ActiveTeachers.all().filter('school =', school).get()
-	act_subjects = ActiveSubjects.all().filter('school =', school).get()
-	act_teachers_list = act_teachers.active_teachers_list
-	act_subjects_list = act_subjects.active_subjects_list
-
-	del_teachers = []
-	for teacher in act_teachers_list:
-		# test if teacher has subjects		
-		q = Teacher_Subjects.all()
-		q.filter('school =', school)
-		q.filter('teacher =', teacher)
-		ts = q.get()
-		if not ts:
-			del_teachers.append(teacher)
-			continue
-		elif not ts.subjects_list:
-			del_teachers.append(teacher)
-			continue
-		else:
-			# if has subjects, clean up subjects if needed
-			del_teacher_subjects = []
-			for subject in ts.subjects_list:
-				q = Guides.all()
-				q.filter('school =', school)
-				q.filter('teacher =', teacher)
-				q.filter('subject =', subject)
-				g = q.get()
-				if not g:
-					del_teacher_subjects.append(subject)
-			
-			# remove empty subjects		
-			subs = filter(lambda x: x not in del_teacher_subjects, ts.subjects_list)
-			ts.subjects_list = subs
-			ts.put()
-			logging.info('removed '+repr(del_teacher_subjects)+' from '+teacher)
-
-	# remove empty teachers
-	teachers = filter(lambda x: x not in del_teachers, act_teachers_list)
-	act_teachers.active_teachers_list = teachers
-	act_teachers.put()
-	logging.info('removed '+repr(del_teachers)+' from ActiveTeachers')
-
-	del_subjects = []
-	for subject in act_subjects_list:
-		# test if subject has teachers
-		q = Subject_Teachers.all()
-		q.filter('school =', school)
-		q.filter('subject =', subject)
-		st = q.get()
-		if not st:
-			del_subjects.append(subject)
-			continue
-		elif not st.teachers_list:
-			del_subjects.append(subject)
-			continue
-		else:
-			# if has teachers, clean up each teachers if needed
-			del_subject_teachers = []
-			for teacher in st.teachers_list:
-				q = Guides.all()
-				q.filter('school =', school)
-				q.filter('subject =', subject)
-				q.filter('teacher =', teacher)
-				g = q.get()
-				if not g:
-					del_subject_teachers.append(teacher)
-
-			# remove empty teachers
-			teachers = filter(lambda x: x not in del_subject_teachers, st.teachers_list)
-			st.teachers_list = teachers
-			st.put()
-			logging.info('removed '+repr(del_subject_teachers)+' from '+subject)
-
-	# remove empty subjects
-	subjects = filter(lambda x: x not in del_subjects, act_subjects_list)
-	act_subjects.active_subjects_list = subjects
-	act_subjects.put()
-	logging.info('removed '+repr(del_subjects)+' from ActiveSubjects')
-
-def delete_all_test_guides(school='Bergen County Academies'):
-	# delete guide, index entries, etc.
-	q = Guides.all()
-	q.filter('tags =', 'deletethis')
-	for g in q.run():
-		delete_guide(str(g.key()))
-
-	# delete from active subjects
-	q = ActiveSubjects.all()
-	q.filter('school =', school)
-	result = q.get()
-	l = result.active_subjects_list
-	result.active_subjects_list = [x for x in l if x not in ["Subject", "subject"]]
-	result.put()
-
-	# delete from active teachers
-	q = ActiveTeachers.all()
-	q.filter('school =', school)
-	result = q.get()
-	l = result.active_teachers_list
-	result.active_teachers_list = [x for x in l if x not in ["Teacher", "teacher"]]
-	result.put()
-
-	# delete from Subjects
-	q = Subjects.all()
-	q.filter('school =', school)
-	result = q.get()
-	l = result.subjects_list
-	result.subjects_list = [x for x in l if x not in ["Subject", "subject"]]
-	result.put()
-
-	# delete from Teachers
-	q = Teachers.all()
-	q.filter('school =', school)
-	result = q.get()
-	l = result.teachers_list
-	result.teachers_list = [x for x in l if x not in ["Teacher", "teacher"]]
-	result.put()
-
-	# delete from Subject_Teachers
-	q = Subject_Teachers.all()
-	q.filter('subject =', 'Subject')
-	result = q.get()
-	if result:
-		result.delete()
-	q = Subject_Teachers.all()
-	q.filter('subject =', 'subject')
-	result = q.get()
-	if result:
-		result.delete()
-
-	# delete from Teacher_Subjects
-	q = Teacher_Subjects.all()
-	q.filter('teacher =', 'Teacher')
-	result = q.get()
-	if result:
-		result.delete()
-
-	q = Teacher_Subjects.all()
-	q.filter('teacher =', 'teacher')
-	result = q.get()
-	if result:
-		result.delete()
 
 def increase_guides_uploaded(username):
+	'''Increase guides_uploaded property for a user'''
 	GET_USER.bind(username = username)
 	user = GET_USER.get()
 	user.guides_uploaded += 1
 	user.put()
 
 def decrease_guides_uploaded(username):
+	'''Decrease guides_uploaded property for a user'''
 	GET_USER.bind(username = username)
 	user = GET_USER.get()
 	user.guides_uploaded -= 1
 	user.put()
 
 def delete_guide(guide_key):
+	'''Function for completely deleting guide'''
 	# delete guide
 	guide = Guides.get(guide_key)
 	decrease_guides_uploaded(guide.user_created)
@@ -963,6 +752,7 @@ def delete_guide(guide_key):
 	index.put()
 
 def get_hot_guides(school=None, page=0):
+	'''Use this function; retrieves list of hot guides'''
 	global last_refresh # {school:unix_time}
 	school = str(school)
 
@@ -982,6 +772,7 @@ def get_hot_guides(school=None, page=0):
 		memcache.set(school + '-hot_guides-' + str(page), results)
 
 def hot_guides_from_db(school, page):
+	'''Retrieves list of hot guides from db'''
 	q = Guides.all()
 	if school: q.filter('school =', school)
 	q.order('-top_score')
@@ -996,6 +787,7 @@ def hot_guides_from_db(school, page):
 	return list(results)
 
 def get_top_guides(school=None, page=0):
+	'''Higest level; retrieves list of top voted guides'''
 	global last_refresh # {school:unix_time}
 	school = str(school)
 	
@@ -1022,6 +814,7 @@ def get_top_guides(school=None, page=0):
 	return results
 
 def top_guides_from_db(school, page):
+	'''Retrieves list of top voted guides from db'''
 	q = Guides.all()
 	if school: q.filter('school =', school)
 	q.order('-votes')
@@ -1036,12 +829,14 @@ def top_guides_from_db(school, page):
 	return list(results)
 
 def get_new_guides(school, page=0, username=''):
+	'''Highest level; retrieves list of new guides from db'''
 	if page == 'zero':
 		page = 0
 	results = get_new_guides_from_db(school, page)
 	return make_new_guides(results, page, username)
 
 def get_new_guides_from_db(school='', page=0):
+	'''Retrieves list of new guides from db'''
 	if page == 0:
 		results = memcache.get('new-guides-' + str(school))
 	else: 
@@ -1070,7 +865,7 @@ def get_new_guides_from_db(school='', page=0):
 	return results
 
 def add_subject(school, subject):
-	'''adds/updates a subject to Subjects'''
+	'''Adds/updates a subject to Subjects'''
 	q = Subjects.all()
 	q.filter('school =', school)
 	result = q.get()
@@ -1105,7 +900,7 @@ def add_subject(school, subject):
 	result.put()
 
 def add_teacher(school, teacher):
-	'''adds/updates a teacher to Teachers'''
+	'''Adds/updates a teacher to Teachers'''
 	q = Teachers.all()
 	q.filter('school =', school)
 	result = q.get()
@@ -1140,7 +935,7 @@ def add_teacher(school, teacher):
 	result.put()
 
 def get_all_active_teachers(school=''):
-	'''gets list of all active teachers from ActiveTeachers model'''
+	'''Gets list of all active teachers from ActiveTeachers model'''
 	if not school:
 		school = "Bergen County Academies"
 
@@ -1162,7 +957,7 @@ def get_all_active_teachers(school=''):
 		return []
 
 def get_all_active_subjects(school=''):
-	'''gets list of all active subjects from ActiveSubjects model'''
+	'''Gets list of all active subjects from ActiveSubjects model'''
 	if not school:
 		school = "Bergen County Academies"
 		
@@ -1185,7 +980,7 @@ def get_all_active_subjects(school=''):
 		return []
 
 def get_all_subjects(school):
-	'''gets list of all subjects from Subjects model'''
+	'''Gets list of all subjects from Subjects model'''
 	q = Subjects.all()
 	q.filter('school =', school)
 	result = q.get()
@@ -1195,7 +990,7 @@ def get_all_subjects(school):
 		return []
 
 def get_all_teachers(school):
-	'''gets list of all teachers from Teachers model'''
+	'''Gets list of all teachers from Teachers model'''
 	q = Teachers.all()
 	q.filter('school =', school)
 	result = q.get()
@@ -1205,7 +1000,7 @@ def get_all_teachers(school):
 		return []
 
 def get_subjects_for_teacher(school, teacher):
-	'''gets all subjects taught by one teacher'''
+	'''Gets all subjects taught by one teacher'''
 	q = Teacher_Subjects.all()
 	q.filter('school =', school)
 	q.filter('teacher =', teacher)
@@ -1217,7 +1012,7 @@ def get_subjects_for_teacher(school, teacher):
 		return []
 
 def get_teachers_for_subject(school, subject):
-	'''gets all teachers for one subject'''
+	'''Gets all teachers for one subject'''
 	q = Subject_Teachers.all()
 	q.filter('school =', school)
 	q.filter('subject =', subject)
@@ -1228,7 +1023,7 @@ def get_teachers_for_subject(school, subject):
 		return []
 
 def add_subject_to_teacher(school, teacher, subject):
-	'''add a subject to a teacher'''
+	'''Add a subject to a teacher'''
 	q = Teacher_Subjects.all()
 	q.filter('school =', school)
 	q.filter('teacher =', teacher)
@@ -1244,7 +1039,7 @@ def add_subject_to_teacher(school, teacher, subject):
 
 
 def add_teacher_to_subject(school, teacher, subject):
-	'''add a teacher to a subject'''
+	'''Add a teacher to a subject'''
 	q = Subject_Teachers.all()
 	q.filter('school =', school)
 	q.filter('subject =', subject)
@@ -1259,7 +1054,7 @@ def add_teacher_to_subject(school, teacher, subject):
 	result.put()
 
 def find_guides_ts(school, teacher, subject):
-	'''retrieves a list of guides based on school, teacher, and subject'''
+	'''Retrieves a list of guides based on school, teacher, and subject'''
 	# To whomever removed the if statements, please dont.  they're needed. love, management
 	q = Guides.all()
 	q.filter('school =', school)
@@ -1273,9 +1068,8 @@ def find_guides_ts(school, teacher, subject):
 	results = q.run(limit=1000)
 	return results
 
-############################### voting functions ###############################
-
 def vote(key, vote_type, username):
+	'''Votes for a guide'''
 	if not username:
 		return 'signin'
 
@@ -1317,8 +1111,6 @@ def vote(key, vote_type, username):
 	memcache.delete('new-guides-' + guide.school)
 	last_refresh[str(guide.school)] = 0
 	last_refresh['None'] = 0
-
-	#logging.debug(diff)
 
 	return diff
 

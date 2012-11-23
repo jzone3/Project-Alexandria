@@ -155,7 +155,7 @@ class BaseHandler(webapp2.RequestHandler):
 				self.delete_cookie('school')
 				return False
 		else:
-			return False		
+			return False
 
 	def set_cookie(self, cookie):
 		self.response.headers.add_header('Set-Cookie', cookie)
