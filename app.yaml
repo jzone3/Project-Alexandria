@@ -1,5 +1,5 @@
 application: project-alexa
-version: 4
+version: 2
 runtime: python27
 api_version: 1
 threadsafe: false
@@ -16,15 +16,7 @@ handlers:
   static_files: static/basic_sitemap.txt
   upload: static/basic_sitemap.txt
 
-- url: /channel.html
-  static_files: static/channel.html
-  upload: static/channel.html
-
-- url: /admin
-  login: admin
-  script: main.app
-
-- url: /admin/
+- url: /admin/?
   login: admin
   script: main.app
 

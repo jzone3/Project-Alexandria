@@ -9,8 +9,8 @@ def str_votes(votes):
 		return str(votes)
 
 def make_new_guides(guides, page=0, username=''):
-	table = ""
-	x = 25 * int(page)
+	table = ''
+	x = 25*int(page)
 
 	for i in guides:
 		x += 1
@@ -36,16 +36,16 @@ def make_new_guides(guides, page=0, username=''):
 					</tr>
 				""".format({'key':str(i.key()), 'url':i.url, 'title':i.title, 'subject':i.subject, 'user_created':user, 'teacher':i.teacher, 'votes':str_votes(i.votes), 'x':str(x),
 							'up':'active' if (username in i.up_users) else '', 'down':'active' if (username in i.down_users) else ''})
-	
 	pg = ''
 	if page > 0:
 		pg += """<li class="previous">
-							<a href='guides?new_page=%s'>&larr; Previous</a>
-						</li>""" % str(page - 1)
+					<a href='guides?new_page=%s'>&larr; Previous</a>
+				</li>""" % str(page - 1)
+
 	if len(guides) == 25 and page < 2:
 		pg += """<li class="next">
-							<a href='guides?new_page=%s'>Next &rarr;</a>
-						</li>""" % str(page + 1)
+					<a href='guides?new_page=%s'>Next &rarr;</a>
+				</li>""" % str(page + 1)
 
 	html = """
 			<table class="table-hover">
@@ -63,41 +63,42 @@ def make_new_guides(guides, page=0, username=''):
 				<tbody>%s</tbody>
 			</table>
 			<ul class="pager">%s</ul>
-	""" % (table, pg)
+		""" % (table, pg)
 
 	script = """<script>	
-		$('div.new-answer button.vote').click(function() {
-		    var id = $(this).parents('div.new-answer').attr('id');
-		    var vote_type = $(this).hasClass('up') ? 'up' : 'down';
-		    var previous_votes = $("td.score_" + id).attr('id');
-		    $.ajax({
-			    type:'POST', 
-			    url:'/vote', 
-			    data:'id=' + id + '&type=' + vote_type + '&username=' + "%s",
-			    success: function(response) {
-					if (response == 'voted') {
-						// if already voted
-						$("#new-tip_" + id).tooltip('show');
-					} else if (response == 'signin') {
-						$('#login').modal('show');
-					} else {
-						prev = parseInt($('#new-votes_' + id).text())
-						after = prev + parseInt(response)
-						$('#new-votes_' + id).html(str_votes(after))
-						$('#votes_' + id).html(str_votes(after))
-						if (vote_type == 'up'){
-							$('#new-votes_' + id).css({'color':'#14BB14'})
-							$('#votes_' + id).css({'color':'#14BB14'})
-						} else {
-							$('#new-votes_' + id).css({'color':'red'})
-							$('#votes_' + id).css({'color':'red'})
-						}
-					}		        
-			    }
-			});
-		});
-		</script>
-	"""%username
+				$('div.new-answer button.vote').click(function() {
+				    var id = $(this).parents('div.new-answer').attr('id');
+				    var vote_type = $(this).hasClass('up') ? 'up' : 'down';
+				    var previous_votes = $("td.score_" + id).attr('id');
+				    $.ajax({
+					    type:'POST', 
+					    url:'/vote', 
+					    data:'id=' + id + '&type=' + vote_type + '&username=' + "%s",
+					    success: function(response) {
+							if (response == 'voted') {
+								// if already voted
+								$("#new-tip_" + id).tooltip('show');
+							} else if (response == 'signin') {
+								$('#login').modal('show');
+							} else {
+								prev = parseInt($('#new-votes_' + id).text())
+								after = prev + parseInt(response)
+								$('#new-votes_' + id).html(str_votes(after))
+								$('#votes_' + id).html(str_votes(after))
+								if (vote_type == 'up'){
+									$('#new-votes_' + id).css({'color':'#14BB14'})
+									$('#votes_' + id).css({'color':'#14BB14'})
+								} else {
+									$('#new-votes_' + id).css({'color':'red'})
+									$('#votes_' + id).css({'color':'red'})
+								}
+							}		        
+					    }
+					});
+				});
+				</script>
+			"""%username
+
 	return html+script
 
 def make_activation_email(username, link, ignore_link):

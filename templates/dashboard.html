@@ -53,7 +53,7 @@
 									<h4><a href="../guides/{{ bookmark.guide.url }}">{{ bookmark.guide.title }}</a></h4>
 									<div>{{ bookmark.guide.subject }}</div>
 									<div>{{ bookmark.guide.teacher }}</div>
-									<div><em>{{ bookmark.guide.votes }} Votes</em></div>
+									<div><em>{{ bookmark.guide.votes | str_votes }} Votes</em></div>
 								</span>
 							</div>
 						{% endfor %}

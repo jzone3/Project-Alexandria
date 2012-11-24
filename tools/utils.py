@@ -48,6 +48,21 @@ last_refresh = {}
 person = 0
 dev = 0
 
+
+def get_schools_list():
+	'''Returns a string version of the schools list to put into HTML/typeahead'''
+	return list_to_str(get_schools())
+
+def list_to_str(lst):
+	'''Converts a list into a string to put into HTML'''
+	to_return = '['
+	for i in lst:
+		if i == lst[len(lst) - 1]:
+			to_return += '"' + i + '"]'
+		else:
+			to_return += '"' + i + '",'
+	return to_return
+
 def calc_score(guide):
 	"""Calculates top/hot score for a guide"""
 	votes = guide.votes
@@ -114,7 +129,7 @@ def str_votes(votes):
 def get_schools():
 	'''Get all schools registered'''
 	lst = memcache.get('all_schools')
-	if lst is None:
+	if not lst:
 		all_users = db.GqlQuery("SELECT * FROM Users")
 		schools = []
 		for i in all_users:
@@ -123,6 +138,7 @@ def get_schools():
 		if len(schools) == 0:
 			schools = ['Bergen County Academies']
 		memcache.set('all_schools', schools)
+		return schools
 	return lst
 
 def add_school(new_school):
@@ -190,7 +206,7 @@ def get_submitted(username):
 		GET_USER_GUIDES.bind(username = username)
 		guides = GET_USER_GUIDES
 		if not guides:
-			return 5
+			return None
 		logging.info('DB get_submitted(): '+username)
 		memcache.set(username + '_submitted', list(guides))
 		logging.info('CACHE set: '+username+'_submitted')
@@ -263,9 +279,9 @@ def get_school(username):
 	'''Gets school from db from username'''
 	q = Users.all()
 	q.filter('username =', username)
-	results = q.get()
-	if results:
-		return results.school
+	result = q.get()
+	if result:
+		return result.school
 	else:
 		return None
 
@@ -786,39 +802,47 @@ def hot_guides_from_db(school, page):
 def get_top_guides(school=None, page=0):
 	'''Higest level; retrieves list of top voted guides'''
 	global last_refresh # {school:unix_time}
-	school = str(school)
-	
+	if not school:
+		school = 'All'
+
 	if page >= 5:
 		# retrieve from db if > page 5
 		results = top_guides_from_db(school, page)
+		logging.error(1)
 	elif school in last_refresh:
 		if time.time() > last_refresh[school] + 900:
+			logging.error(2)
 			# if cache older than 900 sec
 			last_refresh[school] = time.time()
 			results = top_guides_from_db(school, page)
 			memcache.set(school + '-top_guides-' + str(page), results)
 		else:
 			results = memcache.get(school + '-top_guides-' + str(page))
+			logging.error(3)
 			if not results:
+				logging.error(5)
 				results = top_guides_from_db(school, page)
 				memcache.set(school + '-top_guides-' + str(page), results)
 	else:
+		logging.error(6)
 		# if school not in refresh listing		
 		last_refresh[school] = time.time()
 		results = top_guides_from_db(school, page)
 		memcache.set(school + '-top_guides-' + str(page), results)
 
+	logging.error(results)
 	return results
 
 def top_guides_from_db(school, page):
 	'''Retrieves list of top voted guides from db'''
 	q = Guides.all()
-	if school: q.filter('school =', school)
+	if school != 'All': 
+		q.filter('school =', school)
 	q.order('-votes')
 
 	results = q.run(limit=25, offset=page*25)
 
-	if school:
+	if school != 'All':
 		logging.info('DB top_guides_from_db: '+school)
 	else:
 		logging.info('DB top_guides_from_db: ALL')
