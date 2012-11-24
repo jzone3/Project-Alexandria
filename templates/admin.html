@@ -73,7 +73,7 @@
 					<h2>Popular Guides</h2>
 					<ol>
 					{% for guide in top_guides %}				
-						<li><a href="/guides/{{guide.url}}">{{ guide.title }}</a></li>				
+						<li><a href="/guides/{{guide.url}}">{{ guide.title }}</a><span style="color: gray;font-size: 11px;">  ({{ guide.downloads }})</span></li>				
 					{% endfor %}
 					</ol>
 				</div>
