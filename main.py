@@ -38,6 +38,8 @@ template_dir = os.path.join(os.path.dirname(__file__), 'templates')
 jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir), autoescape=True)
 jinja_env.filters['str_votes'] = str_votes
 
+##### Important handlers #####
+
 class BaseHandler(webapp2.RequestHandler):
 	'''Parent class for all handlers, shortens functions'''
 	def write(self, content):
@@ -152,6 +154,260 @@ class BaseHandler(webapp2.RequestHandler):
 		self.set_school_cookie(school)
 		return school
 
+class DashboardHandler(BaseHandler):
+	'''Handlers dashboard: dashboard.html'''
+	def get(self):
+		if self.rget('q'):
+			self.redirect('/search?q=' + self.rget('q'))
+
+		tour = False # first log in tour
+		if self.rget('tour') == 'True':
+			tour = True
+
+		username = self.get_username()
+		if username:
+			user = get_user(username)
+			bookmark_list = list(user.bookmark_list)
+			self.render('dashboard.html', {'bookmark_list':bookmark_list, 'tour':tour})
+		else:
+			self.redirect('/')
+
+class DeleteAccountHandler(BaseHandler):
+	def get(self):
+		username = self.get_username()
+		if username:
+			self.render('delete_account.html', {'google_account':is_google_account(username)})
+		else:
+			self.redirect('/')
+
+	def post(self):
+		username = self.get_username()
+		if username:			
+			if is_google_account(username):
+				self.delete_account(username)
+			else:
+				password = self.rget('password')
+				if check_login(username, password):
+					feedback = self.rget('feedback')
+					self.delete_account(username)
+				else:
+					self.render('/delete_account')
+		else:
+			self.redirect('/')
+
+	def delete_account(self, username):
+		feedback = self.rget('feedback')
+		if feedback:
+			save_feedback(feedback, username)
+		delete_user_account(username)
+		self.delete_cookie(LOGIN_COOKIE_NAME)
+		self.delete_cookie('school')
+		self.redirect('/')
+
+class DeleteEmailVerification(BaseHandler):
+	def get(self, key):
+		try:
+			if deleted(key):
+				self.render('email_deleted.html')
+			else:
+				self.error(404)
+				self.render('404.html', {'blockbg':True})
+		except datastore_errors.BadKeyError:
+			self.error(404)
+			self.render('404.html', {'blockbg':True})
+
+class EmailVerificationHandler(BaseHandler):
+	def get(self, key):
+		try:
+			if verify(key):
+				self.render('email_verified.html')
+			else:
+				self.error(404)
+				self.render('404.html', {'blockbg':True})
+		except datastore_errors.BadKeyError:
+			self.error(404)
+			self.render('404.html', {'blockbg':True})
+
+class ExternalSignUp(BaseHandler):
+	'''Handles external signup: /ext_signup'''
+	def get(self):
+		user = users.get_current_user()
+		if not user:
+			self.redirect('/google_signup')
+
+		# unique email check	
+		q = Users.all()
+		q.filter('email =', user.email())
+		if q.get():
+			self.render('index.html', {'blockbg':True, 'modal':'signup',
+						'ext_duplicate_error':'Someone is already using that account. Did you mean to <a href="#login" role="button" data-toggle="modal" onclick="$(\'#signup\').modal(\'hide\')">log in</a>?'})
+			return
+
+		self.render('external_signup.html', {'ext':True})
+
+	def post(self):
+		user = users.get_current_user()
+		if user:
+			username = self.rget('username')
+			school = self.rget('school')
+			agree = self.rget('agree')
+
+			if school == 'Bergen County Academies':
+				email = self.rget('email') + '@bergen.org'
+				ext_email = user.email()
+			else:
+				email = user.email()
+				ext_email = ''
+
+			result = signup_ext(username, school, agree, email, ext_email)
+
+			if result['success']:
+				# set user cookie
+				cookie = result['cookie']
+				self.set_cookie(cookie)
+				#set school cookie
+				self.set_school_cookie(school)
+				self.redirect('/dashboard?tour=True')
+			else:
+				self.render('external_signup.html', {'username':username, 'school':school, 'email':email[:-11], 
+					'ext':True, 'email_error':result.get('email_error'), 'agree_error':result.get('agree_error'),
+					'school_error':result.get('school_error'), 'username_error':result.get('username_error')})
+		else:
+			self.redirect('/google_signup')
+
+class GoogleLoginHandler(BaseHandler):
+	'''Handles google login: /google_login'''
+	def google_login(self, user):
+		account = memcache.get('useremail-'+user.email())
+		if account:
+			logging.info('CACHE GLOGIN: '+user.email())
+		else:
+			logging.info('DB GLOGIN: '+user.email())
+			q = Users.all()
+			q.filter('email =', user.email())
+			account = q.get()
+
+			memcache.set('useremail-'+user.email(), account)
+			logging.info('CACHE set glogin useremail-'+user.email())
+
+		if account:
+			username = account.username
+			cookie = LOGIN_COOKIE_NAME + '=%s|%s; Expires=%s Path=/' % (str(username), hash_str(username), remember_me())
+			self.set_cookie(cookie)
+			self.set_school_cookie(get_school(username))
+			return True
+		else:
+			return False
+
+	def get(self):
+		user = users.get_current_user()
+		if user:
+			if self.google_login(user):
+				self.redirect('/')
+			else:
+				self.render('index.html', {'blockbg': True, 'modal':'login',
+							'google_error':"""There was no information found for your Google Account. Did you mean to <a href="#signup" role="button" data-toggle="modal" onclick="$('#login').modal('hide')">sign up</a>?"""})
+				return
+		else:
+			self.redirect(users.create_login_url("/google_login"))
+
+class GuidePageHandler(BaseHandler):
+	'''Handlers custom guide pages: guide_page.html'''
+	def get(self, url):
+		bookmarked, reported, deletable, diff, user, admin = [False]*6
+		username = self.get_username()
+		url = url[1:] # formats url 
+
+		# retrieve guide from db
+		q = Guides.all()
+		q.filter('url =', url.lower())
+		guide = q.get()
+
+		# if guide exists, render page
+		if guide:
+			# get comments
+			comments = guide.comments_list
+			if not comments.get():
+				comments = False
+			else:
+				comments.order('date_created').run()
+
+			votes = str_votes(guide.votes)
+			dl_link = '/serve/' + guide.blob_key
+
+			if username:
+				# check if reported & bookmarked
+				reported = (username in guide.report_users)				
+				user = get_user(username)
+				if any([bookmark.guide.blob_key == guide.blob_key for bookmark in user.bookmark_list]):
+						bookmarked = True
+
+				# check if uploaded/deleteable
+				if user.username == guide.user_created:
+					diff = datetime.datetime.now() - guide.date_created 
+					if diff < datetime.timedelta(days=1):
+						deletable = True
+					diff = "%0.1f"%((datetime.timedelta(0, 86400)-diff).total_seconds()/3600) # convert to remaining time
+
+				# check for admin access
+				admin = (user.username == "admin")
+				if admin: deletable = True
+
+			self.render('guide_page.html', {'guide':guide, 'difference':time_difference(guide.date_created), 
+						'votes':votes, 'dl_link':dl_link, 'bookmarked':bookmarked, 'reported':reported, 
+						'deletable':deletable, 'diff':diff, 'comments':comments, 'admin':admin, 
+						'fake_users':['admin']+FAKE_USERS, 'user':user})
+		else:
+			self.error(404)
+			self.render('404.html', {'blockbg':True})
+
+class GuidesHandler(BaseHandler):
+	'''Handles guides: guides.html'''
+	def get(self):
+		if self.rget('q'):
+			self.redirect('/search?q=' + self.rget('q'))
+
+		# page on top guides tab
+		page = 0
+		if self.rget('page'): 
+			try:
+				page = int(self.rget('page'))
+				if page > 2 or page < 0:
+					page = 0
+			except:
+				page = 0
+		page_offset = page*25
+
+		# page on new guides tab
+		new_page = 0
+		if self.rget('new_page'):
+			try:
+				new_page = int(self.rget('new_page'))
+				if new_page == 0:
+					new_page = 'zero'
+				elif new_page > 2 or new_page < 0:
+					new_page = 0
+			except:
+				new_page = 0	
+
+		# get top guides, active subj/teach if logged in
+		username = self.get_username()
+		school = get_school(username)
+		if username:
+			top_guides = get_top_guides(school, page)
+			subjects = get_all_active_subjects(school)
+			teachers = get_all_active_teachers(school)
+
+			self.render('guides.html', {'top_guides':top_guides,'subjects':subjects, 
+						'teachers':teachers, 'page':page, 'page_offset':page_offset,
+						'school':school, 'new_page':new_page, 'username':username})
+		else:
+			top_guides = get_top_guides(None, page)
+
+			self.render('guides.html', {'top_guides':top_guides, 'page':page,
+						'page_offset':page_offset, 'new_page':new_page,
+						'username':username})
+
 class MainHandler(BaseHandler):
 	'''Handles homepage: index.html, dashboard.html, singup, and signin'''
 	def get(self):
@@ -223,177 +479,46 @@ class MainHandler(BaseHandler):
 		else:
 			self.redirect('/')
 
-class LogoutHandler(BaseHandler):
-	'''Handles logging out'''
+class PreferencesHandler(BaseHandler):
 	def get(self):
-		self.delete_cookie(LOGIN_COOKIE_NAME)
-		self.delete_cookie('ACSID')
-		self.delete_cookie('school')
-		self.delete_cookie('bg')
-		self.set_cookie('tour_current_step=0')
-		self.redirect('/')
-
-class GuidesHandler(BaseHandler):
-	'''Handles guides: guides.html'''
-	def get(self):
-		if self.rget('q'):
-			self.redirect('/search?q=' + self.rget('q'))
-
-		# page on top guides tab
-		page = 0
-		if self.rget('page'): 
-			try:
-				page = int(self.rget('page'))
-				if page > 2 or page < 0:
-					page = 0
-			except:
-				page = 0
-		page_offset = page*25
-
-		# page on new guides tab
-		new_page = 0
-		if self.rget('new_page'):
-			try:
-				new_page = int(self.rget('new_page'))
-				if new_page == 0:
-					new_page = 'zero'
-				elif new_page > 2 or new_page < 0:
-					new_page = 0
-			except:
-				new_page = 0	
-
-		# get top guides, active subj/teach if logged in
-		username = self.get_username()
-		school = get_school(username)
-		if username:
-			top_guides = get_top_guides(school, page)
-			subjects = get_all_active_subjects(school)
-			teachers = get_all_active_teachers(school)
-
-			self.render('guides.html', {'top_guides':top_guides,'subjects':subjects, 
-						'teachers':teachers, 'page':page, 'page_offset':page_offset,
-						'school':school, 'new_page':new_page, 'username':username})
-		else:
-			top_guides = get_top_guides(None, page)
-
-			self.render('guides.html', {'top_guides':top_guides, 'page':page,
-						'page_offset':page_offset, 'new_page':new_page,
-						'username':username})
-
-class NewGuidesHandler(BaseHandler):
-	def get(self):
-		self.redirect('/guides')
-
-	def post(self):
-		school = self.rget('school')
-		if not school:
-			school = ''
-		try:
-			page = int(self.rget('new_page'))
-		except:
-			page = 0
-		
-		username = self.get_username()
-		if not username: username = ''
-
-		response = get_new_guides(school, page, username)
-		self.write(response)
-
-class SubmittedHandler(BaseHandler):
-	def get(self):
-		self.redirect('/guides')
-
-	def post(self):
 		if self.logged_in():
-			self.write(get_submitted_html(self.get_username()))
-		else:
-			self.error(404)
-
-class DashboardHandler(BaseHandler):
-	'''Handlers dashboard: dashboard.html'''
-	def get(self):
-		if self.rget('q'):
-			self.redirect('/search?q=' + self.rget('q'))
-
-		tour = False # first log in tour
-		if self.rget('tour') == 'True':
-			tour = True
-
-		username = self.get_username()
-		if username:
-			user = get_user(username)
-			bookmark_list = list(user.bookmark_list)
-			self.render('dashboard.html', {'bookmark_list':bookmark_list, 'tour':tour})
+			school_success = self.rget('school_success')
+			self.render_prefs({'school_success':school_success})
 		else:
 			self.redirect('/')
 
-class GuidePageHandler(BaseHandler):
-	'''Handlers custom guide pages: guide_page.html'''
-	def get(self, url):
-		bookmarked, reported, deletable, diff, user, admin = [False]*6
-		username = self.get_username()
-		url = url[1:] # formats url 
+class SearchHandler(BaseHandler):
+	def get(self):
+		query = self.rget('q')
+		school = self.get_school_cookie()
+		if not school:
+			school = 'Bergen County Academies'
+		results = search(school, query)
+		
+		if not results:
+			self.render('search.html', {'query':query})
+			return
 
-		# retrieve guide from db
-		q = Guides.all()
-		q.filter('url =', url.lower())
-		guide = q.get()
+		guides = [r[0] for r in results]
+		self.render('search.html', {'guides':guides, 'query':query})
 
-		# if guide exists, render page
+class ServeHandler(blobstore_handlers.BlobstoreDownloadHandler):
+	def get(self, blob_key):
+		guide = Guides.all().filter('blob_key =', blob_key).get()
 		if guide:
-			# get comments
-			comments = guide.comments_list
-			if not comments.get():
-				comments = False
-			else:
-				comments.order('date_created').run()
+			# record download in database
+			if guide.downloads is None:
+				guide.downloads = 0
+			guide.downloads += 1
+			guide.top_score = calc_score(guide)
+			guide.put()
 
-			votes = str_votes(guide.votes)
-			dl_link = '/serve/' + guide.blob_key
-
-			if username:
-				# check if reported & bookmarked
-				reported = (username in guide.report_users)				
-				user = get_user(username)
-				if any([bookmark.guide.blob_key == guide.blob_key for bookmark in user.bookmark_list]):
-						bookmarked = True
-
-				# check if uploaded/deleteable
-				if user.username == guide.user_created:
-					diff = datetime.datetime.now() - guide.date_created 
-					if diff < datetime.timedelta(days=1):
-						deletable = True
-					diff = "%0.1f"%((datetime.timedelta(0, 86400)-diff).total_seconds()/3600) # convert to remaining time
-
-				# check for admin access
-				admin = (user.username == "admin")
-				if admin: deletable = True
-
-			self.render('guide_page.html', {'guide':guide, 'difference':time_difference(guide.date_created), 
-						'votes':votes, 'dl_link':dl_link, 'bookmarked':bookmarked, 'reported':reported, 
-						'deletable':deletable, 'diff':diff, 'comments':comments, 'admin':admin, 
-						'fake_users':['admin']+FAKE_USERS, 'user':user})
+			# serve file to browser
+			blob_key = str(urllib.unquote(blob_key))
+			blob_info = blobstore.BlobInfo.get(blob_key)
+			self.send_blob(blob_info, save_as=blob_info.filename, content_type=blob_info.content_type)			
 		else:
 			self.error(404)
-			self.render('404.html', {'blockbg':True})
-
-class UserPageHandler(BaseHandler):
-	'''Handlers custom user pages: user_page.html'''
-	def get(self, url):
-		username = url[1:]
-		submitted = get_submitted(username)
-
-		if not submitted:
-			self.error(404)
-			self.render('404.html', {'blockbg':True})
-		else:
-			user = get_user(username)
-			if not user:
-				self.error(404)
-				self.render('404.html', {'blockbg':True})
-				return
-			count = len(submitted)
-			self.render('user_page.html', {'count':count, 'submitted':submitted, 'user':user})
 
 class UploadHandler(BaseHandler):
 	def get(self):
@@ -517,199 +642,26 @@ class UploadHandler(BaseHandler):
 
 			# set last upload time for user
 			memcache.set('uploadtime-'+username, datetime.datetime.now())
-		
-class ServeHandler(blobstore_handlers.BlobstoreDownloadHandler):
-	def get(self, blob_key):
-		guide = Guides.all().filter('blob_key =', blob_key).get()
-		if guide:
-			# record download in database
-			if guide.downloads is None:
-				guide.downloads = 0
-			guide.downloads += 1
-			guide.top_score = calc_score(guide)
-			guide.put()
 
-			# serve file to browser
-			blob_key = str(urllib.unquote(blob_key))
-			blob_info = blobstore.BlobInfo.get(blob_key)
-			self.send_blob(blob_info, save_as=blob_info.filename, content_type=blob_info.content_type)			
-		else:
-			self.error(404)
+class UserPageHandler(BaseHandler):
+	'''Handlers custom user pages: user_page.html'''
+	def get(self, url):
+		username = url[1:]
+		submitted = get_submitted(username)
 
-class NotFoundHandler(BaseHandler):
-	def get(self):
-		self.error(404)
-		self.render('404.html', {'blockbg':True})
-
-class SearchHandler(BaseHandler):
-	def get(self):
-		query = self.rget('q')
-		school = self.get_school_cookie()
-		if not school:
-			school = 'Bergen County Academies'
-		results = search(school, query)
-		
-		if not results:
-			self.render('search.html', {'query':query})
-			return
-
-		guides = [r[0] for r in results]
-		self.render('search.html', {'guides':guides, 'query':query})
-
-
-class PreferencesHandler(BaseHandler):
-	def get(self):
-		if self.logged_in():
-			school_success = self.rget('school_success')
-			self.render_prefs({'school_success':school_success})
-		else:
-			self.redirect('/')
-
-class EmailVerificationHandler(BaseHandler):
-	def get(self, key):
-		try:
-			if verify(key):
-				self.render('email_verified.html')
-			else:
-				self.error(404)
-				self.render('404.html', {'blockbg':True})
-		except datastore_errors.BadKeyError:
+		if not submitted:
 			self.error(404)
 			self.render('404.html', {'blockbg':True})
-
-class DeleteEmailVerification(BaseHandler):
-	def get(self, key):
-		try:
-			if deleted(key):
-				self.render('email_deleted.html')
-			else:
+		else:
+			user = get_user(username)
+			if not user:
 				self.error(404)
 				self.render('404.html', {'blockbg':True})
-		except datastore_errors.BadKeyError:
-			self.error(404)
-			self.render('404.html', {'blockbg':True})
-
-class DeleteAccountHandler(BaseHandler):
-	def get(self):
-		username = self.get_username()
-		if username:
-			self.render('delete_account.html', {'google_account':is_google_account(username)})
-		else:
-			self.redirect('/')
-
-	def post(self):
-		username = self.get_username()
-		if username:			
-			if is_google_account(username):
-				self.delete_account(username)
-			else:
-				password = self.rget('password')
-				if check_login(username, password):
-					feedback = self.rget('feedback')
-					self.delete_account(username)
-				else:
-					self.render('/delete_account')
-		else:
-			self.redirect('/')
-
-	def delete_account(self, username):
-		feedback = self.rget('feedback')
-		if feedback:
-			save_feedback(feedback, username)
-		delete_user_account(username)
-		self.delete_cookie(LOGIN_COOKIE_NAME)
-		self.delete_cookie('school')
-		self.redirect('/')
-
-class DeleteGuideHandler(BaseHandler):
-	def post(self):
-		key = self.rget('key')
-		delete_guide(key)
-		self.write("Successfully deleted!")
-
-class GoogleLoginHandler(BaseHandler):
-	'''Handles google login: /google_login'''
-	def google_login(self, user):
-		account = memcache.get('useremail-'+user.email())
-		if account:
-			logging.info('CACHE GLOGIN: '+user.email())
-		else:
-			logging.info('DB GLOGIN: '+user.email())
-			q = Users.all()
-			q.filter('email =', user.email())
-			account = q.get()
-
-			memcache.set('useremail-'+user.email(), account)
-			logging.info('CACHE set glogin useremail-'+user.email())
-
-		if account:
-			username = account.username
-			cookie = LOGIN_COOKIE_NAME + '=%s|%s; Expires=%s Path=/' % (str(username), hash_str(username), remember_me())
-			self.set_cookie(cookie)
-			self.set_school_cookie(get_school(username))
-			return True
-		else:
-			return False
-
-	def get(self):
-		user = users.get_current_user()
-		if user:
-			if self.google_login(user):
-				self.redirect('/')
-			else:
-				self.render('index.html', {'blockbg': True, 'modal':'login',
-							'google_error':"""There was no information found for your Google Account. Did you mean to <a href="#signup" role="button" data-toggle="modal" onclick="$('#login').modal('hide')">sign up</a>?"""})
 				return
-		else:
-			self.redirect(users.create_login_url("/google_login"))
+			count = len(submitted)
+			self.render('user_page.html', {'count':count, 'submitted':submitted, 'user':user})
 
-class ExternalSignUp(BaseHandler):
-	'''Handles external signup: /ext_signup'''
-	def get(self):
-		user = users.get_current_user()
-		if not user:
-			self.redirect('/google_signup')
-
-		# unique email check	
-		q = Users.all()
-		q.filter('email =', user.email())
-		if q.get():
-			self.render('index.html', {'blockbg':True, 'modal':'signup',
-						'ext_duplicate_error':'Someone is already using that account. Did you mean to <a href="#login" role="button" data-toggle="modal" onclick="$(\'#signup\').modal(\'hide\')">log in</a>?'})
-			return
-
-		self.render('external_signup.html', {'ext':True})
-
-	def post(self):
-		user = users.get_current_user()
-		if user:
-			username = self.rget('username')
-			school = self.rget('school')
-			agree = self.rget('agree')
-
-			if school == 'Bergen County Academies':
-				email = self.rget('email') + '@bergen.org'
-				ext_email = user.email()
-			else:
-				email = user.email()
-				ext_email = ''
-
-			result = signup_ext(username, school, agree, email, ext_email)
-
-			if result['success']:
-				# set user cookie
-				cookie = result['cookie']
-				self.set_cookie(cookie)
-				#set school cookie
-				self.set_school_cookie(school)
-				self.redirect('/dashboard?tour=True')
-			else:
-				self.render('external_signup.html', {'username':username, 'school':school, 'email':email[:-11], 
-					'ext':True, 'email_error':result.get('email_error'), 'agree_error':result.get('agree_error'),
-					'school_error':result.get('school_error'), 'username_error':result.get('username_error')})
-		else:
-			self.redirect('/google_signup')
-
+##### Backend handlers #####
 
 class AddBookmarkHandler(BaseHandler):
 	def post(self):
@@ -766,6 +718,55 @@ class CommentHandler(BaseHandler):
 			self.write('False')
 			return
 
+class CommentVoteHandler(BaseHandler):
+	def post(self):
+		key = self.rget('id')
+		vote_type = self.rget('type')
+		username = self.get_username()
+		
+		response = comment_vote(key, vote_type, username)
+		self.write(response)
+
+class CronCountHandler(BaseHandler):
+	def get(self):
+		user_count =  Users.all().count()
+		guide_count = Guides.all().count()
+
+		d1 = Data(name="user_count", value=user_count)
+		d2 = Data(name="guide_count", value=guide_count)
+
+		d1.put()
+		d2.put()
+
+		logging.info('CRON logged user_count & guide_count')
+		self.write('CRON logged user_count & guide_count')
+
+class DeleteCommentHandler(BaseHandler):
+	def post(self):
+		key = self.rget('id')
+		comment = Comments.get(key)
+
+		user = get_user(self.get_username())
+		if user and user.key() == comment.user.key():
+			comment.delete()
+			self.write('True')
+		else:
+			self.write('False') # this isn't really used
+
+class DeleteGuideHandler(BaseHandler):
+	def post(self):
+		key = self.rget('key')
+		delete_guide(key)
+		self.write("Successfully deleted!")
+
+class DeleteNotifHandler(BaseHandler):
+	def post(self):
+		key = self.rget('key')
+		notif = Notification.get(key)
+		notif.delete()
+
+		self.write('True')
+
 class FeedbackHandler(BaseHandler):
 	def post(self):
 		message = self.rget('message')
@@ -788,6 +789,35 @@ class GoogleSignupHandler(BaseHandler):
     def get(self):
         self.redirect(users.create_login_url("/ext_signup"))
 
+class LogoutHandler(BaseHandler):
+	'''Handles logging out'''
+	def get(self):
+		self.delete_cookie(LOGIN_COOKIE_NAME)
+		self.delete_cookie('ACSID')
+		self.delete_cookie('school')
+		self.delete_cookie('bg')
+		self.set_cookie('tour_current_step=0')
+		self.redirect('/')
+
+class NewGuidesHandler(BaseHandler):
+	def get(self):
+		self.redirect('/guides')
+
+	def post(self):
+		school = self.rget('school')
+		if not school:
+			school = ''
+		try:
+			page = int(self.rget('new_page'))
+		except:
+			page = 0
+		
+		username = self.get_username()
+		if not username: username = ''
+
+		response = get_new_guides(school, page, username)
+		self.write(response)
+
 class NotificationHandler(BaseHandler):
 	def post(self):
 		username = self.get_username()
@@ -797,6 +827,51 @@ class NotificationHandler(BaseHandler):
 		for notif in q:
 			notif.is_new = False
 			notif.put()
+
+class PreferenceEditHandler(BaseHandler):
+	def post(self):
+		formname = self.rget('formname')
+		username = self.get_username()
+
+		if not username:
+			self.redirect('/preferences')
+
+		elif formname == 'change_email':
+			email = self.rget('email')
+			results = new_user_email(email, username)
+			if results[0]:
+				self.render_prefs({'email_success':True})
+			else:
+				self.render_prefs({'email_error':results[1]})
+
+		elif formname == 'resend_email':
+			email = self.rget('email')
+			email_verification(username, email)
+			self.render_prefs({'verification_success':True})
+
+		elif formname == 'change_school':
+			school = self.rget('school')
+			results = change_school(school, username)
+			if results[0]:
+				self.set_school_cookie(school)
+				self.redirect('/preferences?school_success=True')
+			else:
+				self.write(results[1])
+				self.render('prefs', {'school_error' : results[1]})
+
+		elif formname == 'change_password':
+			old_password = self.rget('current_password')
+			new_password = self.rget('new_password')
+			verify_new_password = self.rget('verify_new_password')
+			results = change_password(old_password, new_password, verify_new_password, username)
+			if results[0]:
+				self.set_cookie(results[1])
+				self.render_prefs({'username':username, 'password_success':True})
+			else:
+				self.render_prefs(results[1])
+
+		else:
+			self.redirect('/preferences')
 
 class RemoveBookmarkHandler(BaseHandler):
 	def get(self):
@@ -943,7 +1018,17 @@ class SubjectsHandler2(BaseHandler):
 		html += """</tbody></table>"""
 		# send this html back to jquery/ajax	
 		self.write(html)
-		
+
+class SubmittedHandler(BaseHandler):
+	def get(self):
+		self.redirect('/guides')
+
+	def post(self):
+		if self.logged_in():
+			self.write(get_submitted_html(self.get_username()))
+		else:
+			self.error(404)		
+	
 class TeachersHandler(BaseHandler):
 	'''receives AJAX request for the second page on guides->teacher'''
 	def post(self):
@@ -1055,24 +1140,7 @@ class VoteHandler(BaseHandler):
 		response = vote(key, vote_type, username)
 		self.write(response)
 
-class AboutHandler(BaseHandler):
-	'''Handles about: about.html'''
-	def get(self):
-		self.render('about.html')
-
-class ContactHandler(BaseHandler):
-	'''Handles contact: contact.html'''
-	def get(self):
-		self.render('contact.html')
-
-class TeamHandler(BaseHandler):
-	'''Handles team: team.html'''
-	def get(self):
-		self.render('team.html')
-
-class ToSHandler(BaseHandler):
-	def get(self):
-		self.render('tos.html')
+##### Static handlers #####
 
 class AdminHandler(BaseHandler):
 	def get(self):
@@ -1089,95 +1157,29 @@ class AdminHandler(BaseHandler):
 			'guide_count':guide_count,'new_guides':new_guides, 'new_comments':new_comments,
 			'feedback':feedback, 'top_guides':top_guides})
 
-class CronCountHandler(BaseHandler):
+class AboutHandler(BaseHandler):
+	'''Handles about: about.html'''
 	def get(self):
-		user_count =  Users.all().count()
-		guide_count = Guides.all().count()
+		self.render('about.html')
 
-		d1 = Data(name="user_count", value=user_count)
-		d2 = Data(name="guide_count", value=guide_count)
+class ContactHandler(BaseHandler):
+	'''Handles contact: contact.html'''
+	def get(self):
+		self.render('contact.html')
 
-		d1.put()
-		d2.put()
+class NotFoundHandler(BaseHandler):
+	def get(self):
+		self.error(404)
+		self.render('404.html', {'blockbg':True})
 
-		logging.info('CRON logged user_count & guide_count')
-		self.write('CRON logged user_count & guide_count')
+class TeamHandler(BaseHandler):
+	'''Handles team: team.html'''
+	def get(self):
+		self.render('team.html')
 
-class DeleteCommentHandler(BaseHandler):
-	def post(self):
-		key = self.rget('id')
-		comment = Comments.get(key)
-
-		user = get_user(self.get_username())
-		if user and user.key() == comment.user.key():
-			comment.delete()
-			self.write('True')
-		else:
-			self.write('False') # this isn't really used
-
-class CommentVoteHandler(BaseHandler):
-	def post(self):
-		key = self.rget('id')
-		vote_type = self.rget('type')
-		username = self.get_username()
-		
-		response = comment_vote(key, vote_type, username)
-		self.write(response)
-
-class DeleteNotifHandler(BaseHandler):
-	def post(self):
-		key = self.rget('key')
-		notif = Notification.get(key)
-		notif.delete()
-
-		self.write('True')
-
-class PreferenceEditHandler(BaseHandler):
-	def post(self):
-		formname = self.rget('formname')
-		username = self.get_username()
-
-		if not username:
-			self.redirect('/preferences')
-
-		elif formname == 'change_email':
-			email = self.rget('email')
-			results = new_user_email(email, username)
-			if results[0]:
-				self.render_prefs({'email_success':True})
-			else:
-				self.render_prefs({'email_error':results[1]})
-
-		elif formname == 'resend_email':
-			email = self.rget('email')
-			email_verification(username, email)
-			self.render_prefs({'verification_success':True})
-
-		elif formname == 'change_school':
-			school = self.rget('school')
-			results = change_school(school, username)
-			if results[0]:
-				self.set_school_cookie(school)
-				self.redirect('/preferences?school_success=True')
-			else:
-				self.write(results[1])
-				self.render('prefs', {'school_error' : results[1]})
-
-		elif formname == 'change_password':
-			old_password = self.rget('current_password')
-			new_password = self.rget('new_password')
-			verify_new_password = self.rget('verify_new_password')
-			results = change_password(old_password, new_password, verify_new_password, username)
-			if results[0]:
-				self.set_cookie(results[1])
-				self.render_prefs({'username':username, 'password_success':True})
-			else:
-				self.render_prefs(results[1])
-
-		else:
-			self.redirect('/preferences')
-
-
+class ToSHandler(BaseHandler):
+	def get(self):
+		self.render('tos.html')
 
 app = webapp2.WSGIApplication([('/?', MainHandler),
 							   ('/about/?', AboutHandler),
