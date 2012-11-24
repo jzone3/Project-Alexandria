@@ -1146,7 +1146,7 @@ class AdminHandler(BaseHandler):
 	def get(self):
 		user_count =  Users.all().count()
 		new_users = Users.all().order('-date_created').run(limit=10)
-		power_users = Users.all().order('-guides_uploaded').run(limit=10)
+		top_uploaders = Users.all().order('-guides_uploaded').run(limit=10)
 		guide_count = Guides.all().count()
 		new_guides = Guides.all().order('-date_created').run(limit=10)
 		top_guides = Guides.all().order('-downloads').run(limit=10)
@@ -1159,7 +1159,7 @@ class AdminHandler(BaseHandler):
 		new_comments = Comments.all().order('-date_created').run(limit=10)
 		feedback = Feedback.all().run(limit=5)
 
-		self.render('admin.html', {'user_count':user_count, 'new_users':new_users, 'power_users':power_users,
+		self.render('admin.html', {'user_count':user_count, 'new_users':new_users, 'top_uploaders':top_uploaders,
 			'guide_count':guide_count,'new_guides':new_guides, 'new_comments':new_comments,
 			'feedback':feedback, 'top_guides':top_guides, 'downloads_count' : downloads_count})
 

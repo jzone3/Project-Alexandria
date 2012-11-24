@@ -37,14 +37,13 @@
 				</div>
 
 				<div class="span4" style="margin-left:0;">
-					<h2>Power Users</h2>
+					<h2>Top Uploaders</h2>
 					<ol>
-					{% for user in power_users %}				
+					{% for user in top_uploaders %}				
 						<li><a href="\user\{{user.username}}">{{ user.username }}</a></li>				
 					{% endfor %}
 					</ol>
 				</div>
-
 			</div>
 
 			<div class="span11">
@@ -53,10 +52,8 @@
 
 			<div class="span12">
 				<div class="span4" style="margin-left:0;">
-					<h2>Guides</h2>
-					<h3 style="color:#C93A34;">{{ guide_count }}</h3>
-					<h2>Downloads</h2>
-					<h3 style="color:#C93A34;">{{ downloads_count }}</h3>
+					<h2>Guides - <span style="font-size: 80%; color:#C93A34;">{{ guide_count }}</span></h2>
+					<h2>Downloads - <span style="font-size: 80%; color:#C93A34;">{{ downloads_count }}</span></h2>
 					<em style="color: gray;font-size: 11px;">Graph coming soon!</em>
 				</div>
 
