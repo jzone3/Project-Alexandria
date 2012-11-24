@@ -40,7 +40,7 @@
 					<h2>Top Uploaders</h2>
 					<ol>
 					{% for user in top_uploaders %}				
-						<li><a href="\user\{{user.username}}">{{ user.username }}</a></li>				
+						<li><a href="\user\{{user.username}}">{{ user.username }}<span style="color: gray;font-size: 11px;">  ({{ user.guides_uploaded }})</span></a></li>				
 					{% endfor %}
 					</ol>
 				</div>
