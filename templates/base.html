@@ -151,11 +151,11 @@
 				                        <!-- <li><a tabindex="-1" href="#">Inbox</a></li> -->
 				                        <li><a tabindex="-1" href="/preferences"><i class="icon-wrench"></i> Preferences</a></li>
 				                        <li class="divider"></li>
-				                        <li><a tabindex="-1" href="/logout"><i class="icon-off"></i> Log Out</a></li>
+				                        <li><a tabindex="-1" title="The reports of my assimilation have been greatly exaggerated." href="/logout"><i class="icon-off"></i> Log Out</a></li>
 				                    </ul>
 				                </li>			                      
 							{% else %}
-								<a href="#signup" role="button" class="btn" data-toggle="modal" style="margin-bottom:5px;">Sign Up</a>
+								<a href="#signup" role="button" class="btn" data-toggle="modal" style="margin-bottom:5px;" title="Assimilate">Sign Up</a>
 								<a href="#login" role="button" class="btn btn-primary" data-toggle="modal" style="margin-bottom:5px;">Log In</a>
 							{% endif %}
 						</ul>
@@ -242,9 +242,9 @@
 	        	</div>
 	        	<div class="modal-footer">
 	        		<div style="float:left;">
-	        			<a href="#login" role="button" data-toggle="modal" onclick="$('#signup').modal('hide')">Already signed up?</a>
+	        			<a href="#login" role="button" data-toggle="modal" onclick="$('#signup').modal('hide')" title="Already assimilated?">Already signed up?</a>
 	        		</div>
-	        		<input class="btn btn-primary" type="submit">
+	        		<input class="btn btn-primary" title="Assimilate me!" type="submit">
 					<button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
 				</div>
 				<input type="hidden" name="formname" value="signup">
