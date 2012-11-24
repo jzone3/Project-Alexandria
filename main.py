@@ -114,7 +114,7 @@ class BaseHandler(webapp2.RequestHandler):
 		if 'school' in params:
 			del params['school']
 
-		params.update({'email':email, 'email_verified':email_verified, 'school':school, 'prefs':True})
+		params.update({'email':email, 'email_verified':email_verified, 'school':school, 'prefs':True, 'user':user})
 		self.render('prefs.html', params)
 
 	def logged_in(self, username = None):
@@ -562,71 +562,6 @@ class PreferencesHandler(BaseHandler):
 		if self.logged_in():
 			school_success = self.rget('school_success')
 			self.render_prefs({'school_success':school_success})
-		else:
-			self.redirect('/')
-
-class ChangeEmailHandler(BaseHandler):
-	def get(self):
-		self.redirect('/preferences')
-
-	def post(self):
-		username = self.get_username()
-		if username:
-			email = self.rget('email')
-			results = new_user_email(email, username)
-			if results[0]:
-				self.render_prefs({'email_success':True})
-			else:
-				self.render_prefs({'email_error':results[1]})
-		else:
-			self.redirect('/')
-
-class ChangeSchoolHandler(BaseHandler):
-	def get(self):
-		self.redirect('/preferences')
-
-	def post(self):
-		if self.logged_in():
-			school = self.rget('school')
-			results = change_school(school, self.get_username())
-			if results[0]:
-				self.set_school_cookie(school)
-				self.redirect('/preferences?school_success=True')
-			else:
-				self.write(results[1])
-				self.render('prefs', {'school_error' : results[1]})
-		else:
-			self.redirect('/')
-
-class ChangePasswordHandler(BaseHandler):
-	def get(self):
-		self.redirect('/preferences')
-
-	def post(self):
-		if self.logged_in():
-			username = self.get_username()
-			old_password = self.rget('current_password')
-			new_password = self.rget('new_password')
-			verify_new_password = self.rget('verify_new_password')
-			results = change_password(old_password, new_password, verify_new_password, username)
-			if results[0]:
-				self.set_cookie(results[1])
-				self.render_prefs({'username':username, 'password_success':True})
-			else:
-				self.render_prefs(results[1])
-		else:
-			self.redirect('/')
-
-class ResendEmailVerificationHandler(BaseHandler):
-	def get(self):
-		self.redirect('/preferences')
-
-	def post(self):
-		username = self.get_username()
-		if username:
-			email = self.rget('email')
-			email_verification(username, email)
-			self.render_prefs({'verification_success':True})
 		else:
 			self.redirect('/')
 
@@ -1120,8 +1055,6 @@ class VoteHandler(BaseHandler):
 		response = vote(key, vote_type, username)
 		self.write(response)
 
-### static pages ###
-
 class AboutHandler(BaseHandler):
 	'''Handles about: about.html'''
 	def get(self):
@@ -1199,6 +1132,53 @@ class DeleteNotifHandler(BaseHandler):
 
 		self.write('True')
 
+class PreferenceEditHandler(BaseHandler):
+	def post(self):
+		formname = self.rget('formname')
+		username = self.get_username()
+
+		if not username:
+			self.redirect('/preferences')
+
+		elif formname == 'change_email':
+			email = self.rget('email')
+			results = new_user_email(email, username)
+			if results[0]:
+				self.render_prefs({'email_success':True})
+			else:
+				self.render_prefs({'email_error':results[1]})
+
+		elif formname == 'resend_email':
+			email = self.rget('email')
+			email_verification(username, email)
+			self.render_prefs({'verification_success':True})
+
+		elif formname == 'change_school':
+			school = self.rget('school')
+			results = change_school(school, username)
+			if results[0]:
+				self.set_school_cookie(school)
+				self.redirect('/preferences?school_success=True')
+			else:
+				self.write(results[1])
+				self.render('prefs', {'school_error' : results[1]})
+
+		elif formname == 'change_password':
+			old_password = self.rget('current_password')
+			new_password = self.rget('new_password')
+			verify_new_password = self.rget('verify_new_password')
+			results = change_password(old_password, new_password, verify_new_password, username)
+			if results[0]:
+				self.set_cookie(results[1])
+				self.render_prefs({'username':username, 'password_success':True})
+			else:
+				self.render_prefs(results[1])
+
+		else:
+			self.redirect('/preferences')
+
+
+
 app = webapp2.WSGIApplication([('/?', MainHandler),
 							   ('/about/?', AboutHandler),
 							   ('/logout/?', LogoutHandler),
@@ -1215,12 +1195,8 @@ app = webapp2.WSGIApplication([('/?', MainHandler),
 							   ('/tos/?', ToSHandler),
 							   ('/preferences/?', PreferencesHandler),
 							   ('/search', SearchHandler),	
-							   ('/change_email/?', ChangeEmailHandler),
 							   ('/verify/([^/]+)?', EmailVerificationHandler),
 							   ('/delete_email/([^/]+)?', DeleteEmailVerification),
-							   ('/change_school/?', ChangeSchoolHandler),
-							   ('/change_password/?', ChangePasswordHandler),
-							   ('/resend_email/?', ResendEmailVerificationHandler),
 							   ('/delete_account/?', DeleteAccountHandler),
 							   ('/google_signup/?', GoogleSignupHandler),
 							   ('/google_login/?', GoogleLoginHandler),
@@ -1236,7 +1212,6 @@ app = webapp2.WSGIApplication([('/?', MainHandler),
 							   ('/report/?', ReportHandler),
 							   ('/notifications/?', NotificationHandler),
 							   ('/feedback/?', FeedbackHandler),
-							   ('/beta/?', BetaHandler),
 							   ('/guide/delete/?', DeleteGuideHandler),
 							   ('/comment/?', CommentHandler),
 							   ('/admin/?', AdminHandler),
@@ -1244,5 +1219,6 @@ app = webapp2.WSGIApplication([('/?', MainHandler),
 							   ('/delete_comment/?', DeleteCommentHandler),
 							   ('/comment_vote/?', CommentVoteHandler),
 							   ('/delete_notif/?', DeleteNotifHandler),
+							   ('/edit_prefs/?', PreferenceEditHandler),
 							   ('/.*', NotFoundHandler),
 							   ], debug=True)
