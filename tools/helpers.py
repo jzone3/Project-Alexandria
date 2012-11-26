@@ -14,7 +14,7 @@ USER_RE = re.compile(r"^[a-zA-Z0-9_-]{3,20}$")
 PASS_RE = re.compile(r"^.{3,20}$")
 EMAIL_RE = re.compile(r"^[\S]+@[\S]+\.[\S]+$")
 SCHOOL_RE= re.compile(r"^[a-zA-Z0-9 _]{1,30}$")
-TITLE_RE = re.compile(r'^[\'\.: a-zA-Z0-9_-]+$')
+TITLE_RE = re.compile(r'^[\'\.:, a-zA-Z0-9_-]+$')
 PAGE_RE = r'(/(?:[\'\.:a-zA-Z0-9_-]+/?)*)'
 
 GET_USER = db.GqlQuery("SELECT * FROM Users WHERE username = :username LIMIT 1")
@@ -123,11 +123,11 @@ def get_filename(title, user, content_type):
 	title = title.lower()
 	user = user.lower()
 	extension = CONTENT_TYPE_EXTS[content_type]
-	new_title = ''	
+	new_title = ''
 	for char in title:
-		if char != ' ':
+		if char not in ' .,:-\\/':
 			new_title += char
-		else:
+		elif char == '_':
 			new_title += '_'
 	return new_title + '_' + user + extension
 
@@ -140,6 +140,7 @@ def get_url(filename, user):
 	filename = filename.replace("\\",'')
 	filename = filename.replace(".",'')
 	filename = filename.replace(":",'')
+	filename = filename.replace(",",'')
 	filename = filename.replace("-",' ')
 	return user + '/' + filename
 
