@@ -649,17 +649,13 @@ class UserPageHandler(BaseHandler):
 		username = url[1:]
 		submitted = get_submitted(username)
 
-		if not submitted:
+		user = get_user(username)
+		if not user:
 			self.error(404)
 			self.render('404.html', {'blockbg':True})
-		else:
-			user = get_user(username)
-			if not user:
-				self.error(404)
-				self.render('404.html', {'blockbg':True})
-				return
-			count = len(submitted)
-			self.render('user_page.html', {'count':count, 'submitted':submitted, 'user':user})
+			return
+		count = len(submitted)
+		self.render('user_page.html', {'count':count, 'submitted':submitted, 'user':user})
 
 ##### Backend handlers #####
 
