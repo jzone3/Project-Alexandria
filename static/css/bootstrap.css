@@ -4980,3 +4980,7 @@ a .icon-caret-down:hover{
   box-shadow: 2px 2px 3px #161616;
   -webkit-filter: grayscale(0);
 }
+
+#promo:hover{
+  color: orange;
+}

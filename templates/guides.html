@@ -40,7 +40,21 @@
 						$('this').tooltip('hide');
 					}					
 					</script>
-					<h2 style="margin:0;">Top Guides</h2>
+					<div>
+						<h2 style="margin:0; display: inline-block;">Top Guides</h2>
+						<span style="float:right">
+							Order by: 
+							{% if votes %}
+							<a href="/guides?order=hot">Hot</a> | 
+							<span style="color:gray">Votes</span>
+							{% else %}
+							<span style="color:gray">Hot</span> | 
+							<a href="/guides?order=votes">Votes</a>
+							{% endif %}
+						</span>
+
+					</div>
+
 					<div align="center">
 						<!-- Begin: adBrite, Generated: 2012-11-24 20:20:22  -->
 						<script type="text/javascript">
@@ -98,12 +112,12 @@
 						<ul class="pager">
 						{% if page > 0 %}
 						<li class="previous">
-							<a href='guides?page={{ page - 1 }}'>&larr; Previous</a>
+							<a href='guides?page={{page-1}}{%if votes%}&order=votes{%endif%}'>&larr; Previous</a>
 						</li>
 						{% endif %}
 						{% if top_guides|length == 25 and page < 2 %}
 						<li class="next">
-							<a href='guides?page={{ page + 1 }}'>Next &rarr;</a>
+							<a href='guides?page={{page+1}}{%if votes%}&order=votes{%endif%}'>Next &rarr;</a>
 						</li>
 						{% endif %}
 						</ul>

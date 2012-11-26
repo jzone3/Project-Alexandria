@@ -464,9 +464,14 @@ def get_all_teachers(school):
 def get_hot_guides(school=None, page=0):
 	'''Use this function; retrieves list of hot guides'''
 	global last_refresh # {school:unix_time}
-	school = str(school)
+	if not school:
+		school = 'All'
+	school += '-hot'
 
-	if school+'-hot' in last_refresh:
+	if page >= 5:
+		# retrieve from db if > page 5
+		results = hot_guides_from_db(school, page)
+	elif school in last_refresh:
 		if time.time() > last_refresh[school] + 900:
 			last_refresh[school] = time.time()
 			results = hot_guides_from_db(school, page)
@@ -481,8 +486,10 @@ def get_hot_guides(school=None, page=0):
 		results = hot_guides_from_db(school, page)
 		memcache.set(school + '-hot_guides-' + str(page), results)
 
+	return results
+
 def get_new_guides(school, page=0, username=''):
-	'''Highest level; retrieves list of new guides from db'''
+	'''Use this function; retrieves list of new guides from db'''
 	if page == 'zero':
 		page = 0
 	results = get_new_guides_from_db(school, page)
@@ -603,7 +610,7 @@ def get_submitted(username):
 	return list(guides)
 
 def get_top_guides(school=None, page=0):
-	'''Higest level; retrieves list of top voted guides'''
+	'''Use this function; retrieves list of top voted guides'''
 	global last_refresh # {school:unix_time}
 	if not school:
 		school = 'All'
@@ -611,29 +618,23 @@ def get_top_guides(school=None, page=0):
 	if page >= 5:
 		# retrieve from db if > page 5
 		results = top_guides_from_db(school, page)
-		logging.error(1)
 	elif school in last_refresh:
 		if time.time() > last_refresh[school] + 900:
-			logging.error(2)
 			# if cache older than 900 sec
 			last_refresh[school] = time.time()
 			results = top_guides_from_db(school, page)
 			memcache.set(school + '-top_guides-' + str(page), results)
 		else:
 			results = memcache.get(school + '-top_guides-' + str(page))
-			logging.error(3)
 			if not results:
-				logging.error(5)
 				results = top_guides_from_db(school, page)
 				memcache.set(school + '-top_guides-' + str(page), results)
 	else:
-		logging.error(6)
 		# if school not in refresh listing		
 		last_refresh[school] = time.time()
 		results = top_guides_from_db(school, page)
 		memcache.set(school + '-top_guides-' + str(page), results)
 
-	logging.error(results)
 	return results
 
 def get_user(username):
@@ -654,16 +655,16 @@ def get_user(username):
 
 def hot_guides_from_db(school, page):
 	'''Retrieves list of hot guides from db'''
+	school = school[:-4] # remove "-hot"
+
 	q = Guides.all()
-	if school: q.filter('school =', school)
+	if school != 'All': 
+		q.filter('school =', school)
 	q.order('-top_score')
 
 	results = q.run(limit=25, offset=page*25)
 
-	if school:
-		logging.error('DB hot_guides_from_db: '+school)
-	else:
-		logging.error('DB hot_guides_from_db: ALL')
+	logging.error('DB hot_guides_from_db: '+school)
 
 	return list(results)
 
@@ -911,10 +912,7 @@ def top_guides_from_db(school, page):
 
 	results = q.run(limit=25, offset=page*25)
 
-	if school != 'All':
-		logging.info('DB top_guides_from_db: '+school)
-	else:
-		logging.info('DB top_guides_from_db: ALL')
+	logging.info('DB top_guides_from_db: '+school)
 
 	return list(results)
 

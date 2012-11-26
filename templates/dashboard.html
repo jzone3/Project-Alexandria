@@ -20,8 +20,8 @@
 			<!-- Tabs -->
 			<ul class="nav nav-tabs" id="dashboard_tabs">
 					<li class="active" id="bookmarktab"><a href="#bookmarks" id="bookmarklink" data-toggle="tab"><i class="icon-bookmark"></i> Bookmarks</a></li>
+					<li id="feedtab"><a href="#feed" id="feedlink" data-toggle="tab"><i class="icon-magnet"></i> Feed</a></li>
 					<li id="submittedtab"><a href="#submitted" id="submittedlink" data-toggle="tab"><i class="icon-upload-alt"></i> Submitted</a></li>
-				<!-- <li><a href="#inbox" data-toggle="tab"><i class="icon-envelope-alt"></i> Inbox</a></li> -->
 				<form method="get" class="form-search" style="float:right;">
 					<input type="text" id="search" name ="q" class="input-xlarge search-query" placeholder="Search All Materials">
 					<button type="submit" class="btn">Search</button>
@@ -61,6 +61,19 @@
 				</div>
 				<!-- End Tab Bookmarks -->
 
+				<!-- Tab Feed -->
+
+				<div class="tab-pane fade" id="feed">
+					<center>
+						<h1><i class="icon-magnet" id="promo"></i> </h1>
+						<h2> Coming soon! </h2>
+						<h3> Track any subject, teacher, or user. </h3>
+						<h4><a href="#feedback" data-toggle="modal">Suggestions?</a></h4>
+					</center>
+				</div>
+
+				<!-- End Tab Feed -->
+
 				<!-- Tab Submitted -->
 				<div class="tab-pane fade" id="submitted">
 					<div id="submitted_results">
@@ -68,25 +81,6 @@
 					</div>
 				</div>
 				<!-- End Tab Submitted -->
-
-				<!-- Tab Inbox -->
-				<div class="tab-pane fade" id="inbox">
-					<table class="table table-hover">
-						<thead>
-							<th>From</th>
-							<th>Subject</th>
-							<th>Date</th>
-						</thead>
-						<tbody>
-							<tr>
-								<td>Kenny Song</td>
-								<td><a href="#">Welcome to Project Alexandria!</a></td>
-								<td>Sept 14, 2012</td>
-							</tr>
-						</tbody>
-					</table>
-				</div>
-				<!-- End Tab Inbox -->
 
 			</div>
 			<!-- End Tab Contents -->

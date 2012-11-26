@@ -367,8 +367,13 @@ class GuidesHandler(BaseHandler):
 		if self.rget('q'):
 			self.redirect('/search?q=' + self.rget('q'))
 
-		# page on top guides tab
+		top_order = self.rget('order')
+		if top_order != 'votes':
+			# default order is by hot_score
+			top_order = 'hot'
+
 		page = 0
+		# page on top/hot guides tab
 		if self.rget('page'): 
 			try:
 				page = int(self.rget('page'))
@@ -378,8 +383,8 @@ class GuidesHandler(BaseHandler):
 				page = 0
 		page_offset = page*25
 
-		# page on new guides tab
 		new_page = 0
+		# page on new guides tab
 		if self.rget('new_page'):
 			try:
 				new_page = int(self.rget('new_page'))
@@ -393,20 +398,33 @@ class GuidesHandler(BaseHandler):
 		# get top guides, active subj/teach if logged in
 		username = self.get_username()
 		school = get_school(username)
+
 		if username:
-			top_guides = get_top_guides(school, page)
+			if top_order == 'hot':
+				top_guides = get_hot_guides(school, page)
+				votes = False
+			elif top_order == 'votes':
+				top_guides = get_top_guides(school, page)
+				votes = True
+
 			subjects = get_all_active_subjects(school)
 			teachers = get_all_active_teachers(school)
 
 			self.render('guides.html', {'top_guides':top_guides,'subjects':subjects, 
 						'teachers':teachers, 'page':page, 'page_offset':page_offset,
-						'school':school, 'new_page':new_page, 'username':username})
+						'school':school, 'new_page':new_page, 'username':username,
+						'votes':votes})
 		else:
-			top_guides = get_top_guides(None, page)
+			if top_order == 'hot':
+				top_guides = get_hot_guides(None, page)
+				votes = False
+			elif top_order == 'votes':
+				top_guides = get_top_guides(None, page)
+				votes = True
 
 			self.render('guides.html', {'top_guides':top_guides, 'page':page,
 						'page_offset':page_offset, 'new_page':new_page,
-						'username':username})
+						'username':username, 'votes':votes})
 
 class MainHandler(BaseHandler):
 	'''Handles homepage: index.html, dashboard.html, singup, and signin'''
