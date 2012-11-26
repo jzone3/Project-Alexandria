@@ -1151,6 +1151,10 @@ class AdminHandler(BaseHandler):
 		new_guides = Guides.all().order('-date_created').run(limit=10)
 		top_guides = Guides.all().order('-downloads').run(limit=10)
 		all_guides = Guides.all()
+
+		user_data = Data.all().filter('name =', 'user_count').order('-date_created')
+		guide_data = Data.all().filter('name =', 'guide_count').order('-date_created')
+
 		downloads_count = 0
 		for guide in all_guides:
 			if guide.downloads is None:
@@ -1160,8 +1164,9 @@ class AdminHandler(BaseHandler):
 		feedback = Feedback.all().run(limit=5)
 
 		self.render('admin.html', {'user_count':user_count, 'new_users':new_users, 'top_uploaders':top_uploaders,
-			'guide_count':guide_count,'new_guides':new_guides, 'new_comments':new_comments,
-			'feedback':feedback, 'top_guides':top_guides, 'downloads_count' : downloads_count})
+					'guide_count':guide_count,'new_guides':new_guides, 'new_comments':new_comments,
+					'feedback':feedback, 'top_guides':top_guides, 'downloads_count':downloads_count,
+					'user_data':user_data, 'guide_data':guide_data})
 
 class AboutHandler(BaseHandler):
 	'''Handles about: about.html'''

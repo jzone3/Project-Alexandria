@@ -396,19 +396,6 @@ def find_guides_ts(school, teacher, subject):
 	results = q.run(limit=1000)
 	return results
 
-def get_filename(title, user, content_type):
-	'''Makes a filename from the guide title and uploading user'''
-	title = title.lower()
-	user = user.lower()
-	extension = CONTENT_TYPE_EXTS[content_type]
-	new_title = ''	
-	for char in title:
-		if char != ' ':
-			new_title += char
-		else:
-			new_title += '_'
-	return new_title + '_' + user + extension
-
 def get_all_active_subjects(school=''):
 	'''Gets list of all active subjects from ActiveSubjects model'''
 	if not school:

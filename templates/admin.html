@@ -13,6 +13,49 @@
 {% endblock %}
 
 {% block page_content %}
+
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <script type="text/javascript">
+		google.load('visualization', '1.0', {'packages':['corechart']});
+		google.setOnLoadCallback(drawCharts);
+
+		function drawCharts() {
+			var users = new google.visualization.DataTable();
+			users.addColumn('datetime', 'Time');
+			users.addColumn('number', 'Users');
+			users.addRows([
+				{% for data in user_data %}
+				[new Date({{ data.date_created.strftime('%s') }}000), {{ data.value }}],
+				{% endfor %}
+			]);  
+
+			var options = {'width':1000,
+			               'height':300,
+			           	   legend: {position: 'none'},
+			           	   backgroundColor: 'whiteSmoke'};
+
+			var chart = new google.visualization.LineChart(document.getElementById('users_chart'));
+			chart.draw(users, options);
+
+
+			var guides = new google.visualization.DataTable();
+			guides.addColumn('datetime', 'Time');
+			guides.addColumn('number', 'Guides');
+			guides.addRows([
+				{% for data in user_data %}
+				[new Date({{ data.date_created.strftime('%s') }}000), {{ data.value }}],
+				{% endfor %}
+			]);  
+
+			var options = {'width':1000,
+			               'height':300,
+			           	   legend: {position: 'none'},
+			           	   backgroundColor: 'whiteSmoke'};
+
+			var chart = new google.visualization.LineChart(document.getElementById('guides_chart'));
+			chart.draw(guides, options);
+		}
+    </script>
 	<div class="container">
 		<div class="well" style="overflow:hidden;">
 			<center>
@@ -24,7 +67,6 @@
 				<div class="span4" style="margin-left:0;">
 					<h2>Users</h2>
 					<h3 style="color:#C93A34;">{{ user_count }}</h3>
-					<em style="color: gray;font-size: 11px;">Graph coming soon!</em>
 				</div>
 
 				<div class="span4" style="margin-left:0;">
@@ -51,10 +93,22 @@
 			</div>
 
 			<div class="span12">
+				<center>
+					<h2># Users over Time</h2>
+				</center>
+				<div id="users_chart" style="left:30px;margin-top:-20px"></div>
+			</div>
+
+			<div class="span11">
+				<hr>
+			</div>
+
+			<div class="span12">
 				<div class="span4" style="margin-left:0;">
-					<h2>Guides - <span style="font-size: 80%; color:#C93A34;">{{ guide_count }}</span></h2>
-					<h2>Downloads - <span style="font-size: 80%; color:#C93A34;">{{ downloads_count }}</span></h2>
-					<em style="color: gray;font-size: 11px;">Graph coming soon!</em>
+					<h2>Guides</h2>
+					<h3 style="color:#C93A34;">{{ guide_count }}</h3>
+					<h2>Downloads</h2>
+					<h3 style="color:#C93A34;">{{ downloads_count }}</h3>
 				</div>
 
 				<div class="span4" style="margin-left:0;">
@@ -73,8 +127,18 @@
 						<li><a href="/guides/{{guide.url}}">{{ guide.title }}</a><span style="color: gray;font-size: 11px;">  ({{ guide.downloads }})</span></li>				
 					{% endfor %}
 					</ol>
-				</div>
-				
+				</div>				
+			</div>
+
+			<div class="span11">
+				<hr>
+			</div>
+
+			<div class="span12">
+				<center>
+					<h2># Guides over Time</h2>
+				</center>
+				<div id="guides_chart" style="left:30px;margin-top:-20px"></div>
 			</div>
 
 			<div class="span11">
