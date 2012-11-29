@@ -3,6 +3,7 @@ import hmac
 import hashlib
 import random
 import re
+import string
 
 import secret
 
@@ -160,3 +161,9 @@ def get_unique_link(username):
 	link_row = Email_Verification(username = username)
 	link_row.put()
 	return 'http://projectalexa.com/verify/' + str(link_row.key()), 'http://projectalexa.com/delete_email/' + str(link_row.key())
+
+def reset_user_link(username):
+	'''Deletes email verification links for user'''
+	links = db.GqlQuery("SELECT * FROM Email_Verification WHERE username = :username", username = username)
+	for i in links:
+		i.delete()
