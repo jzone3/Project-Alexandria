@@ -12,6 +12,7 @@ from google.appengine.ext import db
 
 import secret
 from models.database import *
+from tools.utils import *
 
 from google.appengine.api import memcache
 
