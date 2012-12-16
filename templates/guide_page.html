@@ -43,41 +43,41 @@
 							<button class="btn bookmarkbtn" id="{{ guide.blob_key }}" type="button">
 								<span id="bookmarktext"><i class="icon-bookmark"></i> Bookmark</span>
 							</button>
-							{% if guide.edit_url %}
-							<div class="btn-group">
-							  <a class="btn" href="{{guide.edit_url}}"  {%if not signed_in%}data-toggle="modal"{%endif%}><i class="icon-cloud"></i> Collaborate</a>
-							  <button class="btn dropdown-toggle" data-toggle="dropdown">
-							    <span class="caret"></span>
-							  </button>
-							  <ul class="dropdown-menu">
-							    <li><a href="{{ dl_link }}"><i class="icon-download-alt"></i> Download Original</a></li>
-							  </ul>
-							</div>
-							{% elif not guide.edit_url %}
-							 <a class="btn" data-toggle="modal" href="{{ dl_link }}"><i class="icon-download-alt"></i> Download Original</a></a>
-							{% endif %}
 							
+							{% if not signed_in and not guide.edit_url %}
+								<a class="btn" href="{{ dl_link }}"><i class="icon-download-alt"></i> Download Original</a>
+							{% else %}
+								<div class="btn-group">								
+								{% if guide.edit_url %}
+								  <a class="btn" href="{{guide.edit_url}}"  {%if not signed_in%}data-toggle="modal"{%endif%}><i class="icon-cloud"></i> Collaborate</a>
+							    {% else %}
+								  <a class="btn" href="{{ dl_link }}"><i class="icon-download-alt"></i> Download Original</a>
+								{% endif %}
+								  <button class="btn dropdown-toggle" data-toggle="dropdown">
+								    <span class="caret"></span>
+								  </button>
+								  <ul class="dropdown-menu">
+								  	{% if guide.edit_url %}
+								    <li><a href="{{ dl_link }}"><i class="icon-download-alt"></i> Download Original</a></li>
+								    {% endif %}
+								    <li><a href="#" id="reportbtn" rel="tooltip" data-placement="right" title="Is this guide cheating or plagiarism?<br> Let us know, you'll stay anonymous.">
+										<span id="reporttext"><i class="icon-asterisk"></i> Report Guide</span>
+									</a></li>
+								  </ul>
+								</div>		
+							{% endif %}					
 						</div>			
 				</div>
 				<div class="span4">
-					<div class="btn-group btn-group-vertical answer" data-toggle="buttons-radio" id="{{ guide.key() }}" style="float:right;margin-top:10px;">
+					<div class="btn-group btn-group-vertical answer" data-toggle="buttons-radio" id="{{ guide.key() }}" style="float:right;margin-top:30px;">
 					  <button class="btn btn-large vote up {%if user and user.username in guide.up_users%}active{%endif%}"><i class="icon-caret-up"></i></button>
 					  <span rel="tooltip" id="tip_{{ guide.key()}}" class="tooltips" title="You already voted for this guide. <a href='#' class='tiplink' onclick=&quot;$('#tip_{{guide.key()}}').tooltip('hide')&quot;>&times;</a>" data-placement="left" style="float:left;"></span>
 					  <button class="btn btn-large vote down {%if user and user.username in guide.down_users%}active{%endif%}"><i class="icon-caret-down"></i></button>
 					</div>
-					<div style="position:relative;top:90px;left:40px;text-align:right;text-shadow:1px 1px 1px #B6B6B6;"><h6 id="votes_{{ guide.key() }}">{{ votes }} Votes</h6></div>
+					<div style="position:relative;top:105px;left:40px;text-align:right;text-shadow:1px 1px 1px #B6B6B6;"><h6 id="votes_{{ guide.key() }}">{{ votes }} Votes</h6></div>
 					{% if signed_in %}
-					<button type="button" class="btn btn-danger btn-small" data-loading-text="Reporting..." style="position:relative;float:right;left:40px;top:85px;" id="reportbtn">
-						<span id="reporttext" rel="tooltip" data-placement="bottom" title="Is this guide cheating or plagiarism?<br> Let us know, you'll stay anonymous.">Report Guide</span>
-					</button>
 					<script>
-						$('#reporttext').tooltip();
-					</script>
-					{% endif %}
-					{% if reported %}
-					<script type="text/javascript">
-						$('#reportbtn').button('loading');
-						$('#reportbtn').html('Reported. Thank you!')
+						$('#reportbtn').tooltip();
 					</script>
 					{% endif %}
 				</div>
@@ -366,26 +366,16 @@
 		});
 	});
 
-    $('#reportbtn').click(function() {
-    	if ($('#reportbtn').hasClass('confirm')){
- 			// if button already confirmed
-			$('#reportbtn').button('loading');
-	    	$.ajax({
-	    		type:'POST',
-	    		url:'/report',
-	    		data:'blob_key=' + '{{ guide.blob_key }}',
-	    		success: function(response) {
-	    			$('#reportbtn').html(response)
-	    		}
-	    	});
-		} else {
-			// confirmation text
-			$('#reportbtn').addClass('confirm');
-			$('#reporttext').slideUp('slow', function (){
-				$('#reporttext').html('Are you sure?');
-			});
-			$('#reporttext').slideDown('slow');
-		}
+    $('#reportbtn').click(function(e) {
+    	e.preventDefault();
+    	$.ajax({
+    		type:'POST',
+    		url:'/report',
+    		data:'blob_key=' + '{{ guide.blob_key }}',
+    		success: function(response) {
+    			$('#reportbtn').html(response)
+    		}
+    	});		
     });
 
     $('#commentsubmit').click(function() {

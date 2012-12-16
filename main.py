@@ -942,7 +942,7 @@ class ReportHandler(BaseHandler):
 			self.write('An error occured.')
 			return
 
-		self.write('Reported. Thank you!')
+		self.write('<i class="icon-asterisk"></i> Reported. Thank you!')
 
 class SubjectsHandler(BaseHandler):
 	'''receives AJAX request for the second page on guides->subject'''
