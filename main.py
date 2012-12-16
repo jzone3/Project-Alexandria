@@ -672,6 +672,25 @@ class UploadHandler(BaseHandler):
 			# set last upload time for user
 			memcache.set('uploadtime-'+username, datetime.datetime.now())
 
+class UploadNewHandler(BaseHandler):
+	def get(self):
+		username = self.get_username()
+		if username:
+			school = get_school(username)
+			params = dict()
+
+			qs = Subjects.all().filter('school =', school).get()
+			if qs:
+				params['subjects'] = map(lambda x: x.encode('ascii', 'ignore'), qs.subjects_list)
+
+			qt = Teachers.all().filter('school =', school).get()	
+			if qt:
+				params['teachers'] = map(lambda x: x.encode('ascii', 'ignore'), qt.teachers_list)			
+
+			self.render('upload_new.html', params)
+		else:
+			self.redirect('/')
+
 class UserPageHandler(BaseHandler):
 	'''Handlers custom user pages: user_page.html'''
 	def get(self, url):
@@ -1229,6 +1248,7 @@ app = webapp2.WSGIApplication([('/?', MainHandler),
 							   ('/guides' + PAGE_RE, GuidePageHandler),
 							   ('/user'+ PAGE_RE, UserPageHandler),
 							   ('/upload/?', UploadHandler),
+							   ('/create/?', UploadNewHandler),
 							   ('/serve/([^/]+)?', ServeHandler),
 							   ('/tos/?', ToSHandler),
 							   ('/preferences/?', PreferencesHandler),
