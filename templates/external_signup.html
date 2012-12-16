@@ -14,6 +14,7 @@
 {% block page_content %}
 <!-- Typeahead Script -->
 <script type="text/javascript">	    
+    var schools = {{ all_schools | safe }};
     jQuery(document).ready(function() {
         $('#schools').typeahead({source: {{ all_schools | safe }}.sort(), items:5});
 
@@ -52,7 +53,7 @@
 		<center>
 			<h2>Almost done! Just tell us who you are.</h2><br />
 		</center>
-			<form method="post">
+			<form method="post" id="ext_signup">
 				<div class="row">
 					<div class="span2">Username:</div>
 					<div class="span3"><input type="text" name="username" value={{username}}></div>
@@ -107,11 +108,23 @@
 				</div>
 				<div class="row">
 					<div class="span2">
-					<input class="btn btn-primary" type="submit" value="We're Done!">
+					<input class="btn btn-primary" type="submit" value="We're Done!" id="ext_submit">
 					</div>
 				</div>
 			</form>
 		
 	</div>
 </div>
+
+{% if not signed_in %}
+<script type="text/javascript">
+	$("#ext_signup").submit(function(){
+		if (jQuery.inArray($('#ext_school')[0].value, schools) == -1) {
+			if (!confirm('Are you sure you want to create a new school called "' + $('#ext_school')[0].value + '"?\nCheck if your school is already list in the dropdown!')) {
+				return false;
+			}
+		}
+	});
+</script>
+{% endif %}
 {% endblock %}
