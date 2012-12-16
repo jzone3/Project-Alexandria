@@ -5,8 +5,13 @@
 	{% if signed_in %}
 		<li><a href="/">Dashboard</a></li>
 		<li><a href="/guides">Guides</a></li>
+		{% if formname == 'new_doc' %}
+		<li class="active"><a href="/create">Create</a></li>
+		<li><a href="/upload">Upload</a></li>
+		{% else %}
 		<li><a href="/create">Create</a></li>
 		<li class="active"><a href="/upload">Upload</a></li>
+		{% endif %}
 		<li><a href="/about">About</a></li>
 	{% else %}	
 		<li><a href="/">Home</a></li>
@@ -31,7 +36,7 @@
 				<h3>Or <a href="#" id="newdoc">Create</a> a New Guide</h3>
 			</center>			
 
-			<form method="post" action="{{upload_url}}" enctype="multipart/form-data">
+			<form method="post" action="/upload" enctype="multipart/form-data">
 				<input id="formname" name="formname" type="hidden" value="upload">
 				<div class="row">
 					<center><div class="span11 alert alert-error" {% if not time_error %}style="display: none;"{% endif %}>{{time_error}}</div></center>
@@ -135,7 +140,7 @@
 				<h1>Create a New Document</h1>
 			</center>		
 
-			<form method="post" action="{{upload_url}}" enctype="multipart/form-data">
+			<form method="post" action="/upload" enctype="multipart/form-data">
 			<input id="formname" name="formname" type="hidden" value="new_doc">
 			<div class="row">
 				<center><div class="span11 alert alert-error" {% if not time_error %}style="display: none;"{% endif %}>{{time_error}}</div></center>

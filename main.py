@@ -562,16 +562,17 @@ class UploadHandler(BaseHandler):
 
 		# new guide
 		if formname == 'new_doc':
+			logging.error('new')
 			editable = True
 			file_url = "http://www.projectalexa.com/new_doc.txt"
 		else:
+			logging.error('old')
 			file_url = self.rget('file')
 			editable = self.rget('editable')
 
 		title = self.rget('title')
 		subject = self.rget('subject')
 		teacher = self.rget('teacher')
-		editable = self.rget('editable')
 		tags = self.rget('tags')		
 		username = self.get_username()
 
@@ -602,7 +603,6 @@ class UploadHandler(BaseHandler):
 			fields = {'title':title, 'subject':subject, 'teacher':teacher, 
 					  'editable':editable, 'tags':tags, 'formname':formname}
 			errors.update(fields)
-
 			self.render('/upload.html', errors)
 		else:						
 			tags = get_tags(tags) + create_tags(title, subject, teacher, username)
