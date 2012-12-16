@@ -43,19 +43,20 @@
 							<button class="btn bookmarkbtn" id="{{ guide.blob_key }}" type="button">
 								<span id="bookmarktext"><i class="icon-bookmark"></i> Bookmark</span>
 							</button>
-
+							{% if guide.edit_url %}
 							<div class="btn-group">
-							  <a class="btn" href="{{guide.edit_url}}" {%if guide.edit_url and not signed_in%}data-toggle="modal"{%endif%}><i class="icon-cloud"></i> Collaborate</a>
+							  <a class="btn" href="{{guide.edit_url}}"  {%if not signed_in%}data-toggle="modal"{%endif%}><i class="icon-cloud"></i> Collaborate</a>
 							  <button class="btn dropdown-toggle" data-toggle="dropdown">
 							    <span class="caret"></span>
 							  </button>
 							  <ul class="dropdown-menu">
 							    <li><a href="{{ dl_link }}"><i class="icon-download-alt"></i> Download Original</a></li>
 							  </ul>
-							{% if not guide.edit_url %}
-							 <a class="btn btn-primary" data-toggle="modal" href="{{ dl_link }}"><i class="icon-download-alt"></i> Download Original</a></a>
-							{% endif %}
 							</div>
+							{% elif not guide.edit_url %}
+							 <a class="btn" data-toggle="modal" href="{{ dl_link }}"><i class="icon-download-alt"></i> Download Original</a></a>
+							{% endif %}
+							
 						</div>			
 				</div>
 				<div class="span4">

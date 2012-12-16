@@ -16,6 +16,10 @@ handlers:
   static_files: static/basic_sitemap.txt
   upload: static/basic_sitemap.txt
 
+- url: /new_doc.txt
+  static_files: static/new_doc.txt
+  upload: static/new_doc.txt
+
 - url: /admin/?
   login: admin
   script: main.app

@@ -543,7 +543,7 @@ class UploadHandler(BaseHandler):
 		username = self.get_username()
 		if username:
 			school = get_school(username)
-			params = dict()
+			params = {'formname':'upload'}
 
 			qs = Subjects.all().filter('school =', school).get()
 			if qs:
@@ -558,12 +558,21 @@ class UploadHandler(BaseHandler):
 			self.redirect('/')
 
 	def post(self):
+		formname = self.rget('formname')
+
+		# new guide
+		if formname == 'new_doc':
+			editable = True
+			file_url = "http://www.projectalexa.com/new_doc.txt"
+		else:
+			file_url = self.rget('file')
+			editable = self.rget('editable')
+
 		title = self.rget('title')
 		subject = self.rget('subject')
 		teacher = self.rget('teacher')
 		editable = self.rget('editable')
-		tags = self.rget('tags')
-		file_url = self.rget('file')
+		tags = self.rget('tags')		
 		username = self.get_username()
 
 		# check last upload time
@@ -571,7 +580,8 @@ class UploadHandler(BaseHandler):
 		if last_upload and (datetime.datetime.now() - last_upload < datetime.timedelta(minutes=1)):
 			fields = {'title':title, 'subject':subject, 'teacher':teacher, 
 					  'editable':editable, 'tags':tags, 
-					  'time_error':'You\'re uploading too quickly! Try waiting 1 minute between uploads.'}
+					  'time_error':'You\'re uploading too quickly! Try waiting 1 minute between uploads.',
+					  'formname':formname}
 			self.render('/upload.html', fields)	 
 			return
 
@@ -590,8 +600,9 @@ class UploadHandler(BaseHandler):
 
 		if any(errors.values()):
 			fields = {'title':title, 'subject':subject, 'teacher':teacher, 
-					  'editable':editable, 'tags':tags}
+					  'editable':editable, 'tags':tags, 'formname':formname}
 			errors.update(fields)
+
 			self.render('/upload.html', errors)
 		else:						
 			tags = get_tags(tags) + create_tags(title, subject, teacher, username)
