@@ -1,14 +1,19 @@
 {% extends "base.html" %}
 {% block title %}Contact Us{% endblock %}
 {% block nav_links %}
-	<li><a href="/">Home</a></li>
-	<li><a href="/guides">Guides</a></li>
 	{% if signed_in %}
+		<li><a href="/">Dashboard</a></li>
+		<li><a href="/guides">Guides</a></li>
 		<li><a href="/create">Create</a></li>
 		<li><a href="/upload">Upload</a></li>
+		<li><a href="/about">About</a></li>
+	{% else %}	
+		<li><a href="/">Home</a></li>
+		<li><a href="/guides">Guides</a></li>
+		<li><a href="/about">About</a></li>
+		<li class="active"><a href="/contact">Contact</a></li>		
 	{% endif %}
-	<li><a href="/about">About</a></li>
-	<li class="active"><a href="#">Contact</a></li>
+
 {% endblock %}
 
 {% block page_content %}

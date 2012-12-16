@@ -2,14 +2,18 @@
 {% block title %}Sign Up{% endblock %}
 
 {% block nav_links %}
-<li><a href="/">Home</a></li>
-<li><a href="/guides">Guides</a></li>
-{% if signed_in %}
-	<li><a href="/create">Create</a></li>
-	<li><a href="/upload">Upload</a></li>
-{% endif %}
-<li><a href="/about">About</a></li>
-<li><a href="/contact">Contact</a></li>
+	{% if signed_in %}
+		<li><a href="/">Dashboard</a></li>
+		<li><a href="/guides">Guides</a></li>
+		<li><a href="/create">Create</a></li>
+		<li><a href="/upload">Upload</a></li>
+		<li><a href="/about">About</a></li>
+	{% else %}	
+		<li><a href="/">Home</a></li>
+		<li><a href="/guides">Guides</a></li>
+		<li><a href="/about">About</a></li>
+		<li><a href="/contact">Contact</a></li>
+	{% endif %}
 {% endblock %}
 
 {% block page_content %}
