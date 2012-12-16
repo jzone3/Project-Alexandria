@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block title %}Upload a Guide{% endblock %}
+
+{% block nav_links %}
+	{% if signed_in %}
+		<li><a href="/">Dashboard</a></li>
+		<li><a href="/guides">Guides</a></li>
+		<li class="active"><a href="/create">Create</a></li>
+		<li><a href="/upload">Upload</a></li>
+		<li><a href="/about">About</a></li>
+	{% else %}	
+		<li><a href="/">Home</a></li>
+		<li><a href="/guides">Guides</a></li>
+		<li><a href="/about">About</a></li>
+		<li><a href="/contact">Contact</a></li>
+	{% endif %}
+{% endblock %}
+
+{% block page_content %}
+	<script type="text/javascript" src="/static/js/filepicker.js"></script>
+	<script src="/static/js/jquery.toggle.buttons.js"></script>
+
+
+	<div class="container">
+		<div class="well">	
+			<center>
+				<h1>Create a New Guide</h1>
+			</center>		
+
+			<form method="post" action="/upload" enctype="multipart/form-data">
+				<input id="formname" name="formname" type="hidden" value="new_doc">
+				<div class="row">
+					<center><div class="span11 alert alert-error" {% if not time_error %}style="display: none;"{% endif %}>{{time_error}}</div></center>
+				</div>
+				<div class="row" style="margin-bottom:25px;">
+					<div class="span5 inline">
+						<h1 id="num1" style="font-size:50px;">1</h1>&nbsp;&nbsp;&nbsp;<span id="step3" style="font-size:17px;">Just describe the guide</span>
+					</div>
+				</div>
+
+	        	<div class="row">
+					<div class="span2">Title</div>
+					<div class="span4"><input class="input-xlarge" type="text" name="title" value="{{title}}" placeholder="Name of your guide"></div>
+					<div class="alert alert-error span4" {% if not title_error %}style="display: none;"{% endif %}>{{title_error}}</div>
+				</div>
+				
+	        	<div class="row">
+					<div class="span2">
+						Subject
+						<a rel="tooltip" data-placement="right" title="Be specific!<br/>Instead of 'History' write 'World History'" class="tooltips"><i class="icon-question-sign"></i></a>
+					</div>
+					<div class="span4"><input id="subject_box" class="input-xlarge" type="text" name="subject" data-provide="typeahead" value="{{subject}}" placeholder="e.g. AP Calculus BC" autocomplete="off"></div>
+					<div class="alert alert-error span4" {% if not subject_error %}style="display: none;"{% endif %}>{{subject_error}}</div>
+				</div>
+				
+	        	<div class="row">
+					<div class="span2">Teacher</div>
+					<div class="span4"><input id="teacher_box" class="input-xlarge" type="text" name="teacher" data-provide="typeahead" value="{{teacher}}" placeholder="Just the last name" autocomplete="off"></div>
+					<div class="alert alert-error span4" {% if not teacher_error %}style="display: none;"{% endif %}>{{teacher_error}}</div>
+				</div>
+				
+				<div class="row">
+					<div class="span2">
+						Tags <em>(optional)</em>
+						<a rel="tooltip" data-placement="right" title="Help people search for your guide! List single words separated by commas." class="tooltips"><i class="icon-question-sign"></i></a>
+					</div>
+					<div class="span4"><input class="input-xlarge"type="text" name="tags" value="{{tags}}" placeholder="subtraction, division, chapter, six"></div>
+				</div>
+				<br />
+				<div class="row">
+					<div class="span2">
+						<input class="btn btn-primary" type="submit" name="submit" value="Submit">
+					</div>
+				</div>
+			</form>
+			
+			<script>		
+				$('.tooltips').tooltip();
+				subject_array = [];
+				teacher_array = [];
+				{% for i in subjects %} subject_array.push('"{{ i }}"'); {% endfor %}
+				{% for i in teachers %} teacher_array.push('"{{ i }}"'); {% endfor %}
+				//alert(subject_array+"");
+				$('#subject_box').attr('data-source', "[" + subject_array + "]");
+				//$('#subject_box').attr('data-matcher', checkFunction);
+				$('#teacher_box').attr('data-source', "[" + teacher_array + "]");
+				//$('#teacher_box').attr('data-matcher', checkFunction);
+			</script>
+		</div> 
+	</div>
+{% endblock %}
