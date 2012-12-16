@@ -38,26 +38,25 @@
 						{{ guide.subject }} - {{ guide.teacher }}<br/>
 						Uploaded {{ difference }}
 					</h6>
-					<h5>
-					    <a href="#" class="bookmarkbtn" id="{{ guide.blob_key }}" style="margin-left:-1px;"><i class="icon-bookmark"></i> Bookmark</a>	
-						<span> | </span>					    
-					    <a href="{{ dl_link }}"><i class="icon-download-alt"></i> Download</a>
-					    <span> | </span>
+						<div class="btn-toolbar">
 
-						{% if guide.edit_url and signed_in %}
-						<a href="{{ guide.edit_url }}" target="_blank">
-							<i class="icon-cloud"></i> Edit on Google Docs
-						</a>
-						{% elif not signed_in %}
-						<span style="color:#ACACAC;">							
-							<i class="icon-cloud"></i> Please <a href="#login" data-toggle="modal">log in</a> to edit this guide						
-						</span>	
-						{% else %}
-						<span style="color:#ACACAC;">							
-							<i class="icon-cloud"></i> Edit on Google Docs						
-						</span>	
-						{% endif %} 							
-					</h5>
+							<button class="btn bookmarkbtn" id="{{ guide.blob_key }}" type="button">
+								<span id="bookmarktext"><i class="icon-bookmark"></i> Bookmark</span>
+							</button>
+
+							<div class="btn-group">
+							  <a class="btn" href="{{guide.edit_url}}" {%if guide.edit_url and not signed_in%}data-toggle="modal"{%endif%}><i class="icon-cloud"></i> Collaborate</a>
+							  <button class="btn dropdown-toggle" data-toggle="dropdown">
+							    <span class="caret"></span>
+							  </button>
+							  <ul class="dropdown-menu">
+							    <li><a href="{{ dl_link }}"><i class="icon-download-alt"></i> Download Original</a></li>
+							  </ul>
+							{% if not guide.edit_url %}
+							 <a class="btn btn-primary" data-toggle="modal" href="{{ dl_link }}"><i class="icon-download-alt"></i> Download Original</a></a>
+							{% endif %}
+							</div>
+						</div>			
 				</div>
 				<div class="span4">
 					<div class="btn-group btn-group-vertical answer" data-toggle="buttons-radio" id="{{ guide.key() }}" style="float:right;margin-top:10px;">
@@ -287,18 +286,18 @@
 
 
 	function toggleBookmark() {
-		$('a.bookmarkbtn').toggleClass('bmd');
-		if ( $('a.bookmarkbtn').hasClass('bmd') ) {
-			$('a.bookmarkbtn').fadeOut(300, function() {
-				$('a.bookmarkbtn').html('<i class="icon-bookmark-empty"></i> Remove Bookmark');
-				$('a.bookmarkbtn').fadeIn(270);
+		$('.bookmarkbtn').toggleClass('bmd');
+		if ( $('.bookmarkbtn').hasClass('bmd') ) {
+			$('#bookmarktext').fadeOut(300, function() {
+				$('#bookmarktext').html('<i class="icon-bookmark-empty"></i> Remove Bookmark');
+				$('#bookmarktext').fadeIn(270);
 			});
 			
 		}
 		else {
-			$('a.bookmarkbtn').fadeOut(300, function() {
-				$('a.bookmarkbtn').html("<i class='icon-bookmark'></i> Bookmark" );
-				$('a.bookmarkbtn').fadeIn(270);
+			$('#bookmarktext').fadeOut(300, function() {
+				$('#bookmarktext').html('<i class="icon-bookmark"></i> Bookmark' );
+				$('#bookmarktext').fadeIn(270);
 			});
 			
 		}
@@ -306,25 +305,26 @@
 	
 	$(document).ready(function() {
 		if ( "{{ bookmarked }}" == "True" ) {
-			$('a.bookmarkbtn').addClass('bmd');
-			$('a.bookmarkbtn').html('<i class="icon-bookmark-empty"></i> Remove Bookmark');
+			$('.bookmarkbtn').addClass('bmd');
+			$('.bookmarkbtn').html('<i class="icon-bookmark-empty"></i> Remove Bookmark');
 		}
 	});
 	
 
-	$('a.bookmarkbtn').click(function() {
+	$('.bookmarkbtn').click(function() {
 		if ("{{ signed_in }}" != "True") {
 			$('#login').modal('show');
 			return;
 		}
 		var id = $(this).attr('id');
 		
-		if ( $('a.bookmarkbtn').hasClass('bmd') ) {
+		if ( $('.bookmarkbtn').hasClass('bmd') ) {
 			$.post('/removebookmark', {id: id});
 		}
 		else {
 			$.post('/addbookmark', {id: id});
 		}
+
 		toggleBookmark();
 	});
 	

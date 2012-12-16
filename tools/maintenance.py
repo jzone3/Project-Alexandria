@@ -11,7 +11,7 @@ from django.utils import simplejson
 from google.appengine.ext import db
 
 import secret
-from model.database import *
+from models.database import *
 
 from google.appengine.api import memcache
 

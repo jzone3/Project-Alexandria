@@ -792,8 +792,7 @@ def signup(username='', password='', verify='', school='', agree='', human='', e
 		to_return['school'] = "Please enter a school"
 	if not SCHOOL_RE.match(school):
 		to_return['school'] = "That is not a valid school name"
-	
-	
+
 	if agree != 'on':
 		to_return['agree'] = "You must agree to the Terms of Service to create an account"
 	# self.write(username + ' ' + password + ' ' + verify + ' ' + email + ' ' + school + ' ' + year )
@@ -938,6 +937,7 @@ def upload_errors(title, subject, teacher, editable, headers):
 
 	if mime_type not in CONTENT_TYPE_EXTS:
 		file_error += 'Wrong file format.'
+		logging.error(mime_type)
 
 	if not editable:		
 		_editable = False
@@ -948,6 +948,7 @@ def upload_errors(title, subject, teacher, editable, headers):
 		_editable = True
 	else:
 		_editable = False
+
 
 	return _editable, {'title_error':title_error, 'subject_error':subject_error, 
 			'teacher_error':teacher_error, 'file_error':file_error}

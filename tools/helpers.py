@@ -27,6 +27,7 @@ CONTENT_TYPE_EXTS = {'application/msword':'.doc',
 					'application/vnd.openxmlformats-officedocument.wordprocessingml.document':'.docx',
 					'application/pdf':'.pdf',
 					'text/plain':'.txt',
+					'text/plain; charset=utf-8':'.txt',
 					'application/rtf':'.rtf',
 					'image/jpg':'.jpg'}
 
