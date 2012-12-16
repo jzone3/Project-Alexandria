@@ -49,6 +49,7 @@
 	<script src="/static/js/bootstrap.js"></script>
 
 	<script type="text/javascript">	    
+        var schools = {{ all_schools | safe}}
         jQuery(document).ready(function() {
             {% if all_schools %}
             	{% if ext %}
@@ -169,7 +170,7 @@
 		{% if not signed_in %}
 		<!-- Sign Up Modal -->
 		<div id="signup" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-			<form method="post" action="/">
+			<form method="post" action="/" id="regular_signup">
 		        <div class="modal-header">
 		              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
 		              <h3 id="myModalLabel">Create an Account</h3>
@@ -393,6 +394,18 @@
 			}
 	});
 	</script>
+
+	{% if not signed_in %}
+	<script type="text/javascript">
+		$("#regular_signup").submit(function(){
+			if (jQuery.inArray($('#school')[0].value, schools) == -1) {
+				if (!confirm('Are you sure you want to create a new school called "' + $('#school')[0].value + '"?\nCheck if your school is already list in the dropdown!')) {
+					return false;
+				}
+			}
+		});
+	</script>
+	{% endif %}
 
 	<!-- Notificaiton close script -->
 	<script type="text/javascript">
