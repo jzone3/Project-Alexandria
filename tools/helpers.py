@@ -6,6 +6,7 @@ import re
 import string
 
 import secret
+from models.database import *
 
 from google.appengine.ext import db
 
