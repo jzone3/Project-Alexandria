@@ -179,7 +179,7 @@
 
 	        	<!-- Signup step 1 -->
 		        <div id="signup-modal-body-1">
-		           	<span class="span1" style="margin-bottom: 25px;width:27%;text-align:center;color:#DD5858;text-shadow: 1px 1px 1px #CACACA;">
+		           	<span class="span1" style="margin-bottom: 25px;width:27%;text-align:center;color:#DA2D2D;text-shadow: 1px 1px 1px #CACACA;">
 		        		<h1 style="display:inline;">1</h1>
 		        	</span>
 		        	<span class="span1" style="margin-bottom: 25px;width:27%;text-align:center;color:#CECECE;">
@@ -198,7 +198,7 @@
 							</div>
 						</form>
 						<br>
-						<h5>Can't find your school? <a href="#newschool">Click here.</a></h5>
+						<h5>Can't find your school? <a id="newschool" href="#newschool">Click here.</a></h5>
 					</center>
 				</div>
 
@@ -207,7 +207,7 @@
 	        		<span class="span1" style="margin-bottom: 25px;width:27%;text-align:center;color:#CECECE;">
 		        		<h1 style="display:inline;">1</h1>
 		        	</span>
-		        	<span class="span1" style="margin-bottom: 25px;width:30%;text-align:center;color:#DD5858;text-shadow: 1px 1px 1px #CACACA;">
+		        	<span class="span1" style="margin-bottom: 25px;width:30%;text-align:center;color:#DA2D2D;text-shadow: 1px 1px 1px #CACACA;">
 		        		<h1 style="display:inline;">2</h1>
 		        	</span>
 		        	<span class="span1" style="margin-bottom: 25px;width:30%;text-align:center;color:#CECECE;">
@@ -228,21 +228,21 @@
 								<div class="span2" style="margin-left:83px;text-align:left;">Username &nbsp;&nbsp;</div>
 								<div class="input-prepend span3">
 								  <span class="add-on"><i class="icon-user"></i></span>
-								  <input type="text" name="username" type="text" value="{{username}}" placeholder="Username">
+								  <input type="text" name="username" type="text" value="{{username}}" placeholder="Username" onblur="check_username_re(this.value);">
 								</div>
 							</div>
 							<div class="row">
 								<div class="span2" style="margin-left:83px;text-align:left;">Email <em>(optional)</em> &nbsp;&nbsp;</div>
 								<div class="input-prepend span3">
 								  <span class="add-on"><i class="icon-envelope"></i></span>
-								  <input type="text" name="email" type="text" value="{{email}}" placeholder="Email">
+								  <input type="text" name="email" type="text" value="{{email}}" placeholder="Email" onblur="check_email_re(this.value);">
 								</div>
 							</div>
 							<div class="row">
 								<div class="span2" style="margin-left:83px;text-align:left;">Password &nbsp;&nbsp;</div>
 								<div class="input-prepend span3">
 								  <span class="add-on"><i class="icon-lock"></i></span>
-								  <input type="text" name="password" type="text" value="{{password}}" placeholder="Password">
+								  <input type="text" name="password" type="text" value="{{password}}" placeholder="Password" onblur="check_password_re(this.value);">
 								</div>
 							</div>
 							<div class="row">
@@ -261,6 +261,25 @@
 		        	<p>There is nothing here.</p>
 		        </div>
 
+		        <!-- Signup new school -->
+		        <div id="signup-modal-body-newschool" style="display:none;">			        		
+	        		<div class="alert alert-info">
+	        			<button type="button" class="close" data-dismiss="alert" >&times;</button>
+		        		<h5>You'll be the first in your school to use Project Alexandria!</h5>
+		        		<h5 style="font-weight:100;">Dont worry, we'll show you (and your friends) how to quickly create content.</h5>
+		        	</div>
+
+		        	<center>
+		        		<h3>Add a New School</h3>
+						<form onkeypress="return event.keyCode != 13;">
+							<div class="input-prepend">
+							  <span class="add-on"><i class="icon-home"></i></span>
+							  <input class="input-xlarge" type="text" id="school" name="school" placeholder="Stuyvesant High School" style="margin-bottom:0px;" onblur="check_school_re(this.value);">
+							</div>
+						</form>
+		        	</center>
+		        </div>
+
 		        <!-- Loading bars -->
 				<div id="load1" class="progress progress-striped active" style="display:none;width:105px;position: relative;bottom: 117px;margin:auto">
 					<div class="bar" style="width: 100%;"></div>
@@ -276,36 +295,120 @@
 			</div>
 
 			<script>
+			// signup regex checks
+			function check_school_re(school){
+				re = /^[a-zA-Z0-9 _]{1,60}$/
+				if (re.test(school)) {
+					alert('pass regex');
+				} else {
+					alert('fail regex');
+				}				
+			}
+
+			function check_username_re(username){
+				re = /^[a-zA-Z0-9_-]{3,20}$/
+				if (re.test(username)) {
+					alert('pass regex');
+				} else {
+					alert('fail regex');
+				}			
+			}
+
+			function check_password_re(password){
+				re = /^.{3,30}$/
+				if (re.test(password)) {
+					alert('pass regex');
+				} else {
+					alert('fail regex');
+				}		
+			}
+
+			function check_verify_password(password){
+
+			}
+
+			function check_email_re(email){
+				re = /^[\w]+@[\w]+\.[\w]+$/
+				if (re.test(email)) {
+					alert('pass regex');
+				} else {
+					alert('fail regex');
+				}		
+			}
+
+			// signup modal transition functions
+			function trans_12(){
+				$("#signup-modal-body-1").fadeTo('fast', 0.0);
+				$('#load1').fadeTo('fast', 1.0);
+
+				setTimeout(function(){
+					$("#signup-modal-body-1").hide();
+					$("#signup-modal-body-2").fadeTo('fast', 1.0);
+					$('#load1').fadeTo('fast', 0.0);
+					$('#cont').removeClass('1');
+					$('#cont').addClass('2');
+				}, 1000);
+			}
+
+			function trans_23(){
+				$("#signup-modal-body-2").fadeTo('fast', 0.0);
+				$('#load2').fadeTo('fast', 1.0);
+
+				setTimeout(function(){
+					$('#load2').fadeTo('fast', 0.0);
+					$("#signup-modal-body-2").hide();
+					$("#signup-modal-body-3").fadeTo('fast', 1.0);
+					$('#cont').removeClass('2');
+					$('#cont').addClass('3');
+				}, 1000);
+			}
+
+			function trans_1newschool(){
+				$("#signup-modal-body-1").fadeTo('fast', 0.0);
+				$('#load1').fadeTo('fast', 1.0);
+
+				setTimeout(function(){
+					$("#signup-modal-body-1").hide();
+					$("#signup-modal-body-newschool").fadeTo('fast', 1.0);
+					$('#load1').fadeTo('fast', 0.0);
+					$('#cont').removeClass('1');
+					$('#cont').addClass('newschool');
+				}, 1000);
+			}
+
+			function trans_newschool2(){
+				$("#signup-modal-body-newschool").fadeTo('fast', 0.0);
+				$('#load1').fadeTo('fast', 1.0);
+
+				setTimeout(function(){
+					$("#signup-modal-body-newschool").hide();
+					$("#signup-modal-body-2").fadeTo('fast', 1.0);
+					$('#load1').fadeTo('fast', 0.0);
+					$('#cont').removeClass('newschool');
+					$('#cont').addClass('2');
+				}, 1000);
+
+			}
+
+			// signup modal listeners
+			$('#newschool').click(function() {
+				trans_1newschool();
+			});
+
 			$('#cont').click(function() {
 				if ($('#cont').hasClass("1")) {
-					$("#signup-modal-body-1").fadeTo('fast', 0.0);
-					$('#load1').fadeTo('fast', 1.0);
-
-					setTimeout(function(){
-						$("#signup-modal-body-1").hide();
-						$("#signup-modal-body-2").fadeTo('fast', 1.0);
-						$('#load1').fadeTo('fast', 0.0);
-						$('#cont').removeClass('1');
-						$('#cont').addClass('2');
-					}, 1000);
+					trans_12();
 
 				} else if ($('#cont').hasClass("2")) {
-					$("#signup-modal-body-2").fadeTo('fast', 0.0);
-					$('#load2').fadeTo('fast', 1.0);
+					trans_23();
 
-					setTimeout(function(){
-						$('#load2').fadeTo('fast', 0.0);
-						$("#signup-modal-body-2").hide();
-						$("#signup-modal-body-3").fadeTo('fast', 1.0);
-						$('#cont').removeClass('2');
-						$('#cont').addClass('3');
-					}, 1000);
+				} else if ($('#cont').hasClass("newschool")) {
+					trans_newschool2();
 
 				} else {
 					alert('end');
 				}
 			});
-
 			</script>
 <!-- 			<form method="post" action="/" id="regular_signup">
 		        <div class="modal-header">
