@@ -194,7 +194,14 @@
 						<form onkeypress="return event.keyCode != 13;">
 							<div class="input-prepend">
 							  <span class="add-on"><i class="icon-home"></i></span>
-							  <input class="input-xlarge" type="text" id="school" name="school" placeholder="Stuyvesant High School" data-provide="typeahead" autocomplete="off" style="margin-bottom:0px;">
+							  <span class="control-group" id="school_control">
+							  	<span class="controls">
+								<input class="input-xlarge" type="text" id="school" placeholder="Stuyvesant High School" data-provide="typeahead" autocomplete="off" style="margin-bottom:0px;" onchange="check_valid_school(this.value);">
+								<div class="error-help large" id="school-help">That school does not exist</div>
+								<div class="success-help large" id="school-success">Awesome! Click continue to join your friends.</div>
+								</span>
+							  </span>
+
 							</div>
 						</form>
 						<br>
@@ -227,29 +234,53 @@
 							<div class="row">
 								<div class="span2" style="margin-left:83px;text-align:left;">Username &nbsp;&nbsp;</div>
 								<div class="input-prepend span3">
-								  <span class="add-on"><i class="icon-user"></i></span>
-								  <input type="text" name="username" type="text" value="{{username}}" placeholder="Username" onblur="check_username_re(this.value);">
+								<span class="add-on"><i class="icon-user"></i></span>
+								<span class="control-group" id="username_control">
+								  	<span class="controls">
+									<input type="text" name="username" type="text" value="{{username}}" placeholder="Username" onblur="check_username_re(this.value);">
+									<div class="error-help" id="username-help">That is not a valid username</div>
+									<div class="success-help" id="username-success"></div>
+									</span>
+							  	</span>								  
 								</div>
 							</div>
 							<div class="row">
 								<div class="span2" style="margin-left:83px;text-align:left;">Email <em>(optional)</em> &nbsp;&nbsp;</div>
 								<div class="input-prepend span3">
 								  <span class="add-on"><i class="icon-envelope"></i></span>
-								  <input type="text" name="email" type="text" value="{{email}}" placeholder="Email" onblur="check_email_re(this.value);">
+								  	<span class="control-group" id="email_control">
+								  		<span class="controls">
+										<input type="text" name="email" type="text" value="{{email}}" placeholder="Email" onblur="check_email_re(this.value);">
+										<div class="error-help" id="email-help">That is not a valid email</div>
+										<div class="success-help" id="email-success">Thanks! We promise not to spam.</div>
+										</span>
+								  	</span>										  
 								</div>
 							</div>
 							<div class="row">
 								<div class="span2" style="margin-left:83px;text-align:left;">Password &nbsp;&nbsp;</div>
 								<div class="input-prepend span3">
-								  <span class="add-on"><i class="icon-lock"></i></span>
-								  <input type="text" name="password" type="text" value="{{password}}" placeholder="Password" onblur="check_password_re(this.value);">
+								<span class="add-on"><i class="icon-lock"></i></span>
+								<span class="control-group" id="password_control">
+							  		<span class="controls">
+							  		<input type="password" name="password" id="password" value="{{password}}" placeholder="Password" onblur="check_password_re(this.value);">
+									<div class="error-help" id="password-help">That is not a valid password</div>
+									<div class="success-help" id="password-success">We'll keep it secret &amp; encrypted</div>
+									</span>
+								</span>	
 								</div>
 							</div>
 							<div class="row">
 								<div class="span2" style="margin-left:83px;text-align:left;">Verify Password &nbsp;&nbsp;</div>
 								<div class="input-prepend span3">
-								  <span class="add-on"><i class="icon-lock"></i></span>
-								  <input type="text" name="verify" type="text" value="{{verify}}" placeholder="Verify Password">
+									<span class="add-on"><i class="icon-lock"></i></span>
+									<span class="control-group" id="verify_control">
+										<span class="controls">
+										<input type="password" id="verify" name="verify" value="{{verify}}" placeholder="Verify Password" onblur="check_verify_password();">
+										<div class="error-help" id="verify-help">Your passwords do not match</div>
+										<div class="success-help" id="verify-success">Verified!</div>
+										</span>
+									</span>	
 								</div>
 							</div>
 						</form>
@@ -273,8 +304,14 @@
 		        		<h3>Add a New School</h3>
 						<form onkeypress="return event.keyCode != 13;">
 							<div class="input-prepend">
-							  <span class="add-on"><i class="icon-home"></i></span>
-							  <input class="input-xlarge" type="text" id="school" name="school" placeholder="Stuyvesant High School" style="margin-bottom:0px;" onblur="check_school_re(this.value);">
+							<span class="add-on"><i class="icon-home"></i></span>
+						  	<span class="control-group" id="newschool_control">
+								<span class="controls">
+								<input class="input-xlarge" type="text" id="school" placeholder="Stuyvesant High School" style="margin-bottom:0px;" onblur="check_school_re(this.value);">
+								<div class="error-help large" id="newschool-help">That is not a valid school name</div>
+								<div class="success-help large" id="newschool-success">Cool, we'll add you to our database!</div>
+								</span>
+							</span>
 							</div>
 						</form>
 		        	</center>
@@ -299,41 +336,96 @@
 			function check_school_re(school){
 				re = /^[a-zA-Z0-9 _]{1,60}$/
 				if (re.test(school)) {
-					alert('pass regex');
+					$('#newschool_control').removeClass('error');
+					$('#newschool_control').addClass('success');
+					$('#newschool-help').hide()
+					$('#newschool-success').show()
 				} else {
-					alert('fail regex');
-				}				
+					$('#newschool_control').addClass('error');	
+					$('#newschool_control').removeClass('success');	
+					$('#newschool-help').show()		
+					$('#newschool-success').hide()
+				}
 			}
 
 			function check_username_re(username){
 				re = /^[a-zA-Z0-9_-]{3,20}$/
 				if (re.test(username)) {
-					alert('pass regex');
+					$('#username_control').removeClass('error');
+					$('#username_control').addClass('success');
+					$('#username-help').hide()
+					$('#username-success').text('Hello, '+username)
+					$('#username-success').show()					
 				} else {
-					alert('fail regex');
+					$('#username_control').addClass('error');
+					$('#username_control').removeClass('success');
+					$('#username-help').show()	
+					$('#username-success').hide()
 				}			
 			}
 
 			function check_password_re(password){
 				re = /^.{3,30}$/
 				if (re.test(password)) {
-					alert('pass regex');
+					$('#password_control').removeClass('error');
+					$('#password_control').addClass('success');
+					$('#password-help').hide()
+					$('#password-success').show()
+					if ($('#verify').val()) { // if there is text in verify
+						check_verify_password();
+					}
 				} else {
-					alert('fail regex');
+					$('#password_control').addClass('error');
+					$('#password_control').removeClass('success');	
+					$('#password-help').show()
+					$('#password-success').hide()
 				}		
-			}
-
-			function check_verify_password(password){
-
 			}
 
 			function check_email_re(email){
 				re = /^[\w]+@[\w]+\.[\w]+$/
 				if (re.test(email)) {
-					alert('pass regex');
+					$('#email_control').removeClass('error');
+					$('#email_control').addClass('success');	
+					$('#email-help').hide()
+					$('#email-success').show()
 				} else {
-					alert('fail regex');
+					$('#email_control').addClass('error');	
+					$('#email_control').removeClass('success');
+					$('#email-help').show()
+					$('#email-success').hide()
 				}		
+			}
+
+
+			function check_verify_password(){
+				if ($('#password').val() == $('#verify').val()){
+					$('#verify_control').removeClass('error');
+					$('#verify_control').addClass('success');	
+					$('#verify-help').hide()
+					$('#verify-success').show()
+				} else {
+					$('#verify_control').addClass('error');	
+					$('#verify_control').removeClass('success');
+					$('#verify-help').show()
+					$('#verify-success').hide()
+				}
+			}
+
+			function check_valid_school(school){
+				var valid = $.inArray(school, {{ all_schools | safe }});
+
+				if (valid != -1) {
+					$('#school_control').removeClass('error');
+					$('#school_control').addClass('success');	
+					$('#school-help').hide()
+					$('#school-success').show()
+				} else {
+					$('#school_control').addClass('error');	
+					$('#school_control').removeClass('success');
+					$('#school-help').show()
+					$('#school-success').hide()
+				}
 			}
 
 			// signup modal transition functions
@@ -342,9 +434,10 @@
 				$('#load1').fadeTo('fast', 1.0);
 
 				setTimeout(function(){
-					$("#signup-modal-body-1").hide();
-					$("#signup-modal-body-2").fadeTo('fast', 1.0);
 					$('#load1').fadeTo('fast', 0.0);
+					$('#load1').hide()
+					$("#signup-modal-body-1").hide();
+					$("#signup-modal-body-2").fadeTo('fast', 1.0);					
 					$('#cont').removeClass('1');
 					$('#cont').addClass('2');
 				}, 1000);
@@ -356,6 +449,7 @@
 
 				setTimeout(function(){
 					$('#load2').fadeTo('fast', 0.0);
+					$('#load2').hide();
 					$("#signup-modal-body-2").hide();
 					$("#signup-modal-body-3").fadeTo('fast', 1.0);
 					$('#cont').removeClass('2');
@@ -368,9 +462,10 @@
 				$('#load1').fadeTo('fast', 1.0);
 
 				setTimeout(function(){
-					$("#signup-modal-body-1").hide();
-					$("#signup-modal-body-newschool").fadeTo('fast', 1.0);
 					$('#load1').fadeTo('fast', 0.0);
+					$('#load1').hide();
+					$("#signup-modal-body-1").hide();
+					$("#signup-modal-body-newschool").fadeTo('fast', 1.0);					
 					$('#cont').removeClass('1');
 					$('#cont').addClass('newschool');
 				}, 1000);
@@ -381,9 +476,10 @@
 				$('#load1').fadeTo('fast', 1.0);
 
 				setTimeout(function(){
-					$("#signup-modal-body-newschool").hide();
-					$("#signup-modal-body-2").fadeTo('fast', 1.0);
 					$('#load1').fadeTo('fast', 0.0);
+					$('#load1').hide();
+					$("#signup-modal-body-newschool").hide();
+					$("#signup-modal-body-2").fadeTo('fast', 1.0);					
 					$('#cont').removeClass('newschool');
 					$('#cont').addClass('2');
 				}, 1000);

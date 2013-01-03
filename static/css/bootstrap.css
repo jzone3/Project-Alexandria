@@ -4986,8 +4986,8 @@ a .icon-caret-down:hover{
 }
 
 .modal-body{
-  padding-bottom:0;
   overflow-y: visible;
+  max-height: 500px;
 }
 
 #signup-modal-body-1{
@@ -4996,4 +4996,28 @@ a .icon-caret-down:hover{
 
 #signup-modal-body-2{
   margin-top: -10px;
+}
+
+.error-help{
+  display:none;
+  font-size: 11px;
+  text-align: center;
+  width: 252px;
+  color: #B94A48;
+}
+
+.error-help .large{
+  width: 312px;
+}
+
+.success-help{
+  display:none;
+  font-size: 11px;
+  text-align: center;
+  width: 252px;
+  color: #468847;
+}
+
+.success-help .large{
+  width: 312px;
 }
