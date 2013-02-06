@@ -1052,7 +1052,7 @@ class SubjectsHandler2(BaseHandler):
 
 		for result in results:
 			html += """<tr style="height:38px;"><td>&nbsp;</td>"""
-			html += """<td><a href="/guides/%s">%s</a></td>"""%(result.url, result.title)
+			html += """<td><a target="_blank" href="/guides/%s">%s</a></td>"""%(result.url, result.title)
 			html += """<td>%s</td>"""%result.subject
 			html += """<td>%s</td>"""%result.teacher
 			html += """<td>%s</td>"""%result.user_created
@@ -1160,7 +1160,7 @@ class TeachersHandler2(BaseHandler):
 
 		for result in results:
 			html += """<tr style="height:38px;"><td>&nbsp;</td>"""
-			html += """<td><a href="/guides/%s">%s</a></td>"""%(result.url, result.title)
+			html += """<td><a target="_blank" href="/guides/%s">%s</a></td>"""%(result.url, result.title)
 			html += """<td>%s</td>"""%result.subject
 			html += """<td>%s</td>"""%result.teacher
 			html += """<td>%s</td>"""%result.user_created			
